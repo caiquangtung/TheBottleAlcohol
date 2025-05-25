@@ -1,0 +1,142 @@
+# Binaries
+**/bin/*
+**/obj/*
+[Bb]in/
+[Oo]bj/
+*.exe
+*.dll
+*.pdb
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.vspscc
+*_i.c
+*_p.c
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.metagen
+*.compiled
+*.tmp
+*.shobj
+*.xml.Serialization.dll
+*.dbmdl
+*.DotSettings.user
+
+# Visual Studio C# build artifacts
+# TODO: The following are .NET specific, move to the relevant section
+*.nupkg
+*.DotSettings
+*.resharper.user*
+*.ReSharper
+_ReSharper.*
+[Tt]est[Rr]esult*
+[Bb]uild[Ll]og.*
+*.sassc
+
+# Build results of project attributes like Fody
+Assembly.cs
+
+# NuGet Packages
+packages/
+
+# NuGet Tooling
+.nuget/NuGet.Config
+
+# ASP.NET Files
+*.vsdoc
+*.csproj.vspscc
+_ReSharper*/
+[Dd]ebug*/
+[Rr]elease*/
+_PublishedWebsites/
+[Pp]ublish/
+*.pubxml
+*.publish.*
+*.dbproj.schemaview
+*.dtproj
+*.dbmdl
+*.sap
+*.dtsx
+*.mdf
+*.ldf
+*.ndf
+*.ssdl
+*.msl
+*.pfx
+*.rptproj.rsuser
+*.snk
+
+# User-Specific Files
+*.suo
+*.user
+*.sln.docstates
+*.userosscache
+*.userprefs
+
+# Test Files
+[Tt]est[Rr]esult*
+
+# Visual Studio auto-generated files
+*.build.cs
+*.g.cs
+*.g.i.cs
+*.AssemblyAttributes.cs
+
+# TFS Files
+*.tfignore
+$tf/
+
+# MSTest test deployment directory
+[Dd]eployment/
+
+# Cache files
+_UpgradeReport_Files/
+UpgradeLog*.XML
+[Ll]og/
+*.bak
+
+# Packages cache folder
+**/[Pp]ackages/*
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# JetBrains Rider
+.idea/
+*.iml
+
+# Log files
+*.log
+
+# Temporary files and folders
+tmp/
+temp/
+[Tt]emp/
+
+# Compiled source code
+*.compiled
+
+# Tooling
+_ReSharper*/
+
+# Docker
+**/Dockerfile*
+
+# Project specific ignores - adjust as needed
+# Example: Specific files you don't want tracked
+# MySecretConfig.json
+
+# Optional: Ignore the .vs folder (can cause problems, use with caution)
+.vs/

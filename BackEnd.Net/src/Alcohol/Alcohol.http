@@ -1,0 +1,6 @@
+@Alcohol_HostAddress = http://localhost:8080
+
+
+Accept: application/json
+
+###

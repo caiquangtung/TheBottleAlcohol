@@ -1,0 +1,139 @@
+"use client";
+import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useLoginMutation } from "../lib/services/auth";
+import { useAppDispatch } from "../lib/store/hooks";
+import { loginSuccess } from "../lib/features/auth/authSlice";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await login(formData).unwrap();
+      if (response.Success) {
+        // Lưu thông tin vào localStorage
+        const userData = {
+          id: response.Data.Id,
+          fullName: response.Data.FullName,
+          email: response.Data.Email,
+          role: response.Data.Role,
+        };
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("accessToken", response.Data.AccessToken);
+        localStorage.setItem("refreshToken", response.Data.RefreshToken);
+
+        // Dispatch action để cập nhật Redux store
+        dispatch(
+          loginSuccess({
+            user: userData,
+            accessToken: response.Data.AccessToken,
+            refreshToken: response.Data.RefreshToken,
+          })
+        );
+
+        // Hiển thị thông báo thành công
+        toast.success(response.Message || "Đăng nhập thành công!", {
+          description: "Chào mừng bạn quay trở lại!",
+        });
+
+        // Chuyển hướng sau 1 giây
+        setTimeout(() => {
+          router.push("/");
+        }, 1000);
+      } else {
+        toast.error("Đăng nhập thất bại", {
+          description:
+            response.Message || "Vui lòng kiểm tra lại thông tin đăng nhập",
+        });
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error("Đăng nhập thất bại", {
+        description: "Email hoặc mật khẩu không đúng",
+      });
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
+      {/* Left: Image */}
+      <div className="hidden md:block md:w-1/2 h-[320px] md:h-auto relative">
+        <Image
+          src="/login-side.jpg"
+          alt="Login visual"
+          fill
+          className="object-cover object-center w-full h-full"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+      {/* Right: Login Form */}
+      <div className="flex-1 flex items-center justify-center bg-white dark:bg-[#18181b]">
+        <div className="w-full max-w-md p-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">
+            LOGIN TO YOUR ACCOUNT
+          </h2>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <Input
+              type="email"
+              name="email"
+              placeholder="Email address"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <Button
+              type="submit"
+              className="w-full font-bold text-base bg-black dark:bg-white dark:text-black text-white hover:bg-neutral-800 dark:hover:bg-neutral-200"
+              disabled={isLoading}
+            >
+              {isLoading ? "LOGGING IN..." : "LOGIN"}
+            </Button>
+          </form>
+          <div className="flex flex-col items-center gap-2 mt-4">
+            <a href="#" className="text-xs underline text-muted-foreground">
+              Forgot password
+            </a>
+            <a href="#" className="text-xs underline text-muted-foreground">
+              Trade Login
+            </a>
+          </div>
+          <div className="my-6 border-t" />
+          <div className="text-center text-sm mb-2">Not signed up yet?</div>
+          <Button variant="outline" className="w-full font-bold text-base">
+            SIGN UP
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
