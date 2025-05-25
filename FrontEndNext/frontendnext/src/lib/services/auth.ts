@@ -1,36 +1,26 @@
-import { api } from "./api";
+import { enhancedApi } from "./api";
 import { API_ENDPOINTS } from "./endpoints";
+import {
+  LoginCredentials,
+  RegisterCredentials,
+  User,
+  LoginResponse,
+  RegisterResponse,
+  ProfileResponse,
+} from "@/types/auth";
 
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface User {
-  Id: number;
-  FullName: string;
-  Email: string;
-  Role: string;
-}
-
-interface LoginResponse {
-  Success: boolean;
-  Message: string | null;
-  Data: {
-    Id: number;
-    FullName: string;
-    Email: string;
-    Role: string;
-    AccessToken: string;
-    RefreshToken: string;
-  };
-}
-
-export const authApi = api.injectEndpoints({
+export const authApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginCredentials>({
       query: (credentials) => ({
         url: API_ENDPOINTS.LOGIN,
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+    register: builder.mutation<RegisterResponse, RegisterCredentials>({
+      query: (credentials) => ({
+        url: API_ENDPOINTS.REGISTER,
         method: "POST",
         body: credentials,
       }),
@@ -41,7 +31,7 @@ export const authApi = api.injectEndpoints({
         method: "POST",
       }),
     }),
-    getProfile: builder.query<any, void>({
+    getProfile: builder.query<ProfileResponse, void>({
       query: () => "/auth/profile",
       providesTags: ["Profile"],
     }),
@@ -49,5 +39,9 @@ export const authApi = api.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useLoginMutation, useLogoutMutation, useGetProfileQuery } =
-  authApi;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+  useGetProfileQuery,
+} = authApi;

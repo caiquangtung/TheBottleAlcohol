@@ -8,6 +8,7 @@ import { loginSuccess } from "../lib/features/auth/authSlice";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -129,9 +130,11 @@ export default function LoginPage() {
           </div>
           <div className="my-6 border-t" />
           <div className="text-center text-sm mb-2">Not signed up yet?</div>
-          <Button variant="outline" className="w-full font-bold text-base">
-            SIGN UP
-          </Button>
+          <Link href="/register">
+            <Button variant="outline" className="w-full font-bold text-base">
+              SIGN UP
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

@@ -3,8 +3,10 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useGetProfileQuery } from "../lib/services/auth";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { data, isLoading, isError } = useGetProfileQuery();
   const [isHydrated, setIsHydrated] = useState(false);
   const [tab, setTab] = useState<"overview" | "myprofile">("overview");
@@ -13,8 +15,20 @@ export default function ProfilePage() {
   // useEffect(() => setIsHydrated(true), []);
 
   if (isLoading) return null;
-  if (isError || !data?.Success)
-    return <div>Không tìm thấy thông tin user.</div>;
+  if (isError || !data?.Success) {
+    // Chuyển hướng về trang đăng nhập sau 2 giây
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
+    return (
+      <div className="container mx-auto py-10 text-center">
+        <div className="text-red-500 mb-4">Không tìm thấy thông tin user.</div>
+        <div className="text-gray-600">
+          Đang chuyển hướng về trang đăng nhập...
+        </div>
+      </div>
+    );
+  }
 
   const user = data.Data;
 

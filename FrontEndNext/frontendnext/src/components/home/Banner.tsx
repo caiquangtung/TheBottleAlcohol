@@ -50,7 +50,7 @@ export default function Banner() {
                   alt={`Banner ${idx + 1}`}
                   width={1920}
                   height={500}
-                  className="w-full object-cover h-[220px] md:h-[400px] lg:h-[500px]"
+                  className="w-full object-cover min-h-[220px] md:min-h-[400px] lg:min-h-[500px]"
                   priority={idx === 0}
                 />
               </CarouselItem>
