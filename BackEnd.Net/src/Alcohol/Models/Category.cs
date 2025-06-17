@@ -28,6 +28,10 @@ namespace Alcohol.Models
         [Required]
         public bool IsActive { get; set; }
 
+        public string MetaTitle { get; set; }
+
+        public string MetaDescription { get; set; }
+
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

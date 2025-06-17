@@ -9,13 +9,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Alcohol.Repositories;
 
-public class ProductRepository : IProductRepository
+public class ProductRepository : GenericRepository<Product>, IProductRepository
 {
-    private readonly MyDbContext _context;
-
-    public ProductRepository(MyDbContext context)
+    public ProductRepository(MyDbContext context) : base(context)
     {
-        _context = context;
+    }
+
+    public async Task<IEnumerable<Product>> GetAllWithDetailsAsync()
+    {
+        return await _dbSet
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .ToListAsync();
+    }
+
+    public async Task<Product> GetByIdWithDetailsAsync(int id)
+    {
+        return await _dbSet
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<IEnumerable<Product>> GetAllAsync()

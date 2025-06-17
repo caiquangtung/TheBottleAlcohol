@@ -1,29 +1,57 @@
 "use client";
 import Image from "next/image";
-import { Avatar } from "../ui/avatar";
-
-const categories = [
-  { label: "Whisky", img: "/category.png" },
-  { label: "Wine", img: "/category.png" },
-  { label: "Vodka", img: "/category.png" },
-  { label: "Gin", img: "/category.png" },
-  { label: "New Arrivals", img: "/category.png" },
-  { label: "Gifts", img: "/category.png" },
-  { label: "Limited Edition", img: "/category.png" },
-  { label: "Rum", img: "/category.png" },
-];
+import {
+  Category,
+  useGetRootCategoriesQuery,
+} from "@/lib/services/categoryService";
+import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CategorySection() {
+  const { data: categories, isLoading, error } = useGetRootCategoriesQuery();
+  if (isLoading) {
+    return (
+      <section className="container mx-auto py-8">
+        <div className="flex flex-wrap justify-center gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-2">
+              <Skeleton className="h-16 w-16 rounded-full" />
+              <Skeleton className="h-4 w-20" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="container mx-auto py-8">
+        <div className="text-red-500 text-center">
+          Failed to load categories
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="container mx-auto py-8">
       <div className="flex flex-wrap justify-center gap-6">
-        {categories.map((cat) => (
-          <div key={cat.label} className="flex flex-col items-center gap-2">
-            <Avatar className="bg-muted dark:bg-[#23232b]">
-              <Image src={cat.img} alt={cat.label} width={64} height={64} />
-            </Avatar>
-            <span className="text-sm font-medium">{cat.label}</span>
-          </div>
+        {categories?.map((category) => (
+          <Link
+            href={`/categories/${category.slug}`}
+            key={category.id}
+            className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden bg-muted dark:bg-[#23232b]">
+              <Image
+                src={category.imageUrl || "/category.png"}
+                alt={category.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <span className="text-sm font-medium">{category.name}</span>
+          </Link>
         ))}
       </div>
     </section>

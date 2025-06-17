@@ -5,7 +5,7 @@ using Alcohol.Models;
 
 namespace Alcohol.Repositories.Interfaces;
 
-public interface IProductRepository
+public interface IProductRepository : IGenericRepository<Product>
 {
     Task<IEnumerable<Product>> GetAllAsync();
     Task<Product> GetByIdAsync(int id);
@@ -20,4 +20,6 @@ public interface IProductRepository
     void Update(Product product);
     void Delete(Product product);
     Task SaveChangesAsync();
+    Task<IEnumerable<Product>> GetAllWithDetailsAsync();
+    Task<Product> GetByIdWithDetailsAsync(int id);
 } 

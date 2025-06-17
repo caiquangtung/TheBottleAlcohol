@@ -6,6 +6,7 @@ using Alcohol.DTOs.ImportOrder;
 using Alcohol.DTOs.Product;
 using Alcohol.DTOs.Account;
 using Alcohol.DTOs.OrderDetail;
+using Alcohol.DTOs.Brand;
 using Alcohol.Models;
 using Alcohol.Models.Enums;
 using AutoMapper;
@@ -25,7 +26,9 @@ public class MappingProfile : Profile
         CreateMap<Product, ProductResponseDto>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
             .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null));
-        CreateMap<ProductCreateDto, Product>();
+        CreateMap<ProductCreateDto, Product>()
+            .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Name.ToLower().Replace(" ", "-")))
+            .ForMember(dest => dest.SalesCount, opt => opt.MapFrom(src => 0));
         CreateMap<ProductUpdateDto, Product>();
 
         // Order mappings
@@ -57,13 +60,35 @@ public class MappingProfile : Profile
         CreateMap<ImportOrderDetailUpdateDto, ImportOrderDetail>();
 
         // Category mappings
-        CreateMap<Category, CategoryResponseDto>();
-        CreateMap<CategoryCreateDto, Category>();
-        CreateMap<CategoryUpdateDto, Category>();
+        CreateMap<Category, CategoryResponseDto>()
+            .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null))
+            .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products != null ? src.Products.Count : 0))
+            .ForMember(dest => dest.ChildrenCount, opt => opt.MapFrom(src => src.Children != null ? src.Children.Count : 0));
+
+        CreateMap<CategoryCreateDto, Category>()
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+            .ForMember(dest => dest.DisplayOrder, opt => opt.MapFrom(src => src.DisplayOrder))
+            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+            .ForMember(dest => dest.MetaTitle, opt => opt.MapFrom(src => src.MetaTitle))
+            .ForMember(dest => dest.MetaDescription, opt => opt.MapFrom(src => src.MetaDescription));
+
+        CreateMap<CategoryUpdateDto, Category>()
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+            .ForMember(dest => dest.DisplayOrder, opt => opt.MapFrom(src => src.DisplayOrder))
+            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+            .ForMember(dest => dest.MetaTitle, opt => opt.MapFrom(src => src.MetaTitle))
+            .ForMember(dest => dest.MetaDescription, opt => opt.MapFrom(src => src.MetaDescription));
 
         // Supplier mappings
         CreateMap<Supplier, SupplierResponseDto>();
         CreateMap<SupplierCreateDto, Supplier>();
         CreateMap<SupplierUpdateDto, Supplier>();
+
+        // Brand mappings
+        CreateMap<Brand, BrandResponseDto>();
+        CreateMap<BrandCreateDto, Brand>()
+            .ForMember(dest => dest.DisplayOrder, opt => opt.MapFrom(src => 0))
+            .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Name.ToLower().Replace(" ", "-")));
+        CreateMap<BrandUpdateDto, Brand>();
     }
 }

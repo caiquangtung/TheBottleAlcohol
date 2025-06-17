@@ -10,10 +10,12 @@ using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using Alcohol.Extensions;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 using Alcohol.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Alcohol.Middleware;
+using Alcohol.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,7 +87,10 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new DecimalJsonConverter());
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
 // Add CORS services

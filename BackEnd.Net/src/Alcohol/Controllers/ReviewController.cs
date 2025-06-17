@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Alcohol.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class ReviewController : ControllerBase
 {
     private readonly IReviewService _reviewService;

@@ -20,8 +20,12 @@ public class ProductResponseDto
     public string MetaDescription { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+
+    // Category information
     public int CategoryId { get; set; }
     public string CategoryName { get; set; }
+
+    // Brand information
     public int BrandId { get; set; }
     public string BrandName { get; set; }
 } 

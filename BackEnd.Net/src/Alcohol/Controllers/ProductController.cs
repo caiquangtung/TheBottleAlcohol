@@ -49,7 +49,8 @@ namespace Alcohol.Controllers
             try
             {
                 var product = await _service.CreateProductAsync(productDto);
-                return CreatedAtAction(nameof(GetById), new { id = product.Id }, new ApiResponse<ProductResponseDto>(product));
+                return CreatedAtAction(nameof(GetById), new { id = product.Id }, 
+                    new ApiResponse<ProductResponseDto>(product, "Product created successfully"));
             }
             catch (Exception ex)
             {

@@ -1,11 +1,11 @@
 export const API_ENDPOINTS = {
   // Products
-  PRODUCTS: "/products",
-  PRODUCT_DETAIL: (id: string) => `/products/${id}`,
+  PRODUCTS: "/product",
+  PRODUCT_DETAIL: (id: string) => `/product/${id}`,
 
   // Categories
-  CATEGORIES: "/categories",
-  CATEGORY_DETAIL: (id: string) => `/categories/${id}`,
+  CATEGORIES: "/category",
+  CATEGORY_DETAIL: (id: string) => `/category/${id}`,
 
   // Auth
   LOGIN: "/auth/login",

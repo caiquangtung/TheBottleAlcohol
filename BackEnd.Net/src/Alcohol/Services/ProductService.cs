@@ -25,13 +25,13 @@ public class ProductService : IProductService
 
     public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync()
     {
-        var products = await _productRepository.GetAllAsync();
+        var products = await _productRepository.GetAllWithDetailsAsync();
         return _mapper.Map<IEnumerable<ProductResponseDto>>(products);
     }
 
     public async Task<ProductResponseDto> GetProductByIdAsync(int id)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await _productRepository.GetByIdWithDetailsAsync(id);
         if (product == null)
             return null;
 
@@ -91,7 +91,9 @@ public class ProductService : IProductService
         await _productRepository.AddAsync(product);
         await _productRepository.SaveChangesAsync();
 
-        return _mapper.Map<ProductResponseDto>(product);
+        // Get the created product with details
+        var createdProduct = await _productRepository.GetByIdWithDetailsAsync(product.Id);
+        return _mapper.Map<ProductResponseDto>(createdProduct);
     }
 
     public async Task<ProductResponseDto> UpdateProductAsync(int id, ProductUpdateDto updateDto)
@@ -106,7 +108,9 @@ public class ProductService : IProductService
         _productRepository.Update(product);
         await _productRepository.SaveChangesAsync();
 
-        return _mapper.Map<ProductResponseDto>(product);
+        // Get the updated product with details
+        var updatedProduct = await _productRepository.GetByIdWithDetailsAsync(id);
+        return _mapper.Map<ProductResponseDto>(updatedProduct);
     }
 
     public async Task<bool> DeleteProductAsync(int id)

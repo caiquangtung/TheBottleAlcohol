@@ -121,65 +121,69 @@ export default function ProductSection() {
           {products.map((prod, i) => (
             <Card
               key={i}
-              className="relative flex flex-col items-start p-4 gap-0 dark:bg-[#23232b]"
+              className="relative flex flex-col h-full dark:bg-[#23232b]"
             >
-              {prod.limited && (
-                <Badge className="absolute top-2 left-2 dark:bg-[#3a2a3a] dark:text-[#f96d8d] !px-3 !py-1 text-xs font-semibold tracking-wide">
-                  LIMITED EDITION
-                </Badge>
-              )}
-              {/* Heart icon top right */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2"
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
-              <Image
-                src={prod.img}
-                alt={prod.name}
-                width={300}
-                height={400}
-                className="block mx-auto mb-2 w-full h-auto max-h-60 object-contain"
-              />
-              <span className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
-                {prod.brand}
-              </span>
-              <span className="font-bold text-lg mb-0.5">{prod.name}</span>
-              <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                {prod.type}
-              </span>
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="font-bold text-xl">{prod.price}</span>
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={
-                        idx < (prod.rating || 0)
-                          ? "text-yellow-400"
-                          : "text-gray-300"
-                      }
-                    >
-                      ★
-                    </span>
-                  ))}
+              <div className="p-4 flex flex-col flex-grow">
+                {prod.limited && (
+                  <Badge className="absolute top-2 left-2 dark:bg-[#3a2a3a] dark:text-[#f96d8d] !px-3 !py-1 text-xs font-semibold tracking-wide">
+                    LIMITED EDITION
+                  </Badge>
+                )}
+                {/* Heart icon top right */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2"
+                >
+                  <Heart className="h-5 w-5" />
+                </Button>
+                <Image
+                  src={prod.img}
+                  alt={prod.name}
+                  width={300}
+                  height={400}
+                  className="block mx-auto mb-2 w-full h-auto max-h-60 object-contain"
+                />
+                <span className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
+                  {prod.brand}
+                </span>
+                <span className="font-bold text-lg mb-0.5">{prod.name}</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  {prod.type}
+                </span>
+                <div className="flex items-center justify-between w-full mb-1">
+                  <span className="font-bold text-xl">{prod.price}</span>
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, idx) => (
+                      <span
+                        key={idx}
+                        className={
+                          idx < (prod.rating || 0)
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
+                  <span>{prod.volume}</span>
+                  <span>|</span>
+                  <span>{prod.abv}</span>
+                  <span>|</span>
+                  <span>{prod.country}</span>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-2">
-                <span>{prod.volume}</span>
-                <span>|</span>
-                <span>{prod.abv}</span>
-                <span>|</span>
-                <span>{prod.country}</span>
+              <div className="p-4 pt-0">
+                <Button
+                  size="lg"
+                  className="w-full border-2 border-black bg-transparent text-black dark:bg-[#f96d8d] dark:text-black dark:border-white font-bold tracking-wide hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+                >
+                  ADD TO CART
+                </Button>
               </div>
-              <Button
-                size="lg"
-                className="w-full border-2 border-black bg-transparent text-black dark:bg-[#f96d8d] dark:text-black dark:border-white font-bold tracking-wide mt-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
-              >
-                ADD TO CART
-              </Button>
             </Card>
           ))}
         </div>

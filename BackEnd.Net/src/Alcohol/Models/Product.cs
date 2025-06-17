@@ -26,9 +26,11 @@ public class Product
     public string Origin { get; set; }
 
     [Required]
+    [Column(TypeName = "decimal(4,2)")]
     public decimal Volume { get; set; }
 
     [Required]
+    [Column(TypeName = "decimal(4,1)")]
     public decimal AlcoholContent { get; set; }
 
     [Required]

@@ -9,5 +9,5 @@ public class BrandCreateDto
 
     public string Description { get; set; }
     public string LogoUrl { get; set; }
-    public bool Status { get; set; } = true;
+    public bool IsActive { get; set; } = true;
 } 
