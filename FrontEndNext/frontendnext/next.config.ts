@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "https",
+        hostname: "**.thebottleclub.com",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "8080",

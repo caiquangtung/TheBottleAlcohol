@@ -4,6 +4,9 @@ import { Inter } from "next/font/google";
 import { Providers } from "../lib/store/Providers";
 import ThemeSync from "../lib/features/theme/ThemeSync";
 import { Toaster } from "sonner";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
+import ClientLayoutShell from "../components/layout/ClientLayoutShell";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,10 +22,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className + " invisible"}>
+      <body className={inter.className}>
         <Providers>
           <ThemeSync />
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <ClientLayoutShell>{children}</ClientLayoutShell>
+            <Footer />
+          </div>
         </Providers>
         <Toaster position="top-center" richColors />
       </body>

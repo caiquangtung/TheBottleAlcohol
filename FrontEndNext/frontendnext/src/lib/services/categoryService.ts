@@ -74,6 +74,11 @@ export const categoryApi = enhancedApi.injectEndpoints({
       transformResponse: (response: any) => transformToCamelCase(response),
       providesTags: ["Category"],
     }),
+    getCategoryBySlug: builder.query<Category, string>({
+      query: (slug) => `${API_ENDPOINTS.CATEGORIES}/slug/${slug}`,
+      transformResponse: (response: any) => transformToCamelCase(response),
+      providesTags: ["Category"],
+    }),
     createCategory: builder.mutation<Category, CategoryCreateDto>({
       query: (category) => ({
         url: API_ENDPOINTS.CATEGORIES,
@@ -110,6 +115,7 @@ export const {
   useGetRootCategoriesQuery,
   useGetSubCategoriesQuery,
   useGetCategoryByIdQuery,
+  useGetCategoryBySlugQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,

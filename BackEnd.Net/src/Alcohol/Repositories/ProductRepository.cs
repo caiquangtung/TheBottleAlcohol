@@ -31,7 +31,7 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public override async Task<IEnumerable<Product>> GetAllAsync()
     {
         return await _context.Products
             .Include(p => p.Category)
@@ -39,7 +39,7 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
             .ToListAsync();
     }
 
-    public async Task<Product> GetByIdAsync(int id)
+    public override async Task<Product> GetByIdAsync(int id)
     {
         return await _context.Products
             .Include(p => p.Category)
@@ -74,22 +74,22 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
             .ToListAsync();
     }
 
-    public async Task AddAsync(Product product)
+    public override async Task AddAsync(Product product)
     {
         await _context.Products.AddAsync(product);
     }
 
-    public void Update(Product product)
+    public override void Update(Product product)
     {
         _context.Products.Update(product);
     }
 
-    public void Delete(Product product)
+    public override void Delete(Product product)
     {
         _context.Products.Remove(product);
     }
 
-    public async Task SaveChangesAsync()
+    public override async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
     }

@@ -38,7 +38,7 @@ export default function CategorySection() {
       <div className="flex flex-wrap justify-center gap-6">
         {categories?.map((category) => (
           <Link
-            href={`/categories/${category.slug}`}
+            href={`/category/${category.slug}-${category.id}`}
             key={category.id}
             className="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity"
           >
