@@ -41,7 +41,7 @@ namespace Alcohol.Services
 
         public async Task<CategoryResponseDto> GetCategoryByIdAsync(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
+            var category = await _categoryRepository.GetByIdWithParentAsync(id);
             if (category == null)
                 return null;
 

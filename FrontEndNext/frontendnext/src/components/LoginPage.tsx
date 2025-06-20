@@ -84,6 +84,7 @@ export default function LoginPage() {
           src="/login-side.jpg"
           alt="Login visual"
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover object-center w-full h-full"
           priority
         />

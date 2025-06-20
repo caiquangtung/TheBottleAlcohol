@@ -7,6 +7,10 @@ export const API_ENDPOINTS = {
   CATEGORIES: "/category",
   CATEGORY_DETAIL: (id: string) => `/category/${id}`,
 
+  // Brands
+  BRANDS: "/brand",
+  
+
   // Auth
   LOGIN: "/auth/login",
   REGISTER: "/auth/register",

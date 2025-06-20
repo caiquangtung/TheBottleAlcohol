@@ -9,6 +9,7 @@ using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
 using Alcohol.Common;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services;
 
@@ -34,20 +35,14 @@ public class OrderService : IOrderService
             (!filter.EndDate.HasValue || o.OrderDate <= filter.EndDate)
         ).ToList();
 
-        var totalCount = filteredOrders.Count;
+        var totalRecords = filteredOrders.Count;
         var pagedOrders = filteredOrders
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ToList();
 
         var orderDtos = _mapper.Map<List<OrderResponseDto>>(pagedOrders);
-        return new PagedResult<OrderResponseDto>
-        {
-            Items = orderDtos,
-            TotalItems = totalCount,
-            PageNumber = filter.PageNumber,
-            PageSize = filter.PageSize
-        };
+        return new PagedResult<OrderResponseDto>(orderDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<IEnumerable<OrderResponseDto>> GetAllOrdersAsync()

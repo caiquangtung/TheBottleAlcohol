@@ -6,6 +6,8 @@ using Alcohol.Data;
 using Alcohol.Models;
 using Alcohol.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Alcohol.DTOs.Product;
+using Alcohol.DTOs;
 
 namespace Alcohol.Repositories;
 
@@ -13,6 +15,50 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
 {
     public ProductRepository(MyDbContext context) : base(context)
     {
+    }
+
+    public async Task<PagedResult<Product>> GetFilteredAsync(ProductFilterDto filter)
+    {
+        IQueryable<Product> query = _dbSet
+            .Include(p => p.Category)
+            .Include(p => p.Brand);
+
+        // Filter
+        if (filter.CategoryId.HasValue)
+            query = query.Where(p => p.CategoryId == filter.CategoryId.Value);
+        if (filter.BrandId.HasValue)
+            query = query.Where(p => p.BrandId == filter.BrandId.Value);
+        if (filter.MinPrice.HasValue)
+            query = query.Where(p => p.Price >= filter.MinPrice.Value);
+        if (filter.MaxPrice.HasValue)
+            query = query.Where(p => p.Price <= filter.MaxPrice.Value);
+        if (filter.Status.HasValue)
+            query = query.Where(p => p.Status == filter.Status.Value);
+
+        // Search
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+            query = query.Where(p => p.Name.Contains(filter.SearchTerm) || p.Description.Contains(filter.SearchTerm));
+
+        // Sort
+        query = (filter.SortBy?.ToLower(), filter.SortOrder?.ToLower()) switch
+        {
+            ("price", "desc") => query.OrderByDescending(p => p.Price),
+            ("price", _)      => query.OrderBy(p => p.Price),
+            ("name", "desc")  => query.OrderByDescending(p => p.Name),
+            ("name", _)       => query.OrderBy(p => p.Name),
+            ("createdat", "desc") => query.OrderByDescending(p => p.CreatedAt),
+            ("createdat", _)      => query.OrderBy(p => p.CreatedAt),
+            _                 => query.OrderBy(p => p.Id)
+        };
+
+        // Pagination
+        var totalRecords = await query.CountAsync();
+        var data = await query
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<Product>(data, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<IEnumerable<Product>> GetAllWithDetailsAsync()

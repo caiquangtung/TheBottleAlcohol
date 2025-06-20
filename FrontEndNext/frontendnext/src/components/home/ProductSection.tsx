@@ -4,19 +4,21 @@ import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Heart } from "lucide-react";
-import { useGetFeaturedProductsQuery } from "@/lib/services/productService";
+import { useGetProductsQuery, Product } from "@/lib/services/productService";
 import { Skeleton } from "../ui/skeleton";
 
 export default function ProductSection() {
   const {
-    data: products,
+    data: pagedProducts,
     isLoading,
-    error,
     isError,
-    isSuccess,
-  } = useGetFeaturedProductsQuery(undefined, {
-    refetchOnMountOrArgChange: true,
+  } = useGetProductsQuery({
+    sortBy: "createdAt",
+    sortOrder: "desc",
+    pageSize: 6,
   });
+
+  const products = pagedProducts?.items;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-GB", {
@@ -144,15 +146,15 @@ export default function ProductSection() {
 
           {/* Right: Product grid - spans 7 columns */}
           <div className="col-span-12 md:col-span-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6">
-            {products.slice(0, 6).map((product, index) => (
+            {products.slice(0, 6).map((product: Product, index: number) => (
               <Card
-                key={product.Id}
+                key={product.id}
                 className={`relative flex flex-col overflow-hidden dark:bg-[#23232b] h-[55vh] ${
                   index < 3 ? "mb-6" : "mb-0"
                 }`}
               >
                 <div className="pt-4 px-4 flex flex-col h-full">
-                  {product.StockQuantity < 10 && (
+                  {product.stockQuantity < 10 && (
                     <Badge className="absolute top-2 left-2 dark:bg-[#3a2a3a] dark:text-[#f96d8d] !px-3 !py-1 text-xs font-semibold tracking-wide">
                       LIMITED STOCK
                     </Badge>
@@ -168,11 +170,11 @@ export default function ProductSection() {
                   {/* Product Image */}
                   <div className="relative w-full aspect-[3/4] flex-shrink-0">
                     <Image
-                      src={product.ImageUrl || "/product.png"}
-                      alt={product.Name}
+                      src={product.imageUrl || "/product.png"}
+                      alt={product.name}
                       fill
-                      className="object-contain"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-contain"
                     />
                   </div>
 
@@ -180,18 +182,18 @@ export default function ProductSection() {
                   <div className="mt-2 flex flex-col flex-grow space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground uppercase tracking-wide">
-                        {product.BrandName}
+                        {product.brandName}
                       </span>
                       <span className="text-xs text-muted-foreground uppercase">
-                        {product.CategoryName}
+                        {product.categoryName}
                       </span>
                     </div>
                     <h3 className="font-bold text-base line-clamp-2">
-                      {product.Name}
+                      {product.name}
                     </h3>
                     <div className="flex items-center justify-between w-full">
                       <span className="font-bold text-lg">
-                        {formatPrice(product.Price)}
+                        {formatPrice(product.price)}
                       </span>
                       <div className="flex items-center gap-1 text-sm">
                         {[...Array(5)].map((_, idx) => (
@@ -202,11 +204,11 @@ export default function ProductSection() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <span>{formatVolume(product.Volume)}</span>
+                      <span>{formatVolume(product.volume)}</span>
                       <span>•</span>
-                      <span>{formatABV(product.AlcoholContent)}</span>
+                      <span>{formatABV(product.alcoholContent)}</span>
                       <span>•</span>
-                      <span>{product.Origin}</span>
+                      <span>{product.origin}</span>
                     </div>
                   </div>
 

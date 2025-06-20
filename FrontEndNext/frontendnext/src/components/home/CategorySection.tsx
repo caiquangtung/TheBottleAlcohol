@@ -47,6 +47,7 @@ export default function CategorySection() {
                 src={category.imageUrl || "/category.png"}
                 alt={category.name}
                 fill
+                sizes="120px"
                 className="object-cover"
               />
             </div>

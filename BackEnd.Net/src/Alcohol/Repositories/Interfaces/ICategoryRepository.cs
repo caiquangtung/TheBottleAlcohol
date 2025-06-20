@@ -10,6 +10,7 @@ public interface ICategoryRepository : IGenericRepository<Category>
     Task<IEnumerable<Category>> GetSubCategoriesAsync(int parentId);
     Task<Category> GetCategoryWithChildrenAsync(int id);
     Task<Category> GetCategoryWithProductsAsync(int id);
+    Task<Category> GetByIdWithParentAsync(int id);
     Task<bool> HasChildrenAsync(int id);
     Task<bool> HasProductsAsync(int id);
 } 

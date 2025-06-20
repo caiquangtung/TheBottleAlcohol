@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.Models;
+using Alcohol.DTOs;
+using Alcohol.DTOs.Product;
 
 namespace Alcohol.Repositories.Interfaces;
 
@@ -16,4 +18,5 @@ public interface IProductRepository : IGenericRepository<Product>
     Task<IEnumerable<Product>> GetBestSellingProductsAsync();
     Task<IEnumerable<Product>> GetAllWithDetailsAsync();
     Task<Product> GetByIdWithDetailsAsync(int id);
+    Task<PagedResult<Product>> GetFilteredAsync(ProductFilterDto filter);
 } 

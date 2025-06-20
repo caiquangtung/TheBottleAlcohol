@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Alcohol.Common;
-using Alcohol.Data;
-using Alcohol.DTOs.Product;
-using Alcohol.Models;
-using Alcohol.Repositories.Interfaces;
-using Alcohol.Services.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-
+using Alcohol.Services.Interfaces;
+using Alcohol.Repositories.Interfaces;
+using Alcohol.Models;
+using Alcohol.DTOs.Product;
+using Alcohol.DTOs;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
 namespace Alcohol.Services;
 
 public class ProductService : IProductService
@@ -23,10 +21,17 @@ public class ProductService : IProductService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync()
+    public async Task<PagedResult<ProductResponseDto>> GetAllProductsAsync(ProductFilterDto filter)
     {
-        var products = await _productRepository.GetAllWithDetailsAsync();
-        return _mapper.Map<IEnumerable<ProductResponseDto>>(products);
+        var pagedResult = await _productRepository.GetFilteredAsync(filter);
+        var productDtos = _mapper.Map<List<ProductResponseDto>>(pagedResult.Items);
+        
+        return new PagedResult<ProductResponseDto>(
+            productDtos,
+            pagedResult.TotalRecords,
+            pagedResult.PageNumber,
+            pagedResult.PageSize
+        );
     }
 
     public async Task<ProductResponseDto> GetProductByIdAsync(int id)

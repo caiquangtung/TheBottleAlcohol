@@ -62,6 +62,7 @@ public class MappingProfile : Profile
         // Category mappings
         CreateMap<Category, CategoryResponseDto>()
             .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null))
+            .ForMember(dest => dest.ParentSlug, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Slug : null))
             .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products != null ? src.Products.Count : 0))
             .ForMember(dest => dest.ChildrenCount, opt => opt.MapFrom(src => src.Children != null ? src.Children.Count : 0));
 

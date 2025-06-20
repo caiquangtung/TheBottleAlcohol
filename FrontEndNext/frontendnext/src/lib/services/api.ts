@@ -17,7 +17,7 @@ export const api = createApi({
     },
   }),
   endpoints: () => ({}),
-  tagTypes: ["Product", "Category", "User", "Profile"],
+  tagTypes: ["Product", "Category", "User", "Profile", "Brand"],
 });
 
 // Add refresh token handling

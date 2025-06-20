@@ -1,5 +1,6 @@
 import { API_ENDPOINTS } from "./endpoints";
 import { enhancedApi } from "./api";
+import { transformApiResponse, transformToCamelCase } from "../utils/utils";
 
 export interface Category {
   id: number;
@@ -8,6 +9,7 @@ export interface Category {
   slug: string;
   parentId: number | null;
   parentName: string | null;
+  parentSlug: string | null;
   displayOrder: number;
   isActive: boolean;
   imageUrl: string | null;
@@ -31,52 +33,31 @@ export interface CategoryCreateDto {
   metaDescription?: string;
 }
 
-// Helper function to convert PascalCase to camelCase
-const toCamelCase = (str: string) => {
-  return str.charAt(0).toLowerCase() + str.slice(1);
-};
-
-// Helper function to transform object keys from PascalCase to camelCase
-const transformToCamelCase = (obj: any): any => {
-  if (Array.isArray(obj)) {
-    return obj.map(transformToCamelCase);
-  }
-  if (obj !== null && typeof obj === "object") {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [
-        toCamelCase(key),
-        transformToCamelCase(value),
-      ])
-    );
-  }
-  return obj;
-};
-
 export const categoryApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllCategories: builder.query<Category[], void>({
       query: () => API_ENDPOINTS.CATEGORIES,
-      transformResponse: (response: any) => transformToCamelCase(response),
+      transformResponse: transformApiResponse,
       providesTags: ["Category"],
     }),
     getRootCategories: builder.query<Category[], void>({
       query: () => `${API_ENDPOINTS.CATEGORIES}/root`,
-      transformResponse: (response: any) => transformToCamelCase(response),
+      transformResponse: transformApiResponse,
       providesTags: ["Category"],
     }),
     getSubCategories: builder.query<Category[], number>({
       query: (parentId) => `${API_ENDPOINTS.CATEGORIES}/sub/${parentId}`,
-      transformResponse: (response: any) => transformToCamelCase(response),
+      transformResponse: transformApiResponse,
       providesTags: ["Category"],
     }),
     getCategoryById: builder.query<Category, number>({
       query: (id) => `${API_ENDPOINTS.CATEGORIES}/${id}`,
-      transformResponse: (response: any) => transformToCamelCase(response),
+      transformResponse: transformApiResponse,
       providesTags: ["Category"],
     }),
     getCategoryBySlug: builder.query<Category, string>({
       query: (slug) => `${API_ENDPOINTS.CATEGORIES}/slug/${slug}`,
-      transformResponse: (response: any) => transformToCamelCase(response),
+      transformResponse: transformApiResponse,
       providesTags: ["Category"],
     }),
     createCategory: builder.mutation<Category, CategoryCreateDto>({
@@ -85,7 +66,7 @@ export const categoryApi = enhancedApi.injectEndpoints({
         method: "POST",
         body: category,
       }),
-      transformResponse: (response: any) => transformToCamelCase(response),
+      transformResponse: transformApiResponse,
       invalidatesTags: ["Category"],
     }),
     updateCategory: builder.mutation<
@@ -97,7 +78,7 @@ export const categoryApi = enhancedApi.injectEndpoints({
         method: "PUT",
         body: category,
       }),
-      transformResponse: (response: any) => transformToCamelCase(response),
+      transformResponse: transformApiResponse,
       invalidatesTags: ["Category"],
     }),
     deleteCategory: builder.mutation<void, number>({

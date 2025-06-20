@@ -44,6 +44,13 @@ public class CategoryRepository : GenericRepository<Category>, ICategoryReposito
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
+    public async Task<Category> GetByIdWithParentAsync(int id)
+    {
+        return await _dbSet
+            .Include(c => c.Parent)
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+
     public async Task<bool> HasChildrenAsync(int id)
     {
         return await _dbSet.AnyAsync(c => c.ParentId == id);

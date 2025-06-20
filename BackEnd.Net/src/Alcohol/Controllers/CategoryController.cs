@@ -2,6 +2,7 @@ using Alcohol.DTOs.Category;
 using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Alcohol.Common;
 
 namespace Alcohol.Controllers
 {
@@ -17,61 +18,51 @@ namespace Alcohol.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
-            return Ok(categories);
+            return Ok(new ApiResponse<IEnumerable<CategoryResponseDto>>(categories));
         }
 
         [HttpGet("root")]
-        public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetRootCategories()
+        public async Task<IActionResult> GetRootCategories()
         {
             var categories = await _categoryService.GetRootCategoriesAsync();
-            return Ok(categories);
+            return Ok(new ApiResponse<IEnumerable<CategoryResponseDto>>(categories));
         }
 
         [HttpGet("sub/{parentId}")]
-        public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetSubCategories(int parentId)
+        public async Task<IActionResult> GetSubCategories(int parentId)
         {
             var categories = await _categoryService.GetSubCategoriesAsync(parentId);
-            return Ok(categories);
+            return Ok(new ApiResponse<IEnumerable<CategoryResponseDto>>(categories));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryResponseDto>> GetCategoryById(int id)
+        public async Task<IActionResult> GetCategoryById(int id)
         {
-            try
-            {
-                var category = await _categoryService.GetCategoryByIdAsync(id);
-                return Ok(category);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var category = await _categoryService.GetCategoryByIdAsync(id);
+            if (category == null)
+                return NotFound(new ApiResponse<string>("Category not found"));
+            return Ok(new ApiResponse<CategoryResponseDto>(category));
         }
 
         [Authorize(Roles = "CEO,Manager")]
         [HttpPost]
-        public async Task<ActionResult<CategoryResponseDto>> CreateCategory(CategoryCreateDto categoryDto)
+        public async Task<IActionResult> CreateCategory(CategoryCreateDto categoryDto)
         {
             var category = await _categoryService.CreateCategoryAsync(categoryDto);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
+            return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, new ApiResponse<CategoryResponseDto>(category));
         }
 
         [Authorize(Roles = "CEO,Manager")]
         [HttpPut("{id}")]
-        public async Task<ActionResult<CategoryResponseDto>> UpdateCategory(int id, CategoryUpdateDto categoryDto)
+        public async Task<IActionResult> UpdateCategory(int id, CategoryUpdateDto categoryDto)
         {
-            try
-            {
-                var category = await _categoryService.UpdateCategoryAsync(id, categoryDto);
-                return Ok(category);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var category = await _categoryService.UpdateCategoryAsync(id, categoryDto);
+            if (category == null)
+                return NotFound(new ApiResponse<string>("Category not found"));
+            return Ok(new ApiResponse<CategoryResponseDto>(category));
         }
 
         [Authorize(Roles = "CEO,Manager")]
@@ -80,16 +71,14 @@ namespace Alcohol.Controllers
         {
             try
             {
-                await _categoryService.DeleteCategoryAsync(id);
-                return NoContent();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
+                var result = await _categoryService.DeleteCategoryAsync(id);
+                if (!result)
+                    return NotFound(new ApiResponse<string>("Category not found or has children/products"));
+                return Ok(new ApiResponse<string>("Category deleted successfully"));
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new ApiResponse<string>(ex.Message));
             }
         }
     }

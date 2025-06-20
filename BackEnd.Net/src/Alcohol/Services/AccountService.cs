@@ -10,6 +10,7 @@ using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services;
 
@@ -44,8 +45,8 @@ public class AccountService : IAccountService
             query = query.Where(a => a.Status == filter.Status.Value);
         }
 
-        var totalItems = await query.CountAsync();
-        var items = await query
+        var totalRecords = await query.CountAsync();
+        var data = await query
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .Select(a => new AccountResponseDto
@@ -63,13 +64,7 @@ public class AccountService : IAccountService
             })
             .ToListAsync();
 
-        return new PagedResult<AccountResponseDto>
-        {
-            Items = items,
-            TotalItems = totalItems,
-            PageNumber = filter.PageNumber,
-            PageSize = filter.PageSize
-        };
+        return new PagedResult<AccountResponseDto>(data, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<AccountResponseDto> GetAccountById(int id)

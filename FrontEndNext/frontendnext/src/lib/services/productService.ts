@@ -1,122 +1,68 @@
-import { api } from "./api";
-import { Product, ProductFilter } from "../types/product";
+import { API_ENDPOINTS } from "./endpoints";
+import { enhancedApi } from "./api";
+import { transformApiResponse } from "../utils/utils";
 
-export const productApi = api.injectEndpoints({
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  slug: string;
+  origin: string;
+  volume: number;
+  alcoholContent: number;
+  price: number;
+  stockQuantity: number;
+  status: boolean;
+  imageUrl: string;
+  metaTitle: string;
+  metaDescription: string;
+  createdAt: string;
+  updatedAt?: string;
+  categoryId: number;
+  categoryName: string;
+  brandId: number;
+  brandName: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalRecords: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  sortOrder?: "asc" | "desc";
+}
+
+export interface ProductFilter {
+  searchTerm?: string;
+  categoryId?: number;
+  brandId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  status?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export const productApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllProducts: builder.query<Product[], ProductFilter | undefined>({
+    getProducts: builder.query<PagedResult<Product>, ProductFilter | void>({
       query: (filter) => ({
-        url: "/Product",
-        method: "GET",
-        ...(filter && { params: filter }),
+        url: API_ENDPOINTS.PRODUCTS,
+        params: filter || {},
       }),
-      transformResponse: (response: any) => {
-        console.log("API Response:", response);
-        if (!response?.Success) {
-        //   console.error("API Error:", response?.Message || "Unknown error");
-          return [];
-        }
-        return response.Data || [];
-      },
+      transformResponse: transformApiResponse,
       providesTags: ["Product"],
     }),
-
     getProductById: builder.query<Product, number>({
-      query: (id) => ({
-        url: `/Product/${id}`,
-        method: "GET",
-      }),
-      transformResponse: (response: any) => {
-        console.log("API Response:", response);
-        if (!response?.Success) {
-        //   console.error("API Error:", response?.Message || "Unknown error");
-          return null;
-        }
-        return response.Data;
-      },
+      query: (id) => API_ENDPOINTS.PRODUCT_DETAIL(id.toString()),
+      transformResponse: transformApiResponse,
       providesTags: (result, error, id) => [{ type: "Product", id }],
-    }),
-
-    getFeaturedProducts: builder.query<Product[], void>({
-      query: () => ({
-        url: "/Product",
-        method: "GET",
-        params: {
-          sortBy: "createdAt",
-          sortOrder: "desc",
-          limit: 6,
-        },
-      }),
-      transformResponse: (response: any) => {
-        console.log("API Response:", response);
-        if (!response?.Success) {
-          console.error("API Error:", response?.Message || "Unknown error");
-          return [];
-        }
-        return response.Data || [];
-      },
-      providesTags: ["Product"],
-    }),
-
-    createProduct: builder.mutation<Product, Omit<Product, "id">>({
-      query: (product) => ({
-        url: "/Product",
-        method: "POST",
-        body: product,
-      }),
-      transformResponse: (response: any) => {
-        console.log("API Response:", response);
-        if (!response?.Success) {
-          console.error("API Error:", response?.Message || "Unknown error");
-          throw new Error(response?.Message || "Failed to create product");
-        }
-        return response.Data;
-      },
-      invalidatesTags: ["Product"],
-    }),
-
-    updateProduct: builder.mutation<
-      Product,
-      { id: number; product: Partial<Product> }
-    >({
-      query: ({ id, product }) => ({
-        url: `/Product/${id}`,
-        method: "PUT",
-        body: product,
-      }),
-      transformResponse: (response: any) => {
-        console.log("API Response:", response);
-        if (!response?.Success) {
-          console.error("API Error:", response?.Message || "Unknown error");
-          throw new Error(response?.Message || "Failed to update product");
-        }
-        return response.Data;
-      },
-      invalidatesTags: (result, error, { id }) => [{ type: "Product", id }],
-    }),
-
-    deleteProduct: builder.mutation<void, number>({
-      query: (id) => ({
-        url: `/Product/${id}`,
-        method: "DELETE",
-      }),
-      transformResponse: (response: any) => {
-        console.log("API Response:", response);
-        if (!response?.Success) {
-          console.error("API Error:", response?.Message || "Unknown error");
-          throw new Error(response?.Message || "Failed to delete product");
-        }
-        return response.Data;
-      },
-      invalidatesTags: ["Product"],
     }),
   }),
 });
 
-export const {
-  useGetAllProductsQuery,
-  useGetProductByIdQuery,
-  useGetFeaturedProductsQuery,
-  useCreateProductMutation,
-  useUpdateProductMutation,
-  useDeleteProductMutation,
-} = productApi;
+export const { useGetProductsQuery, useGetProductByIdQuery } = productApi;
