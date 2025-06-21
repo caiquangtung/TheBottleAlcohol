@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Heart } from "lucide-react";
 import { useGetProductsQuery, Product } from "@/lib/services/productService";
 import { Skeleton } from "../ui/skeleton";
+import ProductCard from "../ProductCard";
 
 export default function ProductSection() {
   const {
@@ -19,21 +20,6 @@ export default function ProductSection() {
   });
 
   const products = pagedProducts?.items;
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: "GBP",
-    }).format(price);
-  };
-
-  const formatVolume = (volume: number) => {
-    return `${volume.toFixed(2)}CL`;
-  };
-
-  const formatABV = (abv: number) => {
-    return `${abv.toFixed(1)}%`;
-  };
 
   if (isLoading) {
     return (
@@ -147,80 +133,11 @@ export default function ProductSection() {
           {/* Right: Product grid - spans 7 columns */}
           <div className="col-span-12 md:col-span-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6">
             {products.slice(0, 6).map((product: Product, index: number) => (
-              <Card
+              <ProductCard
                 key={product.id}
-                className={`relative flex flex-col overflow-hidden dark:bg-[#23232b] h-[55vh] ${
-                  index < 3 ? "mb-6" : "mb-0"
-                }`}
-              >
-                <div className="pt-4 px-4 flex flex-col h-full">
-                  {product.stockQuantity < 10 && (
-                    <Badge className="absolute top-2 left-2 dark:bg-[#3a2a3a] dark:text-[#f96d8d] !px-3 !py-1 text-xs font-semibold tracking-wide">
-                      LIMITED STOCK
-                    </Badge>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2"
-                  >
-                    <Heart className="h-5 w-5" />
-                  </Button>
-
-                  {/* Product Image */}
-                  <div className="relative w-full aspect-[3/4] flex-shrink-0">
-                    <Image
-                      src={product.imageUrl || "/product.png"}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-contain"
-                    />
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="mt-2 flex flex-col flex-grow space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">
-                        {product.brandName}
-                      </span>
-                      <span className="text-xs text-muted-foreground uppercase">
-                        {product.categoryName}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-base line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center justify-between w-full">
-                      <span className="font-bold text-lg">
-                        {formatPrice(product.price)}
-                      </span>
-                      <div className="flex items-center gap-1 text-sm">
-                        {[...Array(5)].map((_, idx) => (
-                          <span key={idx} className="text-gray-300">
-                            ★
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <span>{formatVolume(product.volume)}</span>
-                      <span>•</span>
-                      <span>{formatABV(product.alcoholContent)}</span>
-                      <span>•</span>
-                      <span>{product.origin}</span>
-                    </div>
-                  </div>
-
-                  {/* Add to Cart Button */}
-                  <Button
-                    size="lg"
-                    className="w-full mt-4 border-2 border-black bg-transparent text-black dark:bg-[#f96d8d] dark:text-black dark:border-white font-bold tracking-wide hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none rounded-b-lg"
-                  >
-                    ADD TO CART
-                  </Button>
-                </div>
-              </Card>
+                product={product}
+                className={`h-[55vh] ${index < 3 ? "mb-6" : "mb-0"}`}
+              />
             ))}
           </div>
         </div>

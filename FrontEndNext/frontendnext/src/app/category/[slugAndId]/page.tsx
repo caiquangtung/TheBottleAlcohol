@@ -20,6 +20,7 @@ import { FilterSortSheet } from "@/components/FilterSortSheet";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PaginationControls } from "@/components/ui/Pagination";
 
 function extractId(slugAndId?: string) {
   if (!slugAndId) return NaN;
@@ -136,12 +137,23 @@ export default function CategoryPage() {
     data: pagedProducts,
     isFetching: isFetchingProducts,
     isLoading: isLoadingProducts,
+    isError,
+    refetch,
   } = useGetProductsQuery(filters, { skip: !filters.categoryId });
   const { data: brands = [], isLoading: isLoadingBrands } =
     useGetAllBrandsQuery();
 
   const products = pagedProducts?.items ?? [];
   const totalProducts = pagedProducts?.totalRecords ?? 0;
+  const totalPages = pagedProducts?.totalPages ?? 1;
+
+  const handlePageChange = (newPage: number) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      pageNumber: newPage,
+    }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   if (isLoadingCategory) {
     return (
@@ -183,9 +195,6 @@ export default function CategoryPage() {
 
         {/* Main Content */}
         <div className="flex justify-between items-center mb-6 mt-8">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-            {totalProducts} results
-          </h2>
           <FilterSortSheet
             filters={filters}
             setFilters={setFilters}
@@ -208,10 +217,38 @@ export default function CategoryPage() {
 
           {/* Products Grid */}
           <div className="md:col-span-3">
+            <h2 className="text-md font-light tracking-tight mb-4">
+              Showing {products.length} of {totalProducts} results
+            </h2>
             {isFetchingProducts || isLoadingProducts ? (
               <ProductGridSkeleton />
+            ) : isError ? (
+              <div className="text-center py-16 px-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                <h3 className="text-2xl font-semibold">
+                  Error Fetching Products
+                </h3>
+                <p className="mt-2">
+                  We couldn't load the products. Please try again.
+                </p>
+                <Button
+                  onClick={() => refetch()}
+                  variant="destructive"
+                  className="mt-4"
+                >
+                  Retry
+                </Button>
+              </div>
             ) : (
               <ProductGrid products={products} />
+            )}
+            {totalPages > 1 && (
+              <div className="mt-8">
+                <PaginationControls
+                  currentPage={filters.pageNumber || 1}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             )}
           </div>
         </div>

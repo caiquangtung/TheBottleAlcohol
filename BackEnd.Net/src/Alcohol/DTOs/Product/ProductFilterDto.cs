@@ -11,7 +11,7 @@ public class ProductFilterDto
     public decimal? MaxPrice { get; set; }
     public bool? Status { get; set; }
     public int PageNumber { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
+    public int PageSize { get; set; } = 12;
     public string SortBy { get; set; }
     public string SortOrder { get; set; }
 } 
