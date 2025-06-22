@@ -4,13 +4,10 @@ using Alcohol.Models;
 
 namespace Alcohol.Repositories.Interfaces;
 
-public interface ICartDetailRepository
+public interface ICartDetailRepository : IGenericRepository<CartDetail>
 {
-    Task<IEnumerable<CartDetail>> GetAllAsync();
-    Task<CartDetail> GetByIdAsync(int id);
     Task<IEnumerable<CartDetail>> GetByCartIdAsync(int cartId);
-    Task AddAsync(CartDetail cartDetail);
-    void Update(CartDetail cartDetail);
-    void Delete(CartDetail cartDetail);
-    Task SaveChangesAsync();
+    void DeleteRange(IEnumerable<CartDetail> entities);
+    Task AddRangeAsync(IEnumerable<CartDetail> entities);
+    void UpdateRange(IEnumerable<CartDetail> entities);
 } 

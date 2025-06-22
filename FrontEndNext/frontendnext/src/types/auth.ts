@@ -14,43 +14,42 @@ export interface RegisterCredentials {
 }
 
 export interface User {
-  Id: number;
-  FullName: string;
-  Email: string;
-  Role: string;
-  Address: string;
-  PhoneNumber: string;
-  DateOfBirth: string;
-  Gender: string;
-  Status: boolean;
-  CreatedAt: string;
+  id: number;
+  fullName: string;
+  email: string;
+  role: string;
+  address: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  gender: string;
+  status: boolean;
+  createdAt: string;
 }
 
 export interface LoginResponse {
-  Success: boolean;
-  Message: string | null;
-  Data: {
-    Id: number;
-    FullName: string;
-    Email: string;
-    Role: string;
-    AccessToken: string;
-    RefreshToken: string;
+  success: boolean;
+  message: string | null;
+  data: {
+    id: number;
+    fullName: string;
+    email: string;
+    role: string;
+    accessToken: string;
   };
 }
 
 export interface RegisterResponse {
-  Success: boolean;
-  Message: string | null;
-  Data: {
-    Id: number;
-    FullName: string;
-    Email: string;
+  success: boolean;
+  message: string | null;
+  data: {
+    id: number;
+    fullName: string;
+    email: string;
   };
 }
 
 export interface ProfileResponse {
-  Success: boolean;
-  Message: string | null;
-  Data: User;
+  success: boolean;
+  message: string | null;
+  data: User;
 }

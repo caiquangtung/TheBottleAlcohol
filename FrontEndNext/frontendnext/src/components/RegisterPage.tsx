@@ -64,7 +64,7 @@ export default function RegisterPage() {
         gender: formData.gender,
       }).unwrap();
 
-      if (response.Success) {
+      if (response.success) {
         toast.success("Đăng ký thành công!", {
           description: "Vui lòng đăng nhập để tiếp tục",
         });
@@ -75,7 +75,7 @@ export default function RegisterPage() {
         }, 1000);
       } else {
         toast.error("Đăng ký thất bại", {
-          description: response.Message || "Vui lòng kiểm tra lại thông tin",
+          description: response.message || "Vui lòng kiểm tra lại thông tin",
         });
       }
     } catch (err) {

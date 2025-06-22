@@ -1,5 +1,4 @@
 "use client";
-import Header from "../../components/layout/Header";
 import LoginPage from "../../components/LoginPage";
 
 export default function Login() {

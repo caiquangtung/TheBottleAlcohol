@@ -2,9 +2,9 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLoginMutation } from "../lib/services/auth";
-import { useAppDispatch } from "../lib/store/hooks";
+import { useDispatch } from "react-redux";
 import { loginSuccess } from "../lib/features/auth/authSlice";
+import { useLoginMutation } from "../lib/services/auth";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
@@ -12,41 +12,50 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       const response = await login(formData).unwrap();
-      if (response.Success) {
-        // Lưu thông tin vào localStorage
+      if (response.success) {
+        // Lưu thông tin vào localStorage (refresh token được xử lý bởi backend qua HttpOnly cookie)
         const userData = {
-          id: response.Data.Id,
-          fullName: response.Data.FullName,
-          email: response.Data.Email,
-          role: response.Data.Role,
+          id: response.data.id,
+          fullName: response.data.fullName,
+          email: response.data.email,
+          role: response.data.role,
         };
         localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("accessToken", response.Data.AccessToken);
-        localStorage.setItem("refreshToken", response.Data.RefreshToken);
+        localStorage.setItem("accessToken", response.data.accessToken);
+        // Refresh token được backend tự động set vào HttpOnly cookie
 
         // Dispatch action để cập nhật Redux store
         dispatch(
           loginSuccess({
             user: userData,
-            accessToken: response.Data.AccessToken,
-            refreshToken: response.Data.RefreshToken,
+            accessToken: response.data.accessToken,
+            // Không cần refreshToken - backend xử lý qua HttpOnly cookie
           })
         );
 
         // Hiển thị thông báo thành công
-        toast.success(response.Message || "Đăng nhập thành công!", {
+        toast.success(response.message || "Đăng nhập thành công!", {
           description: "Chào mừng bạn quay trở lại!",
         });
 
@@ -57,7 +66,7 @@ export default function LoginPage() {
       } else {
         toast.error("Đăng nhập thất bại", {
           description:
-            response.Message || "Vui lòng kiểm tra lại thông tin đăng nhập",
+            response.message || "Vui lòng kiểm tra lại thông tin đăng nhập",
         });
       }
     } catch (err) {
@@ -66,14 +75,6 @@ export default function LoginPage() {
         description: "Email hoặc mật khẩu không đúng",
       });
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   return (
@@ -102,7 +103,7 @@ export default function LoginPage() {
               name="email"
               placeholder="Email address"
               value={formData.email}
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
             />
             <Input
@@ -110,7 +111,7 @@ export default function LoginPage() {
               name="password"
               placeholder="Password"
               value={formData.password}
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
             />
             <Button

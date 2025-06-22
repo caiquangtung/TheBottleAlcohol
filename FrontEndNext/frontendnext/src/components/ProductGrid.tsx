@@ -1,5 +1,5 @@
 import React from "react";
-import { Product } from "@/lib/services/productService";
+import { Product } from "@/lib/types/product";
 import ProductCard from "./ProductCard";
 import { Button } from "./ui/button";
 

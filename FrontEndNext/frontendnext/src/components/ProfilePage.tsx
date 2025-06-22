@@ -2,20 +2,42 @@
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { useState } from "react";
-import { useGetProfileQuery } from "../lib/services/auth";
+import { useGetProfileQuery, useLogoutMutation } from "../lib/services/auth";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { logout } from "../lib/features/auth/authSlice";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { data, isLoading, isError } = useGetProfileQuery();
+  const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation();
   const [isHydrated, setIsHydrated] = useState(false);
   const [tab, setTab] = useState<"overview" | "myprofile">("overview");
 
   // Đảm bảo chỉ render sau khi đã hydrate (nếu cần)
   // useEffect(() => setIsHydrated(true), []);
 
+  const handleLogout = async () => {
+    try {
+      // Gọi backend logout endpoint để revoke refresh token
+      await logoutMutation().unwrap();
+
+      // Xóa local state
+      dispatch(logout());
+
+      // Chuyển hướng về login
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Vẫn logout locally ngay cả khi backend call thất bại
+      dispatch(logout());
+      router.push("/login");
+    }
+  };
+
   if (isLoading) return null;
-  if (isError || !data?.Success) {
+  if (isError || !data?.success) {
     // Chuyển hướng về trang đăng nhập sau 2 giây
     setTimeout(() => {
       router.push("/login");
@@ -30,14 +52,14 @@ export default function ProfilePage() {
     );
   }
 
-  const user = data.Data;
+  const user = data.data;
 
   return (
     <div className="container mx-auto py-10 flex flex-col md:flex-row gap-8">
       {/* Sidebar */}
       <aside className="md:w-1/4 border-r pr-8">
         <h2 className="text-2xl font-bold mb-6">MY ACCOUNT</h2>
-        <div className="mb-4 font-semibold">Welcome back, {user.FullName}</div>
+        <div className="mb-4 font-semibold">Welcome back, {user.fullName}</div>
         <nav className="flex flex-col gap-2">
           <button
             onClick={() => setTab("overview")}
@@ -73,12 +95,12 @@ export default function ProfilePage() {
           >
             Wishlist <span>&#8250;</span>
           </Link>
-          <Link
-            href="#"
+          <button
+            onClick={handleLogout}
             className="flex items-center justify-between py-2 px-1 border-b border-transparent hover:border-black transition-all"
           >
             Logout <span>&#8250;</span>
-          </Link>
+          </button>
         </nav>
       </aside>
       {/* Main content */}
@@ -101,8 +123,8 @@ export default function ProfilePage() {
               {/* My Details */}
               <div>
                 <h4 className="text-lg font-bold mb-2">MY DETAILS</h4>
-                <div className="mb-1">{user.FullName}</div>
-                <div className="mb-1">{user.Email}</div>
+                <div className="mb-1">{user.fullName}</div>
+                <div className="mb-1">{user.email}</div>
                 <Link href="#" className="underline text-sm">
                   View All Details
                 </Link>
@@ -110,9 +132,9 @@ export default function ProfilePage() {
               {/* Default Address */}
               <div>
                 <h4 className="text-lg font-bold mb-4">DEFAULT ADDRESS</h4>
-                <div className="mb-1">{user.FullName}</div>
-                {user.Address &&
-                  user.Address.split(",").map((line: string, idx: number) => (
+                <div className="mb-1">{user.fullName}</div>
+                {user.address &&
+                  user.address.split(",").map((line: string, idx: number) => (
                     <div className="mb-1" key={idx}>
                       {line.trim()}
                     </div>
@@ -127,17 +149,17 @@ export default function ProfilePage() {
         {tab === "myprofile" && (
           <section className="col-span-2">
             <h3 className="text-lg font-bold mb-4">MY PROFILE</h3>
-            <div className="mb-2">Họ tên: {user.FullName}</div>
-            <div className="mb-2">Email: {user.Email}</div>
-            <div className="mb-2">Địa chỉ: {user.Address}</div>
-            <div className="mb-2">SĐT: {user.PhoneNumber}</div>
-            <div className="mb-2">Ngày sinh: {user.DateOfBirth}</div>
-            <div className="mb-2">Giới tính: {user.Gender}</div>
-            <div className="mb-2">Vai trò: {user.Role}</div>
+            <div className="mb-2">Họ tên: {user.fullName}</div>
+            <div className="mb-2">Email: {user.email}</div>
+            <div className="mb-2">Địa chỉ: {user.address}</div>
+            <div className="mb-2">SĐT: {user.phoneNumber}</div>
+            <div className="mb-2">Ngày sinh: {user.dateOfBirth}</div>
+            <div className="mb-2">Giới tính: {user.gender}</div>
+            <div className="mb-2">Vai trò: {user.role}</div>
             <div className="mb-2">
-              Trạng thái: {user.Status ? "Active" : "Inactive"}
+              Trạng thái: {user.status ? "Active" : "Inactive"}
             </div>
-            <div className="mb-2">Ngày tạo: {user.CreatedAt}</div>
+            <div className="mb-2">Ngày tạo: {user.createdAt}</div>
           </section>
         )}
       </main>

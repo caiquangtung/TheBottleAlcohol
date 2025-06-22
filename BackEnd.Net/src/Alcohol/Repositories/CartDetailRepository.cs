@@ -4,30 +4,14 @@ using Alcohol.Data;
 using Alcohol.Models;
 using Alcohol.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Alcohol.Repositories;
 
-public class CartDetailRepository : ICartDetailRepository
+public class CartDetailRepository : GenericRepository<CartDetail>, ICartDetailRepository
 {
-    private readonly MyDbContext _context;
-
-    public CartDetailRepository(MyDbContext context)
+    public CartDetailRepository(MyDbContext context) : base(context)
     {
-        _context = context;
-    }
-
-    public async Task<IEnumerable<CartDetail>> GetAllAsync()
-    {
-        return await _context.CartDetails
-            .Include(cd => cd.Product)
-            .ToListAsync();
-    }
-
-    public async Task<CartDetail> GetByIdAsync(int id)
-    {
-        return await _context.CartDetails
-            .Include(cd => cd.Product)
-            .FirstOrDefaultAsync(cd => cd.Id == id);
     }
 
     public async Task<IEnumerable<CartDetail>> GetByCartIdAsync(int cartId)
@@ -38,23 +22,18 @@ public class CartDetailRepository : ICartDetailRepository
             .ToListAsync();
     }
 
-    public async Task AddAsync(CartDetail cartDetail)
+    public void DeleteRange(IEnumerable<CartDetail> entities)
     {
-        await _context.CartDetails.AddAsync(cartDetail);
+        _context.CartDetails.RemoveRange(entities);
     }
 
-    public void Update(CartDetail cartDetail)
+    public async Task AddRangeAsync(IEnumerable<CartDetail> entities)
     {
-        _context.CartDetails.Update(cartDetail);
+        await _context.CartDetails.AddRangeAsync(entities);
     }
 
-    public void Delete(CartDetail cartDetail)
+    public void UpdateRange(IEnumerable<CartDetail> entities)
     {
-        _context.CartDetails.Remove(cartDetail);
-    }
-
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
+        _context.CartDetails.UpdateRange(entities);
     }
 } 

@@ -1,10 +1,12 @@
 "use client";
+import React from "react";
 import Image from "next/image";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Heart } from "lucide-react";
-import { useGetProductsQuery, Product } from "@/lib/services/productService";
+import { Heart, Star } from "lucide-react";
+import { useGetProductsQuery } from "@/lib/services/productService";
+import { Product } from "@/lib/types/product";
 import { Skeleton } from "../ui/skeleton";
 import ProductCard from "../ProductCard";
 

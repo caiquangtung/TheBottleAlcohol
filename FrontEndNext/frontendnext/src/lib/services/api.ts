@@ -6,6 +6,7 @@ export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1",
+    credentials: "include", // Đảm bảo HttpOnly cookies được gửi
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.accessToken;
 
@@ -17,7 +18,7 @@ export const api = createApi({
     },
   }),
   endpoints: () => ({}),
-  tagTypes: ["Product", "Category", "User", "Profile", "Brand"],
+  tagTypes: ["Product", "Category", "User", "Profile", "Brand", "Cart"],
 });
 
 // Add refresh token handling
@@ -25,23 +26,24 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
   let result = await api.baseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {
-    // Try to get a new token
+    // Try to get a new token using the HttpOnly cookie (backend handles refresh token automatically)
     const refreshResult = await api.baseQuery(
       {
         url: "/auth/refresh-token",
         method: "POST",
+        credentials: "include", // Đảm bảo cookie được gửi
       },
       api,
       extraOptions
     );
 
     if (refreshResult.data) {
-      // Store the new token
+      // Store the new access token
       api.dispatch(
         loginSuccess({
           user: JSON.parse(localStorage.getItem("user") || "{}"),
-          accessToken: refreshResult.data.Data.AccessToken,
-          refreshToken: refreshResult.data.Data.RefreshToken,
+          accessToken: refreshResult.data.data.accessToken,
+          refreshToken: null, // Không cần lưu refresh token - backend xử lý qua cookie
         })
       );
 

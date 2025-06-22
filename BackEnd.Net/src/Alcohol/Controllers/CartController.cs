@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Cart;
 using Alcohol.DTOs.CartDetail;
@@ -6,6 +8,8 @@ using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Alcohol.Common;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Alcohol.Controllers
 {
@@ -30,6 +34,35 @@ namespace Alcohol.Controllers
             return Ok(new ApiResponse<IEnumerable<CartResponseDto>>(carts));
         }
 
+        [HttpGet("current")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUserCart()
+        {
+            var customerIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(customerIdString, out var customerId))
+            {
+                return Unauthorized(new ApiResponse<string>("Invalid user identifier."));
+            }
+
+            var cart = await _cartService.GetCartsByCustomerAsync(customerId);
+            if (cart == null)
+            {
+                // Trả về cart rỗng nếu user chưa có cart
+                return Ok(new ApiResponse<CartResponseDto>(new CartResponseDto
+                {
+                    Id = 0,
+                    CustomerId = customerId,
+                    CustomerName = null,
+                    TotalAmount = 0,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = null,
+                    RowVersion = null,
+                    CartDetails = new List<CartDetailResponseDto>()
+                }));
+            }
+            return Ok(new ApiResponse<CartResponseDto>(cart));
+        }
+
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetById(int id)
@@ -44,8 +77,10 @@ namespace Alcohol.Controllers
         [Authorize]
         public async Task<IActionResult> GetByCustomer(int customerId)
         {
-            var carts = await _cartService.GetCartsByCustomerAsync(customerId);
-            return Ok(new ApiResponse<IEnumerable<CartResponseDto>>(carts));
+            var cart = await _cartService.GetCartsByCustomerAsync(customerId);
+            if (cart == null)
+                return NotFound(new ApiResponse<string>("Cart not found"));
+            return Ok(new ApiResponse<CartResponseDto>(cart));
         }
 
         [HttpPost]
@@ -110,6 +145,32 @@ namespace Alcohol.Controllers
             if (!result)
                 return NotFound(new ApiResponse<string>("Item not found"));
             return Ok(new ApiResponse<string>("Item removed successfully"));
+        }
+
+        [HttpPost("sync")]
+        [Authorize]
+        public async Task<IActionResult> SyncCart([FromBody] CartSyncDto syncDto)
+        {
+            var customerIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(customerIdString, out var customerId))
+            {
+                return Unauthorized(new ApiResponse<string>("Invalid user identifier."));
+            }
+
+            try
+            {
+                var cart = await _cartService.SyncCartAsync(customerId, syncDto);
+                return Ok(new ApiResponse<CartResponseDto>(cart));
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                return Conflict(new ApiResponse<string>(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return BadRequest(new ApiResponse<string>($"An error occurred while syncing the cart: {ex.Message}"));
+            }
         }
     }
 } 

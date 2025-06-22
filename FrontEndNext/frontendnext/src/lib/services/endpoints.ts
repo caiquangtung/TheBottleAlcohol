@@ -9,7 +9,11 @@ export const API_ENDPOINTS = {
 
   // Brands
   BRANDS: "/brand",
-  
+
+  // Cart
+  CART: "/cart",
+  CART_CURRENT: "/cart/current",
+  CART_SYNC: "/cart/sync",
 
   // Auth
   LOGIN: "/auth/login",

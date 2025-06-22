@@ -1,29 +1,7 @@
 import { API_ENDPOINTS } from "./endpoints";
 import { enhancedApi } from "./api";
 import { transformApiResponse } from "../utils/utils";
-
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  slug: string;
-  origin: string;
-  volume: number;
-  alcoholContent: number;
-  price: number;
-  stockQuantity: number;
-  status: boolean;
-  imageUrl: string;
-  metaTitle: string;
-  metaDescription: string;
-  createdAt: string;
-  updatedAt?: string;
-  categoryId: number;
-  categoryName: string;
-  brandId: number;
-  brandName: string;
-  sortOrder?: "asc" | "desc";
-}
+import { Product } from "../types/product";
 
 export interface PagedResult<T> {
   items: T[];

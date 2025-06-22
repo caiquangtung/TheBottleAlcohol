@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { useGetProductByIdQuery, Product } from "@/lib/services/productService";
+import { useGetProductByIdQuery } from "@/lib/services/productService";
+import { Product } from "@/lib/types/product";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,10 @@ import {
   Plus,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { addItem } from "@/lib/features/cart/cartSlice";
 
 function extractId(slugAndId?: string) {
   if (!slugAndId) return NaN;
@@ -25,15 +30,34 @@ function extractId(slugAndId?: string) {
 
 const ProductPageSkeleton = () => (
   <div className="container mx-auto px-4 md:px-6 py-8">
-    <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-      <div>
-        <Skeleton className="w-full aspect-square" />
+    {/* Skeleton for Breadcrumb */}
+    <Skeleton className="h-4 w-1/3 mb-6" />
+
+    <div className="grid md:grid-cols-12 gap-8 lg:gap-12">
+      {/* Left Column: Info List Skeleton */}
+      <div className="hidden md:block md:col-span-3 lg:col-span-2">
+        <div className="space-y-6">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="space-y-4">
+
+      {/* Center Column: Image Skeleton */}
+      <div className="md:col-span-5 lg:col-span-6">
+        <Skeleton className="w-full aspect-square rounded-lg" />
+      </div>
+
+      {/* Right Column: Details Skeleton */}
+      <div className="md:col-span-4 lg:col-span-4 space-y-4">
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-6 w-1/4" />
         <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-12 w-1/2" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-4 w-1/4 mt-2" />
       </div>
     </div>
   </div>
@@ -80,10 +104,17 @@ const ProductInfoList = ({ product }: { product: Product }) => {
 
 const AddToCartSection = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const router = useRouter();
 
   const handleAddToCart = () => {
-    console.log(`Added to cart: ${quantity} x ${product.name}`);
-    // Here you would typically dispatch an action to add the item to the cart
+    if (!isAuthenticated) {
+      toast.error("Please log in to add items to your cart.");
+      router.push("/login");
+      return;
+    }
+    dispatch(addItem({ product, quantity }));
   };
 
   return (
@@ -104,6 +135,7 @@ const AddToCartSection = ({ product }: { product: Product }) => {
             variant="outline"
             size="icon"
             onClick={() => setQuantity((q) => q + 1)}
+            disabled={quantity >= product.stockQuantity}
           >
             <Plus className="h-4 w-4" />
           </Button>

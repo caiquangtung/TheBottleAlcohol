@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Sheet,
   SheetContent,
@@ -7,10 +8,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import ProductFilterComponent from "@/components/ProductFilter";
-import { Brand } from "@/lib/services/brandService";
 import { Filter } from "lucide-react";
-import { ProductFilter as FilterState } from "@/lib/services/productService";
+import ProductFilterComponent from "@/components/ProductFilter";
+import { useGetAllBrandsQuery } from "@/lib/services/brandService";
+import { Brand } from "@/lib/types/brand";
+import { useGetAllCategoriesQuery } from "@/lib/services/categoryService";
+import { ProductFilter as FilterState } from "@/lib/types/product";
 
 interface FilterSortSheetProps {
   filters: FilterState;

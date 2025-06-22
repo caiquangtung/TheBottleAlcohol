@@ -1,23 +1,23 @@
 export interface Product {
-  Id: number;
-  Name: string;
-  Description: string;
-  Slug: string;
-  Origin: string;
-  Volume: number;
-  AlcoholContent: number;
-  Price: number;
-  StockQuantity: number;
-  Status: boolean;
-  ImageUrl: string;
-  MetaTitle: string;
-  MetaDescription: string;
-  CreatedAt: string;
-  UpdatedAt: string | null;
-  CategoryId: number;
-  CategoryName: string;
-  BrandId: number;
-  BrandName: string;
+  id: number;
+  name: string;
+  description: string;
+  slug: string;
+  origin: string;
+  volume: number;
+  alcoholContent: number;
+  price: number;
+  stockQuantity: number;
+  status: boolean;
+  imageUrl: string;
+  metaTitle: string;
+  metaDescription: string;
+  createdAt: string;
+  updatedAt: string | null;
+  categoryId: number;
+  categoryName: string;
+  brandId: number;
+  brandName: string;
 }
 
 export interface ProductFilter {

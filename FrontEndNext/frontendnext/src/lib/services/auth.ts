@@ -1,42 +1,38 @@
-import { enhancedApi } from "./api";
-import { API_ENDPOINTS } from "./endpoints";
+import { api } from "./api";
 import {
   LoginCredentials,
-  RegisterCredentials,
-  User,
   LoginResponse,
+  RegisterCredentials,
   RegisterResponse,
   ProfileResponse,
-} from "@/types/auth";
+} from "../../types/auth";
 
-export const authApi = enhancedApi.injectEndpoints({
+export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginCredentials>({
       query: (credentials) => ({
-        url: API_ENDPOINTS.LOGIN,
+        url: "/auth/login",
         method: "POST",
         body: credentials,
       }),
     }),
     register: builder.mutation<RegisterResponse, RegisterCredentials>({
-      query: (credentials) => ({
-        url: API_ENDPOINTS.REGISTER,
+      query: (userData) => ({
+        url: "/auth/register",
         method: "POST",
-        body: credentials,
+        body: userData,
       }),
     }),
-    logout: builder.mutation<void, void>({
+    logout: builder.mutation<{ success: boolean; message: string }, void>({
       query: () => ({
-        url: API_ENDPOINTS.LOGOUT,
+        url: "/auth/logout",
         method: "POST",
       }),
     }),
     getProfile: builder.query<ProfileResponse, void>({
       query: () => "/auth/profile",
-      providesTags: ["Profile"],
     }),
   }),
-  overrideExisting: false,
 });
 
 export const {

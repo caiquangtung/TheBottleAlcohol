@@ -5,19 +5,12 @@ interface User {
   fullName: string;
   email: string;
   role: string;
-  address?: string;
-  phoneNumber?: string;
-  dateOfBirth?: string;
-  gender?: string;
-  status?: boolean;
-  createdAt?: string;
-  updatedAt?: string | null;
 }
 
 interface AuthState {
   user: User | null;
   accessToken: string | null;
-  refreshToken: string | null;
+  refreshToken: string | null; // Có thể null vì backend xử lý qua HttpOnly cookie
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -29,13 +22,13 @@ const loadAuthFromStorage = (): Partial<AuthState> => {
 
   const user = localStorage.getItem("user");
   const accessToken = localStorage.getItem("accessToken");
-  const refreshToken = localStorage.getItem("refreshToken");
+  // Không load refresh token từ localStorage - backend xử lý qua HttpOnly cookie
 
   if (user && accessToken) {
     return {
       user: JSON.parse(user),
       accessToken,
-      refreshToken,
+      refreshToken: null, // Refresh token được xử lý bởi backend qua cookie
       isAuthenticated: true,
     };
   }
@@ -52,38 +45,30 @@ const initialState: AuthState = {
   ...loadAuthFromStorage(),
 };
 
-const authSlice = createSlice({
+export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
     loginSuccess: (
       state,
       action: PayloadAction<{
         user: User;
         accessToken: string;
-        refreshToken: string;
+        refreshToken?: string | null;
       }>
     ) => {
       state.loading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
+      state.refreshToken = action.payload.refreshToken || null;
       state.error = null;
     },
-    loginFailure: (state, action: PayloadAction<string>) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
     logout: (state) => {
-      // Xóa thông tin khỏi localStorage
+      // Xóa thông tin khỏi localStorage (refresh token được xử lý bởi backend)
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      // Không xóa refresh token - backend sẽ xử lý qua cookie
 
       state.user = null;
       state.accessToken = null;
@@ -91,9 +76,19 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } =
+export const { loginSuccess, logout, setLoading, setError, clearError } =
   authSlice.actions;
+
 export default authSlice.reducer;

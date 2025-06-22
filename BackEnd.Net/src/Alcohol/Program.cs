@@ -86,11 +86,9 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.Converters.Add(new DecimalJsonConverter());
-        options.JsonSerializerOptions.PropertyNamingPolicy = null;
-        options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
 // Add CORS services

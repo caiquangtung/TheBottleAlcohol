@@ -1,7 +1,10 @@
 "use client";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useEffect } from "react";
 import HeadCategoryBar from "../HeadCategoryBar";
 import MegaMenu from "../MegaMenu";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { useGetCartQuery } from "@/lib/services/cartService";
+import { setCartData } from "@/lib/features/cart/cartSlice";
 
 export default function ClientLayoutShell({
   children,
@@ -12,6 +15,19 @@ export default function ClientLayoutShell({
   const [arrowX, setArrowX] = useState<number | null>(null);
   const headCatRef = useRef<HTMLDivElement>(null);
   const [menuTop, setMenuTop] = useState(0);
+
+  const dispatch = useAppDispatch();
+  const isLoggedIn = useAppSelector((state) => state.auth.isAuthenticated);
+
+  const { data: cartData } = useGetCartQuery(undefined, {
+    skip: !isLoggedIn,
+  });
+
+  useEffect(() => {
+    if (cartData) {
+      dispatch(setCartData(cartData));
+    }
+  }, [cartData, dispatch]);
 
   const updateMenuTop = () => {
     if (headCatRef.current) {

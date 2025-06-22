@@ -7,6 +7,8 @@ using Alcohol.DTOs.Product;
 using Alcohol.DTOs.Account;
 using Alcohol.DTOs.OrderDetail;
 using Alcohol.DTOs.Brand;
+using Alcohol.DTOs.Cart;
+using Alcohol.DTOs.CartDetail;
 using Alcohol.Models;
 using Alcohol.Models.Enums;
 using AutoMapper;
@@ -30,6 +32,18 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Name.ToLower().Replace(" ", "-")))
             .ForMember(dest => dest.SalesCount, opt => opt.MapFrom(src => 0));
         CreateMap<ProductUpdateDto, Product>();
+
+        // Cart mappings
+        CreateMap<Cart, CartResponseDto>()
+            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : null));
+        CreateMap<CartCreateDto, Cart>();
+        CreateMap<CartUpdateDto, Cart>();
+
+        // CartDetail mappings
+        CreateMap<CartDetail, CartDetailResponseDto>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : null));
+        CreateMap<CartDetailCreateDto, CartDetail>();
+        CreateMap<CartDetailUpdateDto, CartDetail>();
 
         // Order mappings
         CreateMap<Order, OrderResponseDto>()

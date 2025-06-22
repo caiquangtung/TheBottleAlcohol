@@ -1,16 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.Models;
+using System;
+using System.Linq.Expressions;
 
 namespace Alcohol.Repositories.Interfaces;
 
-public interface ICartRepository
+public interface ICartRepository : IGenericRepository<Cart>
 {
-    Task<IEnumerable<Cart>> GetAllAsync();
-    Task<Cart> GetByIdAsync(int id);
-    Task<IEnumerable<Cart>> GetByCustomerIdAsync(int customerId);
-    Task AddAsync(Cart cart);
-    void Update(Cart cart);
-    void Delete(Cart cart);
-    Task SaveChangesAsync();
+    Task<Cart> GetByCustomerIdAsync(int customerId);
+    Task<Cart> GetCartWithDetailsAsync(int cartId);
 } 
