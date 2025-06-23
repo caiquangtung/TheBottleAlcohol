@@ -154,7 +154,7 @@ builder.Services.AddAuthentication(options =>
         {
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
             var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            logger.LogInformation("Token received: {Token}", token);
+            // logger.LogInformation("Token received: {Token}", token);
             return Task.CompletedTask;
         }
     };

@@ -1,9 +1,7 @@
 "use client";
 import Image from "next/image";
-import {
-  Category,
-  useGetRootCategoriesQuery,
-} from "@/lib/services/categoryService";
+import { useGetRootCategoriesQuery } from "@/lib/services/categoryService";
+import { Category } from "@/lib/types/category";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -36,7 +34,7 @@ export default function CategorySection() {
   return (
     <section className="container mx-auto py-8">
       <div className="flex flex-wrap justify-center gap-6">
-        {categories?.map((category) => (
+        {categories?.map((category: Category) => (
           <Link
             href={`/category/${category.slug}-${category.id}`}
             key={category.id}

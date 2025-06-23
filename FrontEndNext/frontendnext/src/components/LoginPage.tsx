@@ -34,7 +34,7 @@ export default function LoginPage() {
     try {
       const response = await login(formData).unwrap();
       if (response.success) {
-        // Lưu thông tin vào localStorage (refresh token được xử lý bởi backend qua HttpOnly cookie)
+        // Lưu thông tin user vào localStorage (không lưu accessToken)
         const userData = {
           id: response.data.id,
           fullName: response.data.fullName,
@@ -42,8 +42,7 @@ export default function LoginPage() {
           role: response.data.role,
         };
         localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("accessToken", response.data.accessToken);
-        // Refresh token được backend tự động set vào HttpOnly cookie
+        // Không lưu accessToken vào localStorage nữa
 
         // Dispatch action để cập nhật Redux store
         dispatch(

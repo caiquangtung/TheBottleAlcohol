@@ -53,7 +53,7 @@ export const authSlice = createSlice({
       state,
       action: PayloadAction<{
         user: User;
-        accessToken: string;
+        accessToken: string | null;
         refreshToken?: string | null;
       }>
     ) => {
@@ -63,13 +63,16 @@ export const authSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken || null;
       state.error = null;
+      // Lưu user vào localStorage, không lưu accessToken
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+      }
     },
     logout: (state) => {
-      // Xóa thông tin khỏi localStorage (refresh token được xử lý bởi backend)
-      localStorage.removeItem("user");
-      localStorage.removeItem("accessToken");
-      // Không xóa refresh token - backend sẽ xử lý qua cookie
-
+      // Xóa user khỏi localStorage (refresh token được xử lý bởi backend)
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("user");
+      }
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;

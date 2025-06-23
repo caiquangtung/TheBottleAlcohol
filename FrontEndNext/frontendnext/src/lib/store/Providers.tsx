@@ -10,14 +10,12 @@ function AuthLoader() {
   const dispatch = useAppDispatch();
   useEffect(() => {
     const user = localStorage.getItem("user");
-    const accessToken = localStorage.getItem("accessToken");
-    // Không load refresh token từ localStorage - backend xử lý qua HttpOnly cookie
-    if (user && accessToken) {
+    // Không lấy accessToken từ localStorage nữa
+    if (user) {
       dispatch(
         loginSuccess({
           user: JSON.parse(user),
-          accessToken,
-          // Không cần refreshToken - backend xử lý qua HttpOnly cookie
+          accessToken: null, // accessToken sẽ được refresh qua cookie nếu cần
         })
       );
     }

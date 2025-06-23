@@ -22,26 +22,26 @@ public class TokenLoggingMiddleware
         try
         {
             var authHeader = context.Request.Headers["Authorization"].ToString();
-            _logger.LogInformation("Authorization Header: {AuthHeader}", authHeader);
+            // _logger.LogInformation("Authorization Header: {AuthHeader}", authHeader);
 
             if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
             {
                 var token = authHeader.Substring("Bearer ".Length);
-                _logger.LogInformation("Access Token: {Token}", token);
+                // _logger.LogInformation("Access Token: {Token}", token);
 
                 // Log token parts
                 var tokenParts = token.Split('.');
-                _logger.LogInformation("Token Parts Count: {Count}", tokenParts.Length);
+                // _logger.LogInformation("Token Parts Count: {Count}", tokenParts.Length);
                 
                 if (tokenParts.Length != 3)
                 {
-                    _logger.LogError("Invalid token format. Expected 3 parts but got {Count}", tokenParts.Length);
+                    // _logger.LogError("Invalid token format. Expected 3 parts but got {Count}", tokenParts.Length);
                 }
                 else
                 {
-                    _logger.LogInformation("Token Header: {Header}", tokenParts[0]);
-                    _logger.LogInformation("Token Payload: {Payload}", tokenParts[1]);
-                    _logger.LogInformation("Token Signature: {Signature}", tokenParts[2]);
+                    // _logger.LogInformation("Token Header: {Header}", tokenParts[0]);
+                    // _logger.LogInformation("Token Payload: {Payload}", tokenParts[1]);
+                    // _logger.LogInformation("Token Signature: {Signature}", tokenParts[2]);
                 }
             }
             else

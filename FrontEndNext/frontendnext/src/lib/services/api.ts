@@ -2,32 +2,25 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 import { loginSuccess, logout } from "../features/auth/authSlice";
 
-export const api = createApi({
-  reducerPath: "api",
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1",
-    credentials: "include", // Đảm bảo HttpOnly cookies được gửi
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.accessToken;
-
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
-  endpoints: () => ({}),
-  tagTypes: ["Product", "Category", "User", "Profile", "Brand", "Cart"],
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1",
+  credentials: "include", // Đảm bảo HttpOnly cookies được gửi
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).auth.accessToken;
+    if (token) {
+      headers.set("authorization", `Bearer ${token}`);
+    }
+    return headers;
+  },
 });
 
 // Add refresh token handling
 const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
-  let result = await api.baseQuery(args, api, extraOptions);
+  let result = await rawBaseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {
     // Try to get a new token using the HttpOnly cookie (backend handles refresh token automatically)
-    const refreshResult = await api.baseQuery(
+    const refreshResult = await rawBaseQuery(
       {
         url: "/auth/refresh-token",
         method: "POST",
@@ -38,17 +31,21 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     );
 
     if (refreshResult.data) {
-      // Store the new access token
+      // Ép kiểu cho refreshResult.data
+      const tokenData = refreshResult.data as { data: { accessToken: string } };
+      const state = api.getState();
+      const user =
+        state.auth?.user || JSON.parse(localStorage.getItem("user") || "{}");
       api.dispatch(
         loginSuccess({
-          user: JSON.parse(localStorage.getItem("user") || "{}"),
-          accessToken: refreshResult.data.data.accessToken,
-          refreshToken: null, // Không cần lưu refresh token - backend xử lý qua cookie
+          user,
+          accessToken: tokenData.data.accessToken,
+          refreshToken: null,
         })
       );
 
       // Retry the original query
-      result = await api.baseQuery(args, api, extraOptions);
+      result = await rawBaseQuery(args, api, extraOptions);
     } else {
       // If refresh token fails, logout
       api.dispatch(logout());
@@ -57,6 +54,13 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 
   return result;
 };
+
+export const api = createApi({
+  reducerPath: "api",
+  baseQuery: baseQueryWithReauth, // Sử dụng baseQueryWithReauth cho toàn bộ API
+  endpoints: () => ({}),
+  tagTypes: ["Product", "Category", "User", "Profile", "Brand", "Cart"],
+});
 
 export const enhancedApi = api.injectEndpoints({
   endpoints: () => ({}),

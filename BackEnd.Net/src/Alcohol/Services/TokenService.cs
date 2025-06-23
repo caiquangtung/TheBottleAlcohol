@@ -49,9 +49,9 @@ public class TokenService : ITokenService
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Path = "/api/v1/auth/refresh-token",
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
+            Path = "/",
             Expires = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays)
         };
 
@@ -63,9 +63,9 @@ public class TokenService : ITokenService
         context.Response.Cookies.Delete("refreshToken", new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Path = "/api/v1/auth/refresh-token"
+            Secure = false,
+            SameSite = SameSiteMode.None,
+            Path = "/"
         });
     }
 
