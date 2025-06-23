@@ -23,18 +23,15 @@ import {
 } from "@/lib/services/cartService";
 import { useMemo, useEffect } from "react";
 import { toast } from "sonner";
-import { Cart, CartSyncPayload } from "@/lib/types/cart";
+import { Cart, CartDetail, CartSyncPayload } from "@/lib/types/cart";
 
 export function CartDrawer() {
   const dispatch = useAppDispatch();
-  const {
-    isCartDrawerOpen,
-    items = [],
-    rowVersion,
-  } = useAppSelector(
-    (state) =>
-      state.cart || { isCartDrawerOpen: false, items: [], rowVersion: null }
+  const isCartDrawerOpen = useAppSelector(
+    (state: any) => state.cart.isCartDrawerOpen
   );
+  const cartDetails = useAppSelector((state: any) => state.cart.cartDetails);
+  const rowVersion = useAppSelector((state: any) => state.cart.rowVersion);
   const {
     data: cartData,
     refetch: refetchCart,
@@ -55,21 +52,25 @@ export function CartDrawer() {
       dispatch(
         setCartData({
           id: 0,
-          userId: "",
-          items: [],
-          totalPrice: 0,
+          customerId: 0,
+          cartDetails: [],
+          totalAmount: 0,
           rowVersion: null,
+          createdAt: "",
+          updatedAt: null,
+          customerName: null,
         })
       );
     }
   }, [isCartDrawerOpen, cartData, dispatch]);
 
   const totalPrice = useMemo(() => {
-    return (items || []).reduce(
-      (total, item) => total + (item?.price || 0) * (item?.quantity || 0),
+    return (cartDetails as CartDetail[]).reduce(
+      (total: number, item: CartDetail) =>
+        total + (item?.price || 0) * (item?.quantity || 0),
       0
     );
-  }, [items]);
+  }, [cartDetails]);
 
   const handleToggle = (isOpen: boolean) => {
     if (!isOpen) {
@@ -80,7 +81,7 @@ export function CartDrawer() {
   const handleSyncCart = async () => {
     try {
       const syncPayload: CartSyncPayload = {
-        items: (items || []).map((item) => ({
+        items: (cartDetails as CartDetail[]).map((item: CartDetail) => ({
           productId: item.productId,
           quantity: item.quantity,
         })),
@@ -126,11 +127,11 @@ export function CartDrawer() {
     <Sheet open={isCartDrawerOpen} onOpenChange={handleToggle}>
       <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
         <SheetHeader className="px-6">
-          <SheetTitle>Cart ({(items || []).length})</SheetTitle>
+          <SheetTitle>Cart ({(cartDetails || []).length})</SheetTitle>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto">
           <div className="flex flex-col gap-6 px-6 py-4">
-            {(items || []).length === 0 ? (
+            {(cartDetails as CartDetail[]).length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <p className="text-lg font-semibold">Your cart is empty</p>
                 <p className="text-muted-foreground">
@@ -138,19 +139,19 @@ export function CartDrawer() {
                 </p>
               </div>
             ) : (
-              (items || []).map((item) => (
+              (cartDetails as CartDetail[]).map((item: CartDetail) => (
                 <div key={item.productId} className="flex items-center gap-4">
                   <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
                     <Image
-                      src={item.product?.imageUrl || "/placeholder.png"}
-                      alt={item.product?.name || "Product"}
+                      src={item.productImageUrl || "/placeholder.png"}
+                      alt={item.productName || "Product"}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">
-                      {item.product?.name || "Unknown Product"}
+                      {item.productName || "Unknown Product"}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {item.quantity || 0} x ${(item.price || 0).toFixed(2)}
@@ -203,7 +204,7 @@ export function CartDrawer() {
             )}
           </div>
         </div>
-        {(items || []).length > 0 && (
+        {(cartDetails || []).length > 0 && (
           <SheetFooter className="gap-2 bg-background p-6">
             <div className="flex w-full items-center justify-between">
               <p className="text-lg font-semibold">Total:</p>

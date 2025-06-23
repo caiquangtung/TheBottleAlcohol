@@ -21,6 +21,7 @@ import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { addItem } from "@/lib/features/cart/cartSlice";
+import { useSyncCartMutation } from "@/lib/services/cartService";
 
 function extractId(slugAndId?: string) {
   if (!slugAndId) return NaN;
@@ -106,15 +107,30 @@ const AddToCartSection = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const cartDetails = useAppSelector((state) => state.cart.cartDetails);
+  const rowVersion = useAppSelector((state) => state.cart.rowVersion);
+  const [syncCart] = useSyncCartMutation();
   const router = useRouter();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!isAuthenticated) {
       toast.error("Please log in to add items to your cart.");
       router.push("/login");
       return;
     }
     dispatch(addItem({ product, quantity }));
+    await syncCart({
+      items: [
+        ...cartDetails.filter((item) => item.productId !== product.id),
+        {
+          productId: product.id,
+          quantity:
+            (cartDetails.find((item) => item.productId === product.id)
+              ?.quantity || 0) + quantity,
+        },
+      ].map((item) => ({ productId: item.productId, quantity: item.quantity })),
+      rowVersion,
+    });
   };
 
   return (

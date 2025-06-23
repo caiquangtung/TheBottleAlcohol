@@ -1,18 +1,26 @@
 import { Product } from "./product";
 
 export interface CartDetail {
+  id: number;
+  cartId: number;
   productId: number;
-  product?: Product; // Optional - can be undefined when not fetched
-  quantity: number;
+  productName: string;
+  productImageUrl: string;
   price: number;
+  quantity: number;
+  createdAt: string;
+  updatedAt?: string | null;
 }
 
 export interface Cart {
   id: number;
-  userId: string;
-  items: CartDetail[];
-  totalPrice: number;
-  rowVersion: string | null; // Base64 encoded byte array, can be null for new carts
+  customerId: number;
+  customerName?: string | null;
+  totalAmount: number;
+  createdAt: string;
+  updatedAt?: string | null;
+  rowVersion: string | null;
+  cartDetails: CartDetail[];
 }
 
 export interface CartSyncItem {

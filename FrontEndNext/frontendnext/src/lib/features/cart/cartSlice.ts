@@ -3,13 +3,13 @@ import { Cart, CartDetail } from "@/lib/types/cart";
 import { Product } from "@/lib/types/product";
 
 interface CartState {
-  items: CartDetail[];
+  cartDetails: CartDetail[];
   rowVersion: string | null;
   isCartDrawerOpen: boolean;
 }
 
 const initialState: CartState = {
-  items: [],
+  cartDetails: [],
   rowVersion: null,
   isCartDrawerOpen: false,
 };
@@ -22,40 +22,45 @@ const cartSlice = createSlice({
       state.isCartDrawerOpen = !state.isCartDrawerOpen;
     },
     setCartData: (state, action: PayloadAction<Cart>) => {
-      state.items = action.payload.items || [];
+      state.cartDetails = action.payload.cartDetails || [];
       state.rowVersion = action.payload.rowVersion;
     },
     addItem: (
       state,
       action: PayloadAction<{ product: Product; quantity: number }>
     ) => {
-      if (!state.items) {
-        state.items = [];
+      if (!state.cartDetails) {
+        state.cartDetails = [];
       }
 
       const { product, quantity } = action.payload;
-      const existingItem = state.items.find(
+      const existingItem = state.cartDetails.find(
         (item) => item.productId === product.id
       );
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
-        state.items.push({
+        state.cartDetails.push({
+          id: 0,
+          cartId: 0,
           productId: product.id,
-          product: product,
-          quantity: quantity,
+          productName: product.name,
+          productImageUrl: product.imageUrl || "",
           price: product.price,
+          quantity: quantity,
+          createdAt: new Date().toISOString(),
+          updatedAt: null,
         });
       }
       state.isCartDrawerOpen = true;
     },
     removeItem: (state, action: PayloadAction<number>) => {
-      if (!state.items) {
-        state.items = [];
+      if (!state.cartDetails) {
+        state.cartDetails = [];
         return;
       }
 
-      state.items = state.items.filter(
+      state.cartDetails = state.cartDetails.filter(
         (item) => item.productId !== action.payload
       );
     },
@@ -63,32 +68,32 @@ const cartSlice = createSlice({
       state,
       action: PayloadAction<{ productId: number; quantity: number }>
     ) => {
-      if (!state.items) {
-        state.items = [];
+      if (!state.cartDetails) {
+        state.cartDetails = [];
         return;
       }
 
       const { productId, quantity } = action.payload;
-      const itemToUpdate = state.items.find(
+      const itemToUpdate = state.cartDetails.find(
         (item) => item.productId === productId
       );
       if (itemToUpdate) {
         if (quantity > 0) {
           itemToUpdate.quantity = quantity;
         } else {
-          state.items = state.items.filter(
+          state.cartDetails = state.cartDetails.filter(
             (item) => item.productId !== productId
           );
         }
       }
     },
     clearCart: (state) => {
-      state.items = [];
+      state.cartDetails = [];
       state.rowVersion = null;
     },
     rehydrateCart: (state) => {
-      if (!state.items) {
-        state.items = [];
+      if (!state.cartDetails) {
+        state.cartDetails = [];
       }
       if (state.rowVersion === undefined) {
         state.rowVersion = null;
@@ -102,8 +107,8 @@ const cartSlice = createSlice({
     builder.addMatcher(
       (action) => action.type.endsWith("/rehydrate"),
       (state) => {
-        if (!state.items) {
-          state.items = [];
+        if (!state.cartDetails) {
+          state.cartDetails = [];
         }
         if (state.rowVersion === undefined) {
           state.rowVersion = null;

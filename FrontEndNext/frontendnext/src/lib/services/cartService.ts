@@ -27,6 +27,7 @@ interface CartResponseDto {
     quantity: number;
     createdAt: string;
     updatedAt?: string;
+    productImageUrl?: string;
   }>;
 }
 
@@ -34,23 +35,32 @@ interface CartResponseDto {
 function transformCartResponse(response: ApiResponse<CartResponseDto>): Cart {
   return {
     id: response.data.id,
-    userId: response.data.customerId?.toString() || "",
-    items: (response.data.cartDetails || []).map((detail) => ({
-      productId: detail.productId,
-      product: undefined, // Will be fetched separately if needed
-      quantity: detail.quantity,
-      price: detail.price,
-    })),
-    totalPrice: Number(response.data.totalAmount || 0),
-    rowVersion: response.data.rowVersion
-      ? typeof response.data.rowVersion === "string"
+    customerId: response.data.customerId,
+    customerName: response.data.customerName,
+    totalAmount: Number(response.data.totalAmount || 0),
+    createdAt: response.data.createdAt,
+    updatedAt: response.data.updatedAt,
+    rowVersion:
+      typeof response.data.rowVersion === "string"
         ? response.data.rowVersion
-        : btoa(
+        : response.data.rowVersion
+        ? btoa(
             String.fromCharCode(
               ...Array.from(new Uint8Array(response.data.rowVersion))
             )
           )
-      : null,
+        : null,
+    cartDetails: (response.data.cartDetails || []).map((detail) => ({
+      id: detail.id,
+      cartId: detail.cartId,
+      productId: detail.productId,
+      productName: detail.productName,
+      productImageUrl: detail.productImageUrl || "",
+      price: detail.price,
+      quantity: detail.quantity,
+      createdAt: detail.createdAt,
+      updatedAt: detail.updatedAt,
+    })),
   };
 }
 

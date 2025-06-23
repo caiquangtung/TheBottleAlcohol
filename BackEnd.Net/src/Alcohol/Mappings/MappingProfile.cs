@@ -41,7 +41,8 @@ public class MappingProfile : Profile
 
         // CartDetail mappings
         CreateMap<CartDetail, CartDetailResponseDto>()
-            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : null));
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : null))
+            .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product != null ? src.Product.ImageUrl : null));
         CreateMap<CartDetailCreateDto, CartDetail>();
         CreateMap<CartDetailUpdateDto, CartDetail>();
 

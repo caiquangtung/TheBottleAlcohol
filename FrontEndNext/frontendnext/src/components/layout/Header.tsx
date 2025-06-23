@@ -20,7 +20,7 @@ export default function Header() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
-  const cartItems = useAppSelector((state) => state.cart?.items || []);
+  const cartDetails = useAppSelector((state) => state.cart.cartDetails);
 
   // Hydration check
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Header() {
   }, []);
 
   const totalCartItems =
-    cartItems?.reduce((total, item) => total + (item?.quantity || 0), 0) || 0;
+    cartDetails?.reduce((total, item) => total + (item?.quantity || 0), 0) || 0;
 
   const handleUserClick = () => {
     if (user) {
