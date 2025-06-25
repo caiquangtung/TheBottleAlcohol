@@ -19,4 +19,5 @@ public interface IProductRepository : IGenericRepository<Product>
     Task<IEnumerable<Product>> GetAllWithDetailsAsync();
     Task<Product> GetByIdWithDetailsAsync(int id);
     Task<PagedResult<Product>> GetFilteredAsync(ProductFilterDto filter);
+    Task<List<Product>> GetProductsByIdsAsync(List<int> ids);
 } 

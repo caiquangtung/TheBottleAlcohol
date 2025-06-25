@@ -92,5 +92,12 @@ namespace Alcohol.Controllers
                 return BadRequest(new ApiResponse<string>(ex.Message));
             }
         }
+
+        [HttpPost("list-by-ids")]
+        public async Task<IActionResult> GetProductsByIds([FromBody] List<int> ids)
+        {
+            var products = await _service.GetProductsByIdsAsync(ids);
+            return Ok(new ApiResponse<List<ProductResponseDto>>(products));
+        }
     }
 } 

@@ -12,6 +12,8 @@ using Alcohol.DTOs.CartDetail;
 using Alcohol.Models;
 using Alcohol.Models.Enums;
 using AutoMapper;
+using Alcohol.DTOs.Wishlist;
+using Alcohol.DTOs.WishlistDetail;
 
 namespace Alcohol.Mappings;
 
@@ -106,5 +108,11 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.DisplayOrder, opt => opt.MapFrom(src => 0))
             .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Name.ToLower().Replace(" ", "-")));
         CreateMap<BrandUpdateDto, Brand>();
+
+        // Wishlist mappings
+        CreateMap<Wishlist, WishlistResponseDto>();
+        CreateMap<WishlistCreateDto, Wishlist>().ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.AccountId));
+        CreateMap<WishlistDetailCreateDto, WishlistDetail>();
+        CreateMap<WishlistDetail, WishlistDetailResponseDto>();
     }
 }

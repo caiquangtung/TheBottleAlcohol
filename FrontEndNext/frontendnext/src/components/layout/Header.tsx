@@ -13,6 +13,10 @@ import { useRouter } from "next/navigation";
 import { CartDrawer } from "./CartDrawer";
 import { Badge } from "../ui/badge";
 import { useState, useEffect } from "react";
+import {
+  useGetWishlistsByCustomerQuery,
+  useGetWishlistProductsQuery,
+} from "@/lib/services/wishlistService";
 
 export default function Header() {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -20,7 +24,20 @@ export default function Header() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
+  const userId = user?.id;
   const cartDetails = useAppSelector((state) => state.cart.cartDetails);
+
+  // Lấy wishlist đầu tiên của user
+  const { data: wishlists } = useGetWishlistsByCustomerQuery(
+    typeof userId === "number" ? userId : -1,
+    { skip: typeof userId !== "number" }
+  );
+  const wishlistId = wishlists?.[0]?.id;
+  const { data: wishlistProducts } = useGetWishlistProductsQuery(
+    typeof wishlistId === "number" ? wishlistId : -1,
+    { skip: typeof wishlistId !== "number" }
+  );
+  const wishlistCount = wishlistProducts?.length || 0;
 
   // Hydration check
   useEffect(() => {
@@ -36,6 +53,10 @@ export default function Header() {
     } else {
       router.push("/login");
     }
+  };
+
+  const handleWishlistClick = () => {
+    router.push("/wishlist");
   };
 
   // Don't render until hydrated
@@ -62,8 +83,16 @@ export default function Header() {
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={handleWishlistClick}>
                 <Heart className="h-5 w-5" />
+                {wishlistCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-1"
+                  >
+                    {wishlistCount}
+                  </Badge>
+                )}
               </Button>
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
@@ -103,8 +132,16 @@ export default function Header() {
             <Button variant="ghost" size="icon" onClick={handleUserClick}>
               <User className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={handleWishlistClick}>
               <Heart className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-1"
+                >
+                  {wishlistCount}
+                </Badge>
+              )}
             </Button>
             <Button
               variant="ghost"

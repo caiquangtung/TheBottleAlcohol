@@ -128,4 +128,10 @@ public class ProductService : IProductService
         await _productRepository.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<ProductResponseDto>> GetProductsByIdsAsync(List<int> ids)
+    {
+        var products = await _productRepository.GetProductsByIdsAsync(ids);
+        return _mapper.Map<List<ProductResponseDto>>(products);
+    }
 }

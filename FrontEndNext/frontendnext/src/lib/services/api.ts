@@ -59,7 +59,15 @@ export const api = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth, // Sử dụng baseQueryWithReauth cho toàn bộ API
   endpoints: () => ({}),
-  tagTypes: ["Product", "Category", "User", "Profile", "Brand", "Cart"],
+  tagTypes: [
+    "Product",
+    "Category",
+    "User",
+    "Profile",
+    "Brand",
+    "Cart",
+    "Wishlist",
+  ],
 });
 
 export const enhancedApi = api.injectEndpoints({

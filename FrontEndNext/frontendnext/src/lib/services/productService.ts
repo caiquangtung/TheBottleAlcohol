@@ -40,7 +40,20 @@ export const productApi = enhancedApi.injectEndpoints({
       transformResponse: transformApiResponse,
       providesTags: (result, error, id) => [{ type: "Product", id }],
     }),
+    getProductsByIds: builder.query<Product[], number[]>({
+      query: (ids) => ({
+        url: API_ENDPOINTS.PRODUCTS + "/list-by-ids",
+        method: "POST",
+        body: ids,
+      }),
+      transformResponse: transformApiResponse,
+      providesTags: ["Product"],
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useGetProductByIdQuery } = productApi;
+export const {
+  useGetProductsQuery,
+  useGetProductByIdQuery,
+  useGetProductsByIdsQuery,
+} = productApi;

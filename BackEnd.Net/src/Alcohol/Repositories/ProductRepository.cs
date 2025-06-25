@@ -196,4 +196,11 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
             .Take(8)
             .ToListAsync();
     }
+
+    public async Task<List<Product>> GetProductsByIdsAsync(List<int> ids)
+    {
+        return await _context.Products
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync();
+    }
 } 

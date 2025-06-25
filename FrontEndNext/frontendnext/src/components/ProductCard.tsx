@@ -6,6 +6,20 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Heart } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { addItem } from "@/lib/features/cart/cartSlice";
+import { useSyncCartMutation } from "@/lib/services/cartService";
+import {
+  useGetWishlistsByCustomerQuery,
+  useGetWishlistProductsQuery,
+  useAddProductToWishlistMutation,
+  useRemoveProductFromWishlistMutation,
+} from "@/lib/services/wishlistService";
+import { useEffect, useMemo, useState } from "react";
+import { WishlistDetail } from "@/lib/types/wishlist";
+import { useCreateWishlistMutation } from "@/lib/services/wishlistService";
 
 interface ProductCardProps {
   product: Product;
@@ -28,6 +42,132 @@ const formatABV = (abv: number) => {
 };
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const cartDetails = useAppSelector((state) => state.cart.cartDetails);
+  const rowVersion = useAppSelector((state) => state.cart.rowVersion);
+  const [syncCart, { isLoading }] = useSyncCartMutation();
+  const user = useAppSelector((state) => state.auth.user);
+  const userId = user?.id;
+  const { data: wishlists } = useGetWishlistsByCustomerQuery(
+    typeof userId === "number" ? userId : -1,
+    { skip: typeof userId !== "number" }
+  );
+  const wishlistId = wishlists?.[0]?.id;
+  const { data: wishlistProducts, refetch } = useGetWishlistProductsQuery(
+    typeof wishlistId === "number" ? wishlistId : -1,
+    { skip: typeof wishlistId !== "number" }
+  );
+  const [addProductToWishlist] = useAddProductToWishlistMutation();
+  const [removeProductFromWishlist] = useRemoveProductFromWishlistMutation();
+  const [createWishlist] = useCreateWishlistMutation();
+  const isInWishlist = useMemo(
+    () =>
+      wishlistProducts?.some(
+        (item: WishlistDetail) => item.productId === product.id
+      ),
+    [wishlistProducts, product.id]
+  );
+  const [loading, setLoading] = useState(false);
+
+  // Check if product is already in cart
+  const isInCart = cartDetails.some((item) => item.productId === product.id);
+  const cartQuantity =
+    cartDetails.find((item) => item.productId === product.id)?.quantity || 0;
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation to product page
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      toast.error("Please log in to add items to your cart.");
+      router.push("/login");
+      return;
+    }
+
+    if (product.stockQuantity === 0) {
+      toast.error("This product is out of stock.");
+      return;
+    }
+
+    try {
+      dispatch(addItem({ product, quantity: 1 }));
+
+      await syncCart({
+        items: [
+          ...cartDetails.filter((item) => item.productId !== product.id),
+          {
+            productId: product.id,
+            quantity:
+              (cartDetails.find((item) => item.productId === product.id)
+                ?.quantity || 0) + 1,
+          },
+        ].map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+        rowVersion,
+      }).unwrap();
+
+      toast.success("Item added to cart!");
+    } catch (error: any) {
+      console.error("Error adding to cart:", error);
+
+      // Handle specific error cases
+      if (error?.status === 409) {
+        toast.error("Cart has changed. Please refresh and try again.");
+      } else if (error?.status === 401) {
+        toast.error("Please log in again.");
+        router.push("/login");
+      } else {
+        toast.error("Failed to add item to cart. Please try again.");
+      }
+    }
+  };
+
+  const handleWishlistClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userId) {
+      toast.error("Please log in to use wishlist.");
+      router.push("/login");
+      return;
+    }
+    setLoading(true);
+    try {
+      let currentWishlistId = wishlistId;
+      // Nếu chưa có wishlist, tạo mới
+      if (!currentWishlistId) {
+        const newWishlist = await createWishlist({
+          accountId: userId,
+          name: "My Wishlist",
+        }).unwrap();
+        currentWishlistId = newWishlist.id;
+        // refetch lại danh sách wishlist
+        refetch();
+      }
+      if (isInWishlist) {
+        await removeProductFromWishlist({
+          wishlistId: currentWishlistId,
+          productId: product.id,
+        }).unwrap();
+        toast.success("Removed from wishlist");
+      } else {
+        await addProductToWishlist({
+          wishlistId: currentWishlistId,
+          productId: product.id,
+        }).unwrap();
+        toast.success("Added to wishlist");
+      }
+      refetch();
+    } catch (error) {
+      toast.error("Failed to update wishlist");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card
       className={`relative flex flex-col overflow-hidden dark:bg-[#23232b] ${className}`}
@@ -39,11 +179,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
           </Badge>
         )}
         <Button
-          variant="ghost"
+          variant={isInWishlist ? "secondary" : "ghost"}
           size="icon"
-          className="absolute top-2 right-2 z-10"
+          className="absolute top-4 right-4 z-10"
+          onClick={handleWishlistClick}
+          disabled={loading}
         >
-          <Heart className="h-5 w-5" />
+          <Heart
+            className={`h-5 w-5 ${
+              isInWishlist ? "text-pink-500 fill-pink-500" : ""
+            }`}
+          />
         </Button>
         <Link
           href={`/product/${product.slug}-${product.id}`}
@@ -92,9 +238,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
         </Link>
         <Button
           size="lg"
-          className="w-full mt-4 border-2 border-black bg-transparent text-black dark:bg-[#f96d8d] dark:text-black dark:border-white font-bold tracking-wide hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded-none rounded-b-lg"
+          className={`w-full mt-4 border-2 font-bold tracking-wide rounded-none rounded-b-lg ${
+            isInCart
+              ? "bg-green-600 text-white border-green-600 hover:bg-green-700"
+              : "border-black bg-transparent text-black dark:bg-[#f96d8d] dark:text-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+          }`}
+          onClick={handleAddToCart}
+          disabled={product.stockQuantity === 0 || isLoading}
         >
-          ADD TO CART
+          {isLoading
+            ? "ADDING..."
+            : product.stockQuantity === 0
+            ? "OUT OF STOCK"
+            : isInCart
+            ? `IN CART (${cartQuantity})`
+            : "ADD TO CART"}
         </Button>
       </div>
     </Card>

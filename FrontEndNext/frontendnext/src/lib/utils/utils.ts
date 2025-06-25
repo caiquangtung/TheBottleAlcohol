@@ -28,11 +28,31 @@ export const transformToCamelCase = (obj: any): any => {
 };
 
 export const transformApiResponse = (response: any) => {
+  // Convert response to camelCase
   const camelCasedResponse = transformToCamelCase(response);
-  if (camelCasedResponse.success) {
+
+  // Case 1: Response with success flag and data
+  if (camelCasedResponse.success && camelCasedResponse.data) {
     return camelCasedResponse.data;
   }
-  // TODO: better error handling
-  console.error("API Error:", camelCasedResponse.message || "Unknown error");
-  return null;
+
+  // Case 2: Success messages (like delete confirmations)
+  if (camelCasedResponse.success) {
+    return {
+      success: true,
+      message: camelCasedResponse.message,
+    };
+  }
+
+  // Case 3: Error messages
+  if (!camelCasedResponse.success && camelCasedResponse.message) {
+    console.error("API Error:", camelCasedResponse.message);
+    return {
+      success: false,
+      error: camelCasedResponse.message,
+    };
+  }
+
+  // Case 4: Fallback for other response formats
+  return camelCasedResponse;
 };
