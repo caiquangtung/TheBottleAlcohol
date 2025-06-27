@@ -45,7 +45,11 @@ export default function Header() {
   }, []);
 
   const totalCartItems =
-    cartDetails?.reduce((total, item) => total + (item?.quantity || 0), 0) || 0;
+    cartDetails?.reduce(
+      (total: number, item: { quantity?: number }) =>
+        total + (item?.quantity || 0),
+      0
+    ) || 0;
 
   const handleUserClick = () => {
     if (user) {

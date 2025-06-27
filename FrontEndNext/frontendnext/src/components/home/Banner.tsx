@@ -8,10 +8,15 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "../ui/carousel";
+// import type { EmblaCarouselType } from 'embla-carousel'; // Uncomment if you have embla-carousel types
+
+type EmblaApi = unknown; // Use unknown for stricter typing
 
 export default function Banner() {
   const [current, setCurrent] = useState(0);
-  const [carouselApi, setCarouselApi] = useState<unknown>(null);
+  const [carouselApi, setCarouselApi] = useState<EmblaApi | undefined>(
+    undefined
+  );
 
   // Banner images
   const bannerImages = ["/Web_Banner.png", "/banner.png"];
@@ -19,7 +24,10 @@ export default function Banner() {
   // Auto play effect
   useEffect(() => {
     if (!carouselApi) return;
-    const api = carouselApi as any;
+    const api = carouselApi as {
+      scrollNext: () => void;
+      scrollTo: (index: number) => void;
+    };
     const interval = setInterval(() => {
       if (api) {
         if (current < bannerImages.length - 1) api.scrollNext();
@@ -32,7 +40,11 @@ export default function Banner() {
   // Listen to select event for dots
   useEffect(() => {
     if (!carouselApi) return;
-    const api = carouselApi as any;
+    const api = carouselApi as {
+      selectedScrollSnap: () => number;
+      on: (event: string, callback: () => void) => void;
+      off: (event: string, callback: () => void) => void;
+    };
     const onSelect = () => setCurrent(api.selectedScrollSnap());
     api.on("select", onSelect);
     return () => api.off("select", onSelect);
@@ -69,7 +81,11 @@ export default function Banner() {
                   ? "bg-white border-black dark:bg-[#f96d8d] dark:border-white"
                   : "bg-transparent border-white dark:border-[#f96d8d]"
               }`}
-              onClick={() => (carouselApi as any)?.scrollTo(idx)}
+              onClick={() =>
+                (
+                  carouselApi as { scrollTo: (index: number) => void }
+                )?.scrollTo(idx)
+              }
               aria-label={`Go to banner ${idx + 1}`}
             />
           ))}

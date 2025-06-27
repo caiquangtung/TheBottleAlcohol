@@ -23,7 +23,7 @@ export default function HeadCategoryBar({
       className="flex justify-center gap-3 px-8 py-2 bg-white dark:bg-[#18181b] shadow z-20 relative border-b border-gray-300 dark:border-[#23232b]"
     >
       {/* Các category */}
-      {categories?.map((cat, idx) => (
+      {categories?.map((cat: { id: number; name: string }, idx: number) => (
         <div
           key={cat.id}
           ref={(el) => {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -7,9 +8,11 @@ export default function Footer() {
         {/* Cột 1: Logo & liên hệ */}
         <div className="flex flex-col items-start gap-4">
           <div className="flex items-center gap-2 mb-2">
-            <img
+            <Image
               src="/Logo.png"
               alt="Logo"
+              width={40}
+              height={40}
               className="h-10 w-auto dark:invert"
             />
             <span className="font-bold text-lg">Alcohol Web</span>

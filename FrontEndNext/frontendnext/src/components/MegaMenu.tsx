@@ -4,6 +4,8 @@ import {
   useGetSubCategoriesQuery,
 } from "@/lib/services/categoryService";
 import Link from "next/link";
+import Image from "next/image";
+import { Category } from "@/lib/types/category";
 
 type MegaMenuProps = {
   activeIndex: number | null;
@@ -11,15 +13,6 @@ type MegaMenuProps = {
   top: number;
   arrowX: number | null;
 };
-
-const banners = [
-  "/banner-spirits.png",
-  "/banner-wine.png",
-  "/banner-beer.png",
-  "/banner-liquor.png",
-  "/banner-gin.png",
-  "/banner-vodka.png",
-];
 
 export default function MegaMenu({
   activeIndex,
@@ -84,7 +77,7 @@ export default function MegaMenu({
         <h4 className="font-semibold mb-2 dark:text-white">Danh mục con</h4>
         <ul className="grid grid-cols-2 gap-2">
           {subCategories?.length ? (
-            subCategories.map((sub) => (
+            subCategories.map((sub: Category) => (
               <li key={sub.id}>
                 <Link
                   href={`/category/${sub.slug}-${sub.id}`}
@@ -104,9 +97,11 @@ export default function MegaMenu({
       {/* Cột phải: Ảnh category nếu có */}
       <div className="w-1/4 flex items-center justify-center bg-gray-50 dark:bg-[#23232b]">
         {bannerImg && (
-          <img
+          <Image
             src={bannerImg}
             alt="Category"
+            width={200}
+            height={192}
             className="max-w-full max-h-48 object-cover rounded"
           />
         )}

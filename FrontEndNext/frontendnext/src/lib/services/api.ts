@@ -1,4 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type {
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+} from "@reduxjs/toolkit/query";
 import { RootState } from "../store";
 import { loginSuccess, logout } from "../features/auth/authSlice";
 
@@ -15,7 +20,11 @@ const rawBaseQuery = fetchBaseQuery({
 });
 
 // Add refresh token handling
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
   let result = await rawBaseQuery(args, api, extraOptions);
 
   if (result.error?.status === 401) {
@@ -33,7 +42,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     if (refreshResult.data) {
       // Ép kiểu cho refreshResult.data
       const tokenData = refreshResult.data as { data: { accessToken: string } };
-      const state = api.getState();
+      const state = api.getState() as RootState;
       const user =
         state.auth?.user || JSON.parse(localStorage.getItem("user") || "{}");
       api.dispatch(

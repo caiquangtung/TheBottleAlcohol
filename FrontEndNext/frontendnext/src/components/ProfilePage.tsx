@@ -11,8 +11,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { data, isLoading, isError } = useGetProfileQuery();
-  const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation();
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [logoutMutation] = useLogoutMutation();
   const [tab, setTab] = useState<"overview" | "myprofile">("overview");
 
   // Đảm bảo chỉ render sau khi đã hydrate (nếu cần)
@@ -113,7 +112,7 @@ export default function ProfilePage() {
               <div className="border rounded p-6 mb-6">
                 <div className="font-semibold mb-2">No orders yet...</div>
                 <div className="text-sm mb-4">
-                  You haven't placed any orders yet.
+                  You haven&apos;t placed any orders yet.
                 </div>
                 <Button variant="outline">SHOP NOW</Button>
               </div>

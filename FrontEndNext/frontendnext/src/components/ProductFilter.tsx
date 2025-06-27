@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { ProductFilter } from "@/lib/types/product";
-import { useGetAllBrandsQuery } from "@/lib/services/brandService";
 import { Brand } from "@/lib/types/brand";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -19,8 +18,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Skeleton } from "./ui/skeleton";
-import { useGetAllCategoriesQuery } from "@/lib/services/categoryService";
-import { useState, useEffect } from "react";
 
 interface ProductFilterProps {
   filters: ProductFilter;

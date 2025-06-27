@@ -17,7 +17,7 @@ import {
   useAddProductToWishlistMutation,
   useRemoveProductFromWishlistMutation,
 } from "@/lib/services/wishlistService";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { WishlistDetail } from "@/lib/types/wishlist";
 import { useCreateWishlistMutation } from "@/lib/services/wishlistService";
 
@@ -72,9 +72,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
   const [loading, setLoading] = useState(false);
 
   // Check if product is already in cart
-  const isInCart = cartDetails.some((item) => item.productId === product.id);
+  const isInCart = cartDetails.some(
+    (item: import("@/lib/types/cart").CartDetail) =>
+      item.productId === product.id
+  );
   const cartQuantity =
-    cartDetails.find((item) => item.productId === product.id)?.quantity || 0;
+    cartDetails.find(
+      (item: import("@/lib/types/cart").CartDetail) =>
+        item.productId === product.id
+    )?.quantity || 0;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation to product page
@@ -96,14 +102,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
 
       await syncCart({
         items: [
-          ...cartDetails.filter((item) => item.productId !== product.id),
+          ...cartDetails.filter(
+            (item: import("@/lib/types/cart").CartDetail) =>
+              item.productId !== product.id
+          ),
           {
             productId: product.id,
             quantity:
-              (cartDetails.find((item) => item.productId === product.id)
-                ?.quantity || 0) + 1,
+              (cartDetails.find(
+                (item: import("@/lib/types/cart").CartDetail) =>
+                  item.productId === product.id
+              )?.quantity || 0) + 1,
           },
-        ].map((item) => ({
+        ].map((item: { productId: number; quantity: number }) => ({
           productId: item.productId,
           quantity: item.quantity,
         })),
@@ -111,13 +122,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
       }).unwrap();
 
       toast.success("Item added to cart!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error adding to cart:", error);
 
       // Handle specific error cases
-      if (error?.status === 409) {
+      if ((error as { status?: number })?.status === 409) {
         toast.error("Cart has changed. Please refresh and try again.");
-      } else if (error?.status === 401) {
+      } else if ((error as { status?: number })?.status === 401) {
         toast.error("Please log in again.");
         router.push("/login");
       } else {
@@ -161,7 +172,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
         toast.success("Added to wishlist");
       }
       refetch();
-    } catch (error) {
+    } catch {
       toast.error("Failed to update wishlist");
     } finally {
       setLoading(false);

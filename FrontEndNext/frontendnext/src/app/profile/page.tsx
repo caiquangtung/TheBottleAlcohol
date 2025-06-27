@@ -1,5 +1,4 @@
 "use client";
-import Header from "../../components/layout/Header";
 import ProfilePage from "../../components/ProfilePage";
 export default function Account() {
   return (
@@ -8,4 +7,3 @@ export default function Account() {
     </div>
   );
 }
- 

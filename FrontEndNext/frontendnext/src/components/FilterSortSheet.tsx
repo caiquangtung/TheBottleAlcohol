@@ -10,9 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import ProductFilterComponent from "@/components/ProductFilter";
-import { useGetAllBrandsQuery } from "@/lib/services/brandService";
 import { Brand } from "@/lib/types/brand";
-import { useGetAllCategoriesQuery } from "@/lib/services/categoryService";
 import { ProductFilter as FilterState } from "@/lib/types/product";
 
 interface FilterSortSheetProps {

@@ -1,5 +1,3 @@
-import { Product } from "./product";
-
 export interface CartDetail {
   id: number;
   cartId: number;

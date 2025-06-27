@@ -1,7 +1,6 @@
 import React from "react";
 import { Product } from "@/lib/types/product";
 import ProductCard from "./ProductCard";
-import { Button } from "./ui/button";
 
 interface ProductGridProps {
   products: Product[];
@@ -15,7 +14,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
           No Products Found
         </h3>
         <p className="mt-2 text-gray-500">
-          We couldn't find any products matching your current filters.
+          We couldn&apos;t find any products matching your current filters.
         </p>
         <p className="mt-1 text-gray-500">
           Try adjusting your search or filter criteria.

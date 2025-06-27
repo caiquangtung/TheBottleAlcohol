@@ -1,10 +1,7 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import { Card } from "../ui/card";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Heart, Star } from "lucide-react";
 import { useGetProductsQuery } from "@/lib/services/productService";
 import { Product } from "@/lib/types/product";
 import { Skeleton } from "../ui/skeleton";
@@ -99,10 +96,10 @@ export default function ProductSection() {
           WIMBLEDON READY
         </h2>
         <p className="text-center text-muted-foreground mb-8 max-w-3xl mx-auto">
-          It's not Wimbledon without strawberries — and we've bottled the vibe.
-          From berry-infused gins to juicy liqueurs and sparkling sips, these
-          strawberry-flavoured drinks are serving summer in every pour. Sweet,
-          fruity, and seriously good — no racket required.
+          It&apos;s not Wimbledon without strawberries — and we&apos;ve bottled
+          the vibe. From berry-infused gins to juicy liqueurs and sparkling
+          sips, these strawberry-flavoured drinks are serving summer in every
+          pour. Sweet, fruity, and seriously good — no racket required.
         </p>
         <div className="grid grid-cols-12 gap-6">
           {/* Left: Promo card - spans 5 columns */}

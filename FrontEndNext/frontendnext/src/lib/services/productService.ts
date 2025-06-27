@@ -25,6 +25,32 @@ export interface ProductFilter {
   sortOrder?: "asc" | "desc";
 }
 
+// Server-side function for SEO
+export async function getProductById(id: number): Promise<Product | null> {
+  try {
+    const response = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+      }/api/product/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return transformApiResponse(data);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return null;
+  }
+}
+
 export const productApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
     getProducts: builder.query<PagedResult<Product>, ProductFilter | void>({

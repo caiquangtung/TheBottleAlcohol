@@ -1,5 +1,4 @@
 "use client";
-import Header from "../../components/layout/Header";
 import RegisterPage from "../../components/RegisterPage";
 
 export default function Register() {

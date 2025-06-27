@@ -1,5 +1,7 @@
 "use client";
 import { useGetRecipesQuery } from "@/lib/services/recipeService";
+import Image from "next/image";
+import { Recipe } from "@/lib/types/recipe";
 
 export default function RecipeLibrary() {
   const { data: recipes, isLoading, error } = useGetRecipesQuery();
@@ -11,12 +13,14 @@ export default function RecipeLibrary() {
     <div>
       <h1 className="text-3xl font-bold mb-4">Recipe Library</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {recipes?.map((recipe) => (
+        {recipes?.map((recipe: Recipe) => (
           <div key={recipe.id} className="bg-white rounded shadow p-4">
             {recipe.imageUrl && (
-              <img
+              <Image
                 src={recipe.imageUrl}
                 alt={recipe.name}
+                width={400}
+                height={160}
                 className="w-full h-40 object-cover rounded mb-2"
               />
             )}

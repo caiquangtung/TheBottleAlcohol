@@ -4,7 +4,7 @@ import {
   useGetReviewsByProductQuery,
   useCreateReviewMutation,
 } from "@/lib/services/reviewService";
-import { ReviewCreate } from "@/lib/types/review";
+import { ReviewCreate, Review } from "@/lib/types/review";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 
@@ -48,14 +48,17 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
       setShowForm(false);
       setRating(0);
       setComment("");
-    } catch (err: any) {
-      setError(err?.data?.error || "Failed to submit review");
+    } catch (err: unknown) {
+      setError(
+        (err as { data?: { error?: string } })?.data?.error ||
+          "Failed to submit review"
+      );
     }
   };
 
   const ratingStats = [5, 4, 3, 2, 1].map((star) => ({
     star,
-    count: reviews.filter((r) => r.rating === star).length,
+    count: reviews.filter((r: Review) => r.rating === star).length,
   }));
   const total = reviews.length;
 
@@ -70,7 +73,10 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
             <span>
               {total > 0
                 ? (
-                    reviews.reduce((sum, r) => sum + r.rating, 0) / total
+                    reviews.reduce(
+                      (sum: number, r: Review) => sum + r.rating,
+                      0
+                    ) / total
                   ).toFixed(2)
                 : "0.00"}
             </span>
@@ -163,7 +169,7 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
             No reviews yet.
           </div>
         ) : (
-          reviews.map((review) => (
+          reviews.map((review: Review) => (
             <div
               key={review.id}
               className="flex flex-col md:flex-row items-start gap-4 py-6"

@@ -15,7 +15,7 @@ export interface Recipe {
   createdAt: string;
   updatedAt?: string;
   categoryId?: number;
-  category?: any; // Có thể tạo type riêng nếu cần
+  category?: { id: number; name: string; slug: string }; // Recipe category type
   ingredients?: RecipeIngredient[];
 }
 
@@ -27,5 +27,5 @@ export interface RecipeIngredient {
   quantity: number;
   unit?: string;
   notes?: string;
-  product?: any; // Có thể tạo type riêng nếu cần
+  product?: { id: number; name: string; imageUrl: string }; // Product type for ingredient
 }

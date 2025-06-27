@@ -28,10 +28,15 @@ import { Cart, CartDetail, CartSyncPayload } from "@/lib/types/cart";
 export function CartDrawer() {
   const dispatch = useAppDispatch();
   const isCartDrawerOpen = useAppSelector(
-    (state: any) => state.cart.isCartDrawerOpen
+    (state: { cart: { isCartDrawerOpen: boolean } }) =>
+      state.cart.isCartDrawerOpen
   );
-  const cartDetails = useAppSelector((state: any) => state.cart.cartDetails);
-  const rowVersion = useAppSelector((state: any) => state.cart.rowVersion);
+  const cartDetails = useAppSelector(
+    (state: { cart: { cartDetails: CartDetail[] } }) => state.cart.cartDetails
+  );
+  const rowVersion = useAppSelector(
+    (state: { cart: { rowVersion: string | null } }) => state.cart.rowVersion
+  );
   const {
     data: cartData,
     refetch: refetchCart,
