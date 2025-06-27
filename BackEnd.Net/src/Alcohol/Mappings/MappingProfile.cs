@@ -14,6 +14,7 @@ using Alcohol.Models.Enums;
 using AutoMapper;
 using Alcohol.DTOs.Wishlist;
 using Alcohol.DTOs.WishlistDetail;
+using Alcohol.DTOs.Review;
 
 namespace Alcohol.Mappings;
 
@@ -114,5 +115,11 @@ public class MappingProfile : Profile
         CreateMap<WishlistCreateDto, Wishlist>().ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.AccountId));
         CreateMap<WishlistDetailCreateDto, WishlistDetail>();
         CreateMap<WishlistDetail, WishlistDetailResponseDto>();
+
+        // Review mappings
+        CreateMap<Review, ReviewResponseDto>()
+            .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : null));
+        CreateMap<ReviewCreateDto, Review>().ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.AccountId));
+        CreateMap<ReviewUpdateDto, Review>();
     }
 }

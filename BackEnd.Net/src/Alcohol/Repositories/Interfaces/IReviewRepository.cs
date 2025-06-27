@@ -10,6 +10,7 @@ public interface IReviewRepository
     Task<Review> GetByIdAsync(int id);
     Task<IEnumerable<Review>> GetByProductIdAsync(int productId);
     Task<IEnumerable<Review>> GetByCustomerIdAsync(int customerId);
+    Task<Review> GetByProductAndCustomerAsync(int productId, int customerId);
     Task AddAsync(Review review);
     void Update(Review review);
     void Delete(Review review);

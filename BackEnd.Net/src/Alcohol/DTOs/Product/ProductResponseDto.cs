@@ -28,4 +28,7 @@ public class ProductResponseDto
     // Brand information
     public int BrandId { get; set; }
     public string BrandName { get; set; }
+
+    public int? Age { get; set; }
+    public string Flavor { get; set; }
 } 

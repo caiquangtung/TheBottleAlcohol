@@ -67,6 +67,8 @@ export const api = createApi({
     "Brand",
     "Cart",
     "Wishlist",
+    "Recipe",
+    "Review",
   ],
 });
 

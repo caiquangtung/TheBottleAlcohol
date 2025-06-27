@@ -54,8 +54,16 @@ public class ReviewController : ControllerBase
     [Authorize]
     public async Task<ActionResult<ReviewResponseDto>> CreateReview(ReviewCreateDto createDto)
     {
-        var review = await _reviewService.CreateReviewAsync(createDto);
-        return CreatedAtAction(nameof(GetReviewById), new { id = review.Id }, review);
+        try
+        {
+            var review = await _reviewService.CreateReviewAsync(createDto);
+            return CreatedAtAction(nameof(GetReviewById), new { id = review.Id }, review);
+        }
+        catch (Exception ex)
+        {
+            // Trả về lỗi 400 với message rõ ràng
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpPut("{id}")]

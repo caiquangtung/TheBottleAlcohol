@@ -438,6 +438,15 @@ namespace Alcohol.Data
                               .WithOne()
                               .HasForeignKey<Cart>(e => e.CustomerId);
                   });
+
+                  // 14. Review
+                  modelBuilder.Entity<Review>(entity =>
+                  {
+                        entity.ToTable("Reviews");
+                        entity.HasKey(e => e.Id);
+                        // Thêm unique index cho CustomerId + ProductId
+                        entity.HasIndex(e => new { e.CustomerId, e.ProductId }).IsUnique();
+                  });
             }
       }
 }

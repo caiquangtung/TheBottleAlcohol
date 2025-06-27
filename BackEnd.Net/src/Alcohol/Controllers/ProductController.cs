@@ -99,5 +99,12 @@ namespace Alcohol.Controllers
             var products = await _service.GetProductsByIdsAsync(ids);
             return Ok(new ApiResponse<List<ProductResponseDto>>(products));
         }
+
+        [HttpGet("brand/{brandId}")]
+        public async Task<IActionResult> GetByBrand(int brandId)
+        {
+            var products = await _service.GetProductsByBrandAsync(brandId);
+            return Ok(new ApiResponse<IEnumerable<ProductResponseDto>>(products));
+        }
     }
 } 

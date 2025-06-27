@@ -15,6 +15,9 @@ import {
   Percent,
   Minus,
   Plus,
+  Wine,
+  Clock,
+  ChevronRight,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
@@ -22,6 +25,16 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { addItem } from "@/lib/features/cart/cartSlice";
 import { useSyncCartMutation } from "@/lib/services/cartService";
+import ReviewSection from "@/components/ReviewSection";
+import { ProductCardList } from "@/components/ProductCard";
+import { useGetProductsByBrandQuery } from "@/lib/services/productService";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 function extractId(slugAndId?: string) {
   if (!slugAndId) return NaN;
@@ -65,7 +78,8 @@ const ProductPageSkeleton = () => (
 );
 
 const ProductInfoList = ({ product }: { product: Product }) => {
-  const infoItems = [
+  type InfoItem = { icon: React.JSX.Element; label: string; value: string };
+  const infoItems: InfoItem[] = [
     {
       icon: <Tag className="h-5 w-5" />,
       label: "Brand",
@@ -86,6 +100,24 @@ const ProductInfoList = ({ product }: { product: Product }) => {
       label: "ABV",
       value: `${product.alcoholContent}%`,
     },
+    ...(product.flavor
+      ? [
+          {
+            icon: <Wine className="h-5 w-5" />,
+            label: "Flavor",
+            value: product.flavor,
+          },
+        ]
+      : []),
+    ...(product.age
+      ? [
+          {
+            icon: <Clock className="h-5 w-5" />,
+            label: "Age",
+            value: `${product.age} years old`,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -171,6 +203,82 @@ const AddToCartSection = ({ product }: { product: Product }) => {
     </div>
   );
 };
+
+function MoreOptionsDrawer({ currentProduct }: { currentProduct: Product }) {
+  const [open, setOpen] = useState(false);
+  const { data: products = [], isLoading } = useGetProductsByBrandQuery(
+    currentProduct.brandId,
+    { skip: !currentProduct.brandId || !open }
+  );
+  // Lọc bỏ sản phẩm hiện tại
+  const filtered = products.filter((p) => p.id !== currentProduct.id);
+  return (
+    <>
+      <Button
+        variant="ghost"
+        className="w-full justify-between px-0 font-medium text-base"
+        onClick={() => setOpen(true)}
+      >
+        More options
+        <ChevronRight className="h-5 w-5" />
+      </Button>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent className="w-full max-w-lg sm:max-w-xl flex flex-col">
+          <SheetHeader>
+            <SheetTitle>RELATED:</SheetTitle>
+            <SheetClose asChild>
+              <Button variant="ghost" className="absolute right-2 top-2">
+                Close
+              </Button>
+            </SheetClose>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto mt-4">
+            {isLoading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading...
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No other products from this brand.
+              </div>
+            ) : (
+              <ul className="divide-y divide-muted-foreground/10">
+                {filtered.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      href={`/product/${p.slug}-${p.id}`}
+                      className="flex items-center gap-6 px-4 py-5 hover:bg-accent rounded-lg transition"
+                    >
+                      <div className="relative w-20 h-20 flex-shrink-0">
+                        <Image
+                          src={p.imageUrl || "/product.png"}
+                          alt={p.name}
+                          fill
+                          className="object-contain rounded-lg"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-lg truncate">
+                          {p.name}
+                        </div>
+                        <div className="text-base text-muted-foreground font-bold mt-1">
+                          {new Intl.NumberFormat("en-GB", {
+                            style: "currency",
+                            currency: "GBP",
+                          }).format(p.price)}
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
+  );
+}
 
 export default function ProductPage() {
   const params = useParams();
@@ -261,9 +369,12 @@ export default function ProductPage() {
             <p>{product.description}</p>
           </div>
           <AddToCartSection product={product} />
+          <MoreOptionsDrawer currentProduct={product} />
         </div>
       </div>
       {/* More product details will go here */}
+      {product && <ReviewSection productId={product.id} />}
+      {/* More Options: Drawer */}
     </div>
   );
 }

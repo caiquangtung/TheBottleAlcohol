@@ -51,6 +51,14 @@ public class ReviewRepository : IReviewRepository
             .ToListAsync();
     }
 
+    public async Task<Review> GetByProductAndCustomerAsync(int productId, int customerId)
+    {
+        return await _context.Reviews
+            .Include(r => r.Product)
+            .Include(r => r.Customer)
+            .FirstOrDefaultAsync(r => r.ProductId == productId && r.CustomerId == customerId);
+    }
+
     public async Task AddAsync(Review review)
     {
         await _context.Reviews.AddAsync(review);

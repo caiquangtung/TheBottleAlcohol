@@ -3,6 +3,7 @@ import {
   useGetRootCategoriesQuery,
   useGetSubCategoriesQuery,
 } from "@/lib/services/categoryService";
+import Link from "next/link";
 
 type MegaMenuProps = {
   activeIndex: number | null;
@@ -40,6 +41,9 @@ export default function MegaMenu({
 
   if (activeIndex === null || !rootCategories) return null;
 
+  const activeCategory = rootCategories[activeIndex];
+  const bannerImg = activeCategory?.imageUrl;
+
   return (
     <div
       className="fixed left-0 right-0 w-full bg-white dark:bg-[#18181b] shadow-lg dark:shadow-xl z-30 flex overflow-x-auto"
@@ -66,11 +70,13 @@ export default function MegaMenu({
       )}
       {/* Cột trái: Head categories */}
       <div className="w-1/4 border-r p-6 dark:border-[#23232b]">
-        <div className="font-bold text-lg mb-2 dark:text-white">
-          {rootCategories[activeIndex]?.name}
-        </div>
+        <Link href={`/category/${activeCategory?.slug}-${activeCategory?.id}`}>
+          <div className="font-bold text-lg mb-2 dark:text-white hover:underline cursor-pointer">
+            {activeCategory?.name}
+          </div>
+        </Link>
         <div className="text-sm text-muted-foreground dark:text-gray-400">
-          {rootCategories[activeIndex]?.description}
+          {activeCategory?.description}
         </div>
       </div>
       {/* Cột giữa: Subcategories */}
@@ -80,12 +86,12 @@ export default function MegaMenu({
           {subCategories?.length ? (
             subCategories.map((sub) => (
               <li key={sub.id}>
-                <a
-                  href={`/categories/${sub.slug}`}
+                <Link
+                  href={`/category/${sub.slug}-${sub.id}`}
                   className="hover:underline dark:text-white"
                 >
                   {sub.name}
-                </a>
+                </Link>
               </li>
             ))
           ) : (
@@ -95,13 +101,15 @@ export default function MegaMenu({
           )}
         </ul>
       </div>
-      {/* Cột phải: Banner */}
+      {/* Cột phải: Ảnh category nếu có */}
       <div className="w-1/4 flex items-center justify-center bg-gray-50 dark:bg-[#23232b]">
-        <img
-          src={banners[activeIndex % banners.length]}
-          alt="Banner"
-          className="max-w-full max-h-48 object-cover rounded"
-        />
+        {bannerImg && (
+          <img
+            src={bannerImg}
+            alt="Category"
+            className="max-w-full max-h-48 object-cover rounded"
+          />
+        )}
       </div>
     </div>
   );

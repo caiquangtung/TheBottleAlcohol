@@ -259,4 +259,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
   );
 };
 
+export const ProductCardList = ({
+  products,
+  className = "",
+}: {
+  products: Product[];
+  className?: string;
+}) => (
+  <div
+    className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ${className}`}
+  >
+    {products.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))}
+  </div>
+);
+
 export default ProductCard;

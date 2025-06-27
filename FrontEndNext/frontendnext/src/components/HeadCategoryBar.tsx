@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef } from "react";
 import { useGetRootCategoriesQuery } from "@/lib/services/categoryService";
+import Link from "next/link";
 
 type HeadCategoryBarProps = {
   onHoverCategory: (idx: number | null, centerX?: number) => void;
@@ -21,6 +22,7 @@ export default function HeadCategoryBar({
       ref={innerRef}
       className="flex justify-center gap-3 px-8 py-2 bg-white dark:bg-[#18181b] shadow z-20 relative border-b border-gray-300 dark:border-[#23232b]"
     >
+      {/* Các category */}
       {categories?.map((cat, idx) => (
         <div
           key={cat.id}
@@ -37,6 +39,15 @@ export default function HeadCategoryBar({
           {cat.name}
         </div>
       ))}
+      {/* Mục Recipes */}
+      <Link href="/recipe">
+        <div
+          className="font-semibold cursor-pointer transition relative px-4 py-2 border-b-2 border-transparent hover:border-primary hover:text-primary bg-white dark:bg-[#18181b] dark:text-green-700 dark:hover:text-primary"
+          onMouseEnter={() => onHoverCategory(null)}
+        >
+          Recipes
+        </div>
+      </Link>
     </nav>
   );
 }

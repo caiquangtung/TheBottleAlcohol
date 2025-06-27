@@ -49,6 +49,11 @@ export const productApi = enhancedApi.injectEndpoints({
       transformResponse: transformApiResponse,
       providesTags: ["Product"],
     }),
+    getProductsByBrand: builder.query<Product[], number>({
+      query: (brandId) => `/product/brand/${brandId}`,
+      transformResponse: transformApiResponse,
+      providesTags: ["Product"],
+    }),
   }),
 });
 
@@ -56,4 +61,5 @@ export const {
   useGetProductsQuery,
   useGetProductByIdQuery,
   useGetProductsByIdsQuery,
+  useGetProductsByBrandQuery,
 } = productApi;

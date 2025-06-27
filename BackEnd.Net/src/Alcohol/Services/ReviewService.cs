@@ -6,6 +6,7 @@ using Alcohol.Models;
 using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
+using System.Linq;
 
 namespace Alcohol.Services;
 
@@ -49,6 +50,13 @@ public class ReviewService : IReviewService
 
     public async Task<ReviewResponseDto> CreateReviewAsync(ReviewCreateDto createDto)
     {
+        // Kiểm tra đã có review chưa
+        var existing = await _reviewRepository.GetByProductAndCustomerAsync(createDto.ProductId, createDto.AccountId);
+        if (existing != null)
+        {
+            throw new Exception("Bạn đã đánh giá sản phẩm này rồi.");
+        }
+
         var review = _mapper.Map<Review>(createDto);
         review.CreatedAt = DateTime.UtcNow;
 

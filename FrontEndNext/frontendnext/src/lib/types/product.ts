@@ -18,6 +18,8 @@ export interface Product {
   categoryName: string;
   brandId: number;
   brandName: string;
+  age?: number;
+  flavor?: string;
 }
 
 export interface ProductFilter {
