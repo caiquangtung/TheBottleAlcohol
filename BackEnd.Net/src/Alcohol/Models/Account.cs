@@ -48,6 +48,15 @@ public class Account
 
     public DateTime? UpdatedAt { get; set; }
 
+    [StringLength(255)]
+    public string? OAuthProvider { get; set; } // "Google", "Facebook"
+
+    [StringLength(255)]
+    public string? OAuthId { get; set; } // ID từ provider
+
+    [StringLength(500)]
+    public string? AvatarUrl { get; set; } // URL avatar từ OAuth
+
     // Navigation properties
     public ICollection<Order> Orders { get; set; }
     public Cart Cart { get; set; }

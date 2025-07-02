@@ -16,4 +16,5 @@ public interface IAccountRepository
     void Delete(Account account);
     Task SaveChangesAsync();
     Task<bool> ExistsByEmailAsync(string email);
+    Task<Account?> GetAccountByOAuthIdAsync(string provider, string oauthId);
 } 

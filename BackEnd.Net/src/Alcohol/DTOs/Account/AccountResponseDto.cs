@@ -16,4 +16,6 @@ public class AccountResponseDto
     public bool Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public string? OAuthProvider { get; set; }
+    public string? AvatarUrl { get; set; }
 } 

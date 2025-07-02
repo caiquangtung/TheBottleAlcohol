@@ -75,4 +75,10 @@ public class AccountRepository : IAccountRepository
     {
         return await _context.Accounts.AnyAsync(a => a.Email == email);
     }
+
+    public async Task<Account?> GetAccountByOAuthIdAsync(string provider, string oauthId)
+    {
+        return await _context.Accounts
+            .FirstOrDefaultAsync(a => a.OAuthProvider == provider && a.OAuthId == oauthId);
+    }
 } 
