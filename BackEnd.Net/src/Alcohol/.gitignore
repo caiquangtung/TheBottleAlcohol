@@ -140,3 +140,4 @@ _ReSharper*/
 
 # Optional: Ignore the .vs folder (can cause problems, use with caution)
 .vs/
+.AlcoholWeb
