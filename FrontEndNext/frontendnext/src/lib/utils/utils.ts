@@ -61,7 +61,7 @@ export const transformApiResponse = <T = unknown>(response: unknown): T => {
     camelCasedResponse &&
     typeof camelCasedResponse === "object" &&
     "success" in camelCasedResponse &&
-    !camelCasedResponse.success &&
+    camelCasedResponse.success === false &&
     "message" in camelCasedResponse &&
     (camelCasedResponse as { message?: string }).message
   ) {

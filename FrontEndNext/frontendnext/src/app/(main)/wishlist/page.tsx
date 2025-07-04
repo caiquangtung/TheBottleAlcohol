@@ -35,16 +35,19 @@ export default function WishlistPage() {
   const { data: products = [], isLoading: productsLoading } =
     useGetProductsByIdsQuery(productIds, { skip: productIds.length === 0 });
 
+  // Đảm bảo khi productIds rỗng thì products cũng rỗng để UI cập nhật đúng
+  const displayProducts = productIds.length === 0 ? [] : products;
+
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-3xl font-bold mb-6">My Wishlist</h1>
       {productsLoading ? (
         <div>Loading products...</div>
-      ) : products.length === 0 ? (
+      ) : displayProducts.length === 0 ? (
         <div className="text-muted-foreground">Your wishlist is empty.</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {(products as Product[]).map((product: Product) => (
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+          {(displayProducts as Product[]).map((product: Product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

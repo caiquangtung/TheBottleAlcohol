@@ -138,14 +138,14 @@ export default function Header() {
             </Button>
             <Button variant="ghost" size="icon" onClick={handleWishlistClick}>
               <Heart className="h-5 w-5" />
-              {wishlistCount > 0 && (
+              {/* {wishlistCount > 0 && (
                 <Badge
                   variant="secondary"
                   className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-1"
                 >
                   {wishlistCount}
                 </Badge>
-              )}
+              )} */}
             </Button>
             <Button
               variant="ghost"

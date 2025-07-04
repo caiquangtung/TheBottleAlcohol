@@ -11,11 +11,10 @@ export default function Footer() {
             <Image
               src="/Logo.png"
               alt="Logo"
-              width={40}
-              height={40}
-              className="h-10 w-auto dark:invert"
+              width={200}
+              height={200}
+              className="transition-all filter brightness-0 invert"
             />
-            <span className="font-bold text-lg">Alcohol Web</span>
           </div>
           <div className="text-sm">
             Hotline:{" "}
