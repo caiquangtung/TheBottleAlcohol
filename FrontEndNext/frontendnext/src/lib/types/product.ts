@@ -22,6 +22,40 @@ export interface Product {
   flavor?: string;
 }
 
+export interface ProductCreate {
+  name: string;
+  description: string;
+  slug: string;
+  origin: string;
+  volume: number;
+  alcoholContent: number;
+  price: number;
+  stockQuantity: number;
+  status: boolean;
+  imageUrl: string;
+  metaTitle: string;
+  metaDescription: string;
+  categoryId: number;
+  brandId: number;
+}
+
+export interface ProductUpdate {
+  name: string;
+  description: string;
+  slug: string;
+  origin: string;
+  volume: number;
+  alcoholContent: number;
+  price: number;
+  stockQuantity: number;
+  status: boolean;
+  imageUrl: string;
+  metaTitle: string;
+  metaDescription: string;
+  categoryId: number;
+  brandId: number;
+}
+
 export interface ProductFilter {
   search?: string;
   categoryId?: number;

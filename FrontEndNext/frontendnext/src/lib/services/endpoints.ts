@@ -2,6 +2,8 @@ export const API_ENDPOINTS = {
   // Products
   PRODUCTS: "/product",
   PRODUCT_DETAIL: (id: string) => `/product/${id}`,
+  PRODUCTS_BY_BRAND: (brandId: number) => `/product/brand/${brandId}`,
+  PRODUCTS_BY_IDS: "/product/list-by-ids",
 
   // Categories
   CATEGORIES: "/category",
@@ -36,4 +38,20 @@ export const API_ENDPOINTS = {
     wishlistId: number | string,
     productId: number | string
   ) => `/wishlist/${wishlistId}/products/${productId}`,
+
+  // Dashboard
+  DASHBOARD_SUMMARY: "/dashboard/summary",
+
+  // Users (Account)
+  USERS: "/account",
+  USER_DETAIL: (id: number | string) => `/account/${id}`,
+  USER_CREATE: "/account/create-with-role",
+  USER_UPDATE: (id: number | string) => `/account/${id}`,
+  USER_DELETE: (id: number | string) => `/account/${id}`,
+
+  // Products (Admin)
+  PRODUCTS_ADMIN: "/product",
+  PRODUCT_CREATE: "/product",
+  PRODUCT_UPDATE: (id: number | string) => `/product/${id}`,
+  PRODUCT_DELETE: (id: number | string) => `/product/${id}`,
 } as const;

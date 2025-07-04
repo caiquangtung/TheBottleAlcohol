@@ -79,6 +79,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<IInventoryTransactionService, InventoryTransactionService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 // Add PasswordHasher
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();

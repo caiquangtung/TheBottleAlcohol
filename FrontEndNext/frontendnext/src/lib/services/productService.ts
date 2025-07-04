@@ -2,6 +2,11 @@ import { API_ENDPOINTS } from "./endpoints";
 import { enhancedApi } from "./api";
 import { transformApiResponse } from "../utils/utils";
 import { Product } from "../types/product";
+import type {
+  ProductFilter,
+  ProductCreate,
+  ProductUpdate,
+} from "../types/product";
 
 export interface PagedResult<T> {
   items: T[];
@@ -9,19 +14,6 @@ export interface PagedResult<T> {
   pageNumber: number;
   pageSize: number;
   totalPages: number;
-  sortOrder?: "asc" | "desc";
-}
-
-export interface ProductFilter {
-  searchTerm?: string;
-  categoryId?: number;
-  brandId?: number;
-  minPrice?: number;
-  maxPrice?: number;
-  status?: boolean;
-  pageNumber?: number;
-  pageSize?: number;
-  sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
 
@@ -52,40 +44,83 @@ export async function getProductById(id: number): Promise<Product | null> {
 }
 
 export const productApi = enhancedApi.injectEndpoints({
-  endpoints: (builder) => ({
-    getProducts: builder.query<PagedResult<Product>, ProductFilter | void>({
+  endpoints: (build) => ({
+    getProducts: build.query<PagedResult<Product>, ProductFilter>({
       query: (filter) => ({
         url: API_ENDPOINTS.PRODUCTS,
-        params: filter || {},
+        method: "GET",
+        params: filter,
       }),
-      transformResponse: transformApiResponse,
+      transformResponse: (response) =>
+        transformApiResponse<PagedResult<Product>>(response),
       providesTags: ["Product"],
     }),
-    getProductById: builder.query<Product, number>({
-      query: (id) => API_ENDPOINTS.PRODUCT_DETAIL(id.toString()),
-      transformResponse: transformApiResponse,
-      providesTags: (result, error, id) => [{ type: "Product", id }],
+    getProductById: build.query<Product, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.PRODUCT_DETAIL(id.toString()),
+        method: "GET",
+      }),
+      transformResponse: (response) => transformApiResponse<Product>(response),
+      providesTags: ["Product"],
     }),
-    getProductsByIds: builder.query<Product[], number[]>({
+    getProductsByBrand: build.query<Product[], number>({
+      query: (brandId) => ({
+        url: API_ENDPOINTS.PRODUCTS_BY_BRAND(brandId),
+        method: "GET",
+      }),
+      transformResponse: (response) =>
+        transformApiResponse<Product[]>(response),
+      providesTags: ["Product"],
+    }),
+    getProductsByIds: build.query<Product[], number[]>({
       query: (ids) => ({
-        url: API_ENDPOINTS.PRODUCTS + "/list-by-ids",
+        url: API_ENDPOINTS.PRODUCTS_BY_IDS,
         method: "POST",
         body: ids,
       }),
-      transformResponse: transformApiResponse,
+      transformResponse: (response) =>
+        transformApiResponse<Product[]>(response),
       providesTags: ["Product"],
     }),
-    getProductsByBrand: builder.query<Product[], number>({
-      query: (brandId) => `/product/brand/${brandId}`,
-      transformResponse: transformApiResponse,
-      providesTags: ["Product"],
+    // Admin CRUD mutations
+    createProduct: build.mutation<Product, ProductCreate>({
+      query: (body) => ({
+        url: API_ENDPOINTS.PRODUCT_CREATE,
+        method: "POST",
+        body,
+      }),
+      transformResponse: (response) => transformApiResponse<Product>(response),
+      invalidatesTags: ["Product"],
+    }),
+    updateProduct: build.mutation<Product, { id: number; data: ProductUpdate }>(
+      {
+        query: ({ id, data }) => ({
+          url: API_ENDPOINTS.PRODUCT_UPDATE(id),
+          method: "PUT",
+          body: data,
+        }),
+        transformResponse: (response) =>
+          transformApiResponse<Product>(response),
+        invalidatesTags: ["Product"],
+      }
+    ),
+    deleteProduct: build.mutation<{ message: string }, number>({
+      query: (id) => ({
+        url: API_ENDPOINTS.PRODUCT_DELETE(id),
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Product"],
     }),
   }),
+  overrideExisting: false,
 });
 
 export const {
   useGetProductsQuery,
   useGetProductByIdQuery,
-  useGetProductsByIdsQuery,
   useGetProductsByBrandQuery,
+  useGetProductsByIdsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
 } = productApi;

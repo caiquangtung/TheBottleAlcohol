@@ -6,6 +6,8 @@ import type {
 } from "@reduxjs/toolkit/query";
 import { RootState } from "../store";
 import { loginSuccess, logout } from "../features/auth/authSlice";
+import { API_ENDPOINTS } from "./endpoints";
+import type { DashboardSummaryDto } from "../types/statistics";
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1",
@@ -82,6 +84,13 @@ export const api = createApi({
 });
 
 export const enhancedApi = api.injectEndpoints({
-  endpoints: () => ({}),
+  endpoints: (build) => ({
+    getDashboardSummary: build.query<DashboardSummaryDto, void>({
+      query: () => ({
+        url: API_ENDPOINTS.DASHBOARD_SUMMARY,
+        method: "GET",
+      }),
+    }),
+  }),
   overrideExisting: false,
 });
