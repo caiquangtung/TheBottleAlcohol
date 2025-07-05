@@ -64,4 +64,6 @@ export interface ProductFilter {
   maxPrice?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  pageNumber?: number;
+  pageSize?: number;
 }

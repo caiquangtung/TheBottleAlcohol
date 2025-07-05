@@ -15,6 +15,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -207,29 +215,27 @@ export default function AdminUsersPage() {
               Không có người dùng nào
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2">ID</th>
-                    <th className="text-left p-2">Họ tên</th>
-                    <th className="text-left p-2">Email</th>
-                    <th className="text-left p-2">Số điện thoại</th>
-                    <th className="text-left p-2">Giới tính</th>
-                    <th className="text-left p-2">Vai trò</th>
-                    <th className="text-left p-2">Trạng thái</th>
-                    <th className="text-left p-2">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Họ tên</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Số điện thoại</TableHead>
+                    <TableHead>Giới tính</TableHead>
+                    <TableHead>Vai trò</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filteredUsers.map((user: User) => (
-                    <tr key={user.id} className="border-b hover:bg-muted/50">
-                      <td className="p-2">
-                        <span className="text-sm text-muted-foreground font-mono">
-                          #{user.id}
-                        </span>
-                      </td>
-                      <td className="p-2">
+                    <TableRow key={user.id}>
+                      <TableCell className="font-mono text-sm">
+                        #{user.id}
+                      </TableCell>
+                      <TableCell>
                         <div>
                           <div className="font-medium">{user.fullName}</div>
                           <div className="text-sm text-muted-foreground">
@@ -239,22 +245,22 @@ export default function AdminUsersPage() {
                               )}
                           </div>
                         </div>
-                      </td>
-                      <td className="p-2">{user.email}</td>
-                      <td className="p-2">{user.phoneNumber}</td>
-                      <td className="p-2">{getGenderLabel(user.gender)}</td>
-                      <td className="p-2">
+                      </TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.phoneNumber}</TableCell>
+                      <TableCell>{getGenderLabel(user.gender)}</TableCell>
+                      <TableCell>
                         <Badge variant="outline">
                           {getRoleLabel(user.role)}
                         </Badge>
-                      </td>
-                      <td className="p-2">
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={user.status ? "default" : "secondary"}>
                           {user.status ? "Hoạt động" : "Ẩn"}
                         </Badge>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex gap-2">
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
@@ -297,11 +303,11 @@ export default function AdminUsersPage() {
                             </AlertDialogContent>
                           </AlertDialog>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>

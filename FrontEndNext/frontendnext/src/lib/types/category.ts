@@ -28,3 +28,10 @@ export interface CategoryCreateDto {
   metaTitle?: string;
   metaDescription?: string;
 }
+
+export interface CategoryUpdateDto {
+  name: string;
+  description: string;
+  slug: string;
+  isActive: boolean;
+}

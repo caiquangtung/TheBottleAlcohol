@@ -1,7 +1,11 @@
 import { API_ENDPOINTS } from "./endpoints";
 import { enhancedApi } from "./api";
 import { transformApiResponse } from "../utils/utils";
-import { Category, CategoryCreateDto } from "../types/category";
+import {
+  Category,
+  CategoryCreateDto,
+  CategoryUpdateDto,
+} from "../types/category";
 
 // Server-side function for SEO
 export async function getCategoryById(id: number): Promise<Category | null> {
@@ -70,7 +74,7 @@ export const categoryApi = enhancedApi.injectEndpoints({
     }),
     updateCategory: builder.mutation<
       Category,
-      { id: number; category: Partial<CategoryCreateDto> }
+      { id: number; category: CategoryUpdateDto }
     >({
       query: ({ id, category }) => ({
         url: `${API_ENDPOINTS.CATEGORIES}/${id}`,

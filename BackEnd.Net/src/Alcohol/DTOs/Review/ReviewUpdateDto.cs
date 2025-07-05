@@ -11,4 +11,6 @@ public class ReviewUpdateDto
     [Required]
     [StringLength(1000)]
     public string Comment { get; set; }
+
+    public bool? IsApproved { get; set; }
 } 

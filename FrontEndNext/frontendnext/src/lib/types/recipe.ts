@@ -2,21 +2,23 @@ export interface Recipe {
   id: number;
   name: string;
   description: string;
-  slug: string;
-  imageUrl: string;
   instructions: string;
   difficulty: string;
-  preparationTime: number;
+  prepTime: number;
+  cookTime: number;
   servings: number;
-  displayOrder: number;
-  isActive: boolean;
-  metaTitle?: string;
-  metaDescription?: string;
+  imageUrl: string;
+  isFeatured: boolean;
   createdAt: string;
   updatedAt?: string;
-  categoryId?: number;
-  category?: { id: number; name: string; slug: string }; // Recipe category type
+  categories?: RecipeCategory[];
   ingredients?: RecipeIngredient[];
+}
+
+export interface RecipeCategory {
+  id: number;
+  name: string;
+  description: string;
 }
 
 export interface RecipeIngredient {
@@ -28,4 +30,49 @@ export interface RecipeIngredient {
   unit?: string;
   notes?: string;
   product?: { id: number; name: string; imageUrl: string }; // Product type for ingredient
+}
+
+export interface RecipeCreateDto {
+  name: string;
+  description: string;
+  instructions: string;
+  prepTime: number;
+  cookTime: number;
+  servings: number;
+  difficulty: string;
+  imageUrl: string;
+  isFeatured: boolean;
+  categoryIds: number[];
+  ingredients: RecipeIngredientCreateDto[];
+}
+
+export interface RecipeUpdateDto {
+  name: string;
+  description: string;
+  instructions: string;
+  prepTime: number;
+  cookTime: number;
+  servings: number;
+  difficulty: string;
+  imageUrl: string;
+  isFeatured: boolean;
+  categoryIds: number[];
+  ingredients: RecipeIngredientUpdateDto[];
+}
+
+export interface RecipeIngredientCreateDto {
+  name: string;
+  quantity: number;
+  unit: string;
+  notes?: string;
+  productId?: number;
+}
+
+export interface RecipeIngredientUpdateDto {
+  id: number;
+  name: string;
+  quantity: number;
+  unit: string;
+  notes?: string;
+  productId?: number;
 }

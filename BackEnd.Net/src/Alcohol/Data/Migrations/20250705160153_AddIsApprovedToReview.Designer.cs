@@ -3,6 +3,7 @@ using System;
 using Alcohol.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Alcohol.Data.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250705160153_AddIsApprovedToReview")]
+    partial class AddIsApprovedToReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,7 +212,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartDetails", (string)null);
+                    b.ToTable("CartDetails");
                 });
 
             modelBuilder.Entity("Alcohol.Models.Category", b =>
@@ -398,7 +401,7 @@ namespace Alcohol.Data.Migrations
                     b.HasIndex("ProductId")
                         .IsUnique();
 
-                    b.ToTable("Inventories", (string)null);
+                    b.ToTable("Inventories");
                 });
 
             modelBuilder.Entity("Alcohol.Models.InventoryTransaction", b =>
@@ -438,7 +441,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("InventoryTransactions", (string)null);
+                    b.ToTable("InventoryTransactions");
                 });
 
             modelBuilder.Entity("Alcohol.Models.Notification", b =>
@@ -786,7 +789,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("RecipeCategories", (string)null);
+                    b.ToTable("RecipeCategories");
                 });
 
             modelBuilder.Entity("Alcohol.Models.RecipeIngredient", b =>
@@ -945,7 +948,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Shippings", (string)null);
+                    b.ToTable("Shippings");
                 });
 
             modelBuilder.Entity("Alcohol.Models.Supplier", b =>
@@ -994,7 +997,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Wishlists", (string)null);
+                    b.ToTable("Wishlists");
                 });
 
             modelBuilder.Entity("Alcohol.Models.WishlistDetail", b =>
@@ -1021,7 +1024,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("WishlistId");
 
-                    b.ToTable("WishlistDetails", (string)null);
+                    b.ToTable("WishlistDetails");
                 });
 
             modelBuilder.Entity("DiscountProduct", b =>

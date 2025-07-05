@@ -15,6 +15,7 @@ using AutoMapper;
 using Alcohol.DTOs.Wishlist;
 using Alcohol.DTOs.WishlistDetail;
 using Alcohol.DTOs.Review;
+using Alcohol.DTOs.Recipe;
 
 namespace Alcohol.Mappings;
 
@@ -121,5 +122,38 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : null));
         CreateMap<ReviewCreateDto, Review>().ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.AccountId));
         CreateMap<ReviewUpdateDto, Review>();
+
+        // Recipe mappings
+        CreateMap<Recipe, RecipeResponseDto>()
+            .ForMember(dest => dest.PrepTime, opt => opt.MapFrom(src => src.PreparationTime))
+            .ForMember(dest => dest.CookTime, opt => opt.MapFrom(src => 0)) // Default value since model doesn't have CookTime
+            .ForMember(dest => dest.IsFeatured, opt => opt.MapFrom(src => false)) // Default value since model doesn't have IsFeatured
+            .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => new List<RecipeCategoryDto>())) // Default empty list
+            .ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => src.Ingredients));
+
+        // RecipeCategory mappings
+        CreateMap<RecipeCategory, RecipeCategoryDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Category != null ? src.Category.Id : 0))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : ""))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Category != null ? src.Category.Description : ""));
+        CreateMap<RecipeCreateDto, Recipe>()
+            .ForMember(dest => dest.PreparationTime, opt => opt.MapFrom(src => src.PrepTime))
+            .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Name.ToLower().Replace(" ", "-")))
+            .ForMember(dest => dest.DisplayOrder, opt => opt.MapFrom(src => 0))
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+        CreateMap<RecipeUpdateDto, Recipe>()
+            .ForMember(dest => dest.PreparationTime, opt => opt.MapFrom(src => src.PrepTime))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+
+        // RecipeIngredient mappings
+        CreateMap<RecipeIngredient, RecipeIngredientDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+            .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit))
+            .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes));
+        CreateMap<RecipeIngredientCreateDto, RecipeIngredient>();
+        CreateMap<RecipeIngredientUpdateDto, RecipeIngredient>();
     }
 }

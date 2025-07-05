@@ -80,6 +80,13 @@ export const api = createApi({
     "Wishlist",
     "Recipe",
     "Review",
+    "Supplier",
+    "Discount",
+    "Inventory",
+    "Notification",
+    "Order",
+    "Payment",
+    "PaymentMethod",
   ],
 });
 

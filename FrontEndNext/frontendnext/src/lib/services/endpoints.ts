@@ -12,6 +12,24 @@ export const API_ENDPOINTS = {
   // Brands
   BRANDS: "/brand",
 
+  // Suppliers
+  SUPPLIERS: "/supplier",
+
+  // Discounts
+  DISCOUNTS: "/discount",
+
+  // Inventory
+  INVENTORY: "/inventory",
+
+  // Recipes
+  RECIPES: "/recipe",
+
+  // Reviews
+  REVIEWS: "/review",
+
+  // Notifications
+  NOTIFICATIONS: "/notification",
+
   // Cart
   CART: "/cart",
   CART_CURRENT: "/cart/current",

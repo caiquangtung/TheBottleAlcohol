@@ -16,7 +16,10 @@ namespace Alcohol.Repositories
 
         public async Task<IEnumerable<Recipe>> GetAllAsync()
         {
-            return await _context.Recipes.ToListAsync();
+            return await _context.Recipes
+                .Include(r => r.Ingredients)
+                .Include(r => r.Category)
+                .ToListAsync();
         }
 
         public async Task<Recipe> GetByIdAsync(int id)

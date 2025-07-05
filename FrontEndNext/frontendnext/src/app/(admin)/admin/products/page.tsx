@@ -16,6 +16,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -192,49 +200,47 @@ export default function AdminProductsPage() {
               Không có sản phẩm nào
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2">ID</th>
-                    <th className="text-left p-2">Tên sản phẩm</th>
-                    <th className="text-left p-2">Danh mục</th>
-                    <th className="text-left p-2">Thương hiệu</th>
-                    <th className="text-left p-2">Giá</th>
-                    <th className="text-left p-2">Tồn kho</th>
-                    <th className="text-left p-2">Trạng thái</th>
-                    <th className="text-left p-2">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Tên sản phẩm</TableHead>
+                    <TableHead>Danh mục</TableHead>
+                    <TableHead>Thương hiệu</TableHead>
+                    <TableHead>Giá</TableHead>
+                    <TableHead>Tồn kho</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {products.map((product: Product) => (
-                    <tr key={product.id} className="border-b hover:bg-muted/50">
-                      <td className="p-2">
-                        <span className="text-sm text-muted-foreground font-mono">
-                          #{product.id}
-                        </span>
-                      </td>
-                      <td className="p-2">
+                    <TableRow key={product.id}>
+                      <TableCell className="font-mono text-sm">
+                        #{product.id}
+                      </TableCell>
+                      <TableCell>
                         <div>
                           <div className="font-medium">{product.name}</div>
                           <div className="text-sm text-muted-foreground">
                             {product.volume}L - {product.alcoholContent}%
                           </div>
                         </div>
-                      </td>
-                      <td className="p-2">{product.categoryName}</td>
-                      <td className="p-2">{product.brandName}</td>
-                      <td className="p-2">{formatPrice(product.price)}</td>
-                      <td className="p-2">{product.stockQuantity}</td>
-                      <td className="p-2">
+                      </TableCell>
+                      <TableCell>{product.categoryName}</TableCell>
+                      <TableCell>{product.brandName}</TableCell>
+                      <TableCell>{formatPrice(product.price)}</TableCell>
+                      <TableCell>{product.stockQuantity}</TableCell>
+                      <TableCell>
                         <Badge
                           variant={product.status ? "default" : "secondary"}
                         >
                           {product.status ? "Hoạt động" : "Ẩn"}
                         </Badge>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex gap-2">
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
@@ -279,11 +285,11 @@ export default function AdminProductsPage() {
                             </AlertDialogContent>
                           </AlertDialog>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
