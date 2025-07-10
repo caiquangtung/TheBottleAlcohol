@@ -6,6 +6,8 @@ using Alcohol.Models;
 using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
+using System.Linq;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services;
 
@@ -20,10 +22,52 @@ public class BrandService : IBrandService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<BrandResponseDto>> GetAllBrandsAsync()
+    public async Task<PagedResult<BrandResponseDto>> GetAllBrandsAsync(BrandFilterDto filter)
     {
         var brands = await _brandRepository.GetAllAsync();
-        return _mapper.Map<IEnumerable<BrandResponseDto>>(brands);
+        
+        // Apply filters
+        var filteredBrands = brands.AsQueryable();
+        
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            filteredBrands = filteredBrands.Where(b => 
+                b.Name.Contains(filter.SearchTerm) || 
+                (b.Description != null && b.Description.Contains(filter.SearchTerm)));
+        }
+        
+        if (filter.IsActive.HasValue)
+        {
+            filteredBrands = filteredBrands.Where(b => b.IsActive == filter.IsActive.Value);
+        }
+        
+        // Apply sorting
+        if (!string.IsNullOrWhiteSpace(filter.SortBy))
+        {
+            filteredBrands = filter.SortBy.ToLower() switch
+            {
+                "name" => filter.SortOrder?.ToLower() == "desc" 
+                    ? filteredBrands.OrderByDescending(b => b.Name)
+                    : filteredBrands.OrderBy(b => b.Name),
+                "createdat" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredBrands.OrderByDescending(b => b.CreatedAt)
+                    : filteredBrands.OrderBy(b => b.CreatedAt),
+                _ => filteredBrands.OrderBy(b => b.Id)
+            };
+        }
+        else
+        {
+            filteredBrands = filteredBrands.OrderBy(b => b.Id);
+        }
+        
+        var totalRecords = filteredBrands.Count();
+        var pagedBrands = filteredBrands
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
+        
+        var brandDtos = _mapper.Map<List<BrandResponseDto>>(pagedBrands);
+        return new PagedResult<BrandResponseDto>(brandDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<BrandResponseDto> GetBrandByIdAsync(int id)

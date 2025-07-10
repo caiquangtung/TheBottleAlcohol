@@ -82,6 +82,16 @@ public class ImportOrderRepository : IImportOrderRepository
         return await query.ToListAsync();
     }
 
+    public async Task<IEnumerable<ImportOrder>> GetBySupplierIdAsync(int supplierId)
+    {
+        return await _context.ImportOrders
+            .Include(io => io.Supplier)
+            .Include(io => io.Manager)
+            .Include(io => io.ImportOrderDetails)
+            .Where(io => io.SupplierId == supplierId)
+            .ToListAsync();
+    }
+
     public async Task AddAsync(ImportOrder importOrder)
     {
         await _context.ImportOrders.AddAsync(importOrder);

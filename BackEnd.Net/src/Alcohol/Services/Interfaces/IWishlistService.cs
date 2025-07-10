@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Wishlist;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services.Interfaces;
 
 public interface IWishlistService
 {
-    Task<IEnumerable<WishlistResponseDto>> GetAllWishlistsAsync();
+    Task<PagedResult<WishlistResponseDto>> GetAllWishlistsAsync(WishlistFilterDto filter);
     Task<WishlistResponseDto> GetWishlistByIdAsync(int id);
-    Task<IEnumerable<WishlistResponseDto>> GetWishlistsByCustomerAsync(int customerId);
+    Task<WishlistResponseDto> GetWishlistByCustomerAsync(int customerId);
     Task<WishlistResponseDto> CreateWishlistAsync(WishlistCreateDto createDto);
     Task<WishlistResponseDto> UpdateWishlistAsync(int id, WishlistUpdateDto updateDto);
     Task<bool> DeleteWishlistAsync(int id);

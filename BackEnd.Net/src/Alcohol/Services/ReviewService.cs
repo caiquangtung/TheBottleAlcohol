@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Review;
 using Alcohol.Models;
 using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
-using System.Linq;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services;
 
@@ -21,10 +22,78 @@ public class ReviewService : IReviewService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<ReviewResponseDto>> GetAllReviewsAsync()
+    public async Task<PagedResult<ReviewResponseDto>> GetAllReviewsAsync(ReviewFilterDto filter)
     {
         var reviews = await _reviewRepository.GetAllAsync();
-        return _mapper.Map<IEnumerable<ReviewResponseDto>>(reviews);
+        
+        // Apply filters
+        var filteredReviews = reviews.AsQueryable();
+        
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            filteredReviews = filteredReviews.Where(r => 
+                r.Comment.Contains(filter.SearchTerm) || 
+                (r.Product != null && r.Product.Name.Contains(filter.SearchTerm)) ||
+                (r.Customer != null && r.Customer.FullName.Contains(filter.SearchTerm)));
+        }
+        
+        if (filter.ProductId.HasValue)
+        {
+            filteredReviews = filteredReviews.Where(r => r.ProductId == filter.ProductId.Value);
+        }
+        
+        if (filter.CustomerId.HasValue)
+        {
+            filteredReviews = filteredReviews.Where(r => r.CustomerId == filter.CustomerId.Value);
+        }
+        
+        if (filter.MinRating.HasValue)
+        {
+            filteredReviews = filteredReviews.Where(r => r.Rating >= filter.MinRating.Value);
+        }
+        
+        if (filter.MaxRating.HasValue)
+        {
+            filteredReviews = filteredReviews.Where(r => r.Rating <= filter.MaxRating.Value);
+        }
+        
+        if (filter.StartDate.HasValue)
+        {
+            filteredReviews = filteredReviews.Where(r => r.CreatedAt >= filter.StartDate.Value);
+        }
+        
+        if (filter.EndDate.HasValue)
+        {
+            filteredReviews = filteredReviews.Where(r => r.CreatedAt <= filter.EndDate.Value);
+        }
+        
+        // Apply sorting
+        if (!string.IsNullOrWhiteSpace(filter.SortBy))
+        {
+            filteredReviews = filter.SortBy.ToLower() switch
+            {
+                "rating" => filter.SortOrder?.ToLower() == "desc" 
+                    ? filteredReviews.OrderByDescending(r => r.Rating)
+                    : filteredReviews.OrderBy(r => r.Rating),
+                "createdat" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredReviews.OrderByDescending(r => r.CreatedAt)
+                    : filteredReviews.OrderBy(r => r.CreatedAt),
+                _ => filteredReviews.OrderBy(r => r.Id)
+            };
+        }
+        else
+        {
+            filteredReviews = filteredReviews.OrderBy(r => r.Id);
+        }
+        
+        var totalRecords = filteredReviews.Count();
+        var pagedReviews = filteredReviews
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
+        
+        var reviewDtos = _mapper.Map<List<ReviewResponseDto>>(pagedReviews);
+        return new PagedResult<ReviewResponseDto>(reviewDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<ReviewResponseDto> GetReviewByIdAsync(int id)
@@ -50,13 +119,6 @@ public class ReviewService : IReviewService
 
     public async Task<ReviewResponseDto> CreateReviewAsync(ReviewCreateDto createDto)
     {
-        // Kiểm tra đã có review chưa
-        var existing = await _reviewRepository.GetByProductAndCustomerAsync(createDto.ProductId, createDto.AccountId);
-        if (existing != null)
-        {
-            throw new Exception("Bạn đã đánh giá sản phẩm này rồi.");
-        }
-
         var review = _mapper.Map<Review>(createDto);
         review.CreatedAt = DateTime.UtcNow;
 

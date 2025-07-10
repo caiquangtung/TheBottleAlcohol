@@ -92,6 +92,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
       return;
     }
 
+    if (typeof userId !== "number") {
+      toast.error("Invalid user session. Please log in again.");
+      router.push("/login");
+      return;
+    }
+
     if (product.stockQuantity === 0) {
       toast.error("This product is out of stock.");
       return;
@@ -101,6 +107,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
       dispatch(addItem({ product, quantity: 1 }));
 
       await syncCart({
+        customerId: userId,
         items: [
           ...cartDetails.filter(
             (item: import("@/lib/types/cart").CartDetail) =>

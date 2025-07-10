@@ -8,7 +8,9 @@ namespace Alcohol.Repositories.Interfaces
     {
         Task<IEnumerable<Recipe>> GetAllAsync();
         Task<Recipe> GetByIdAsync(int id);
+        Task<Recipe> GetBySlugAsync(string slug);
         Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId);
+        Task<IEnumerable<Recipe>> GetByCategoryIdAsync(int categoryId);
         Task<Recipe> GetRecipeWithIngredientsAsync(int id);
         Task<Recipe> GetRecipeWithCategoriesAsync(int id);
         Task<IEnumerable<Recipe>> GetFeaturedRecipesAsync();

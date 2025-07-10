@@ -18,10 +18,15 @@ export default function ClientLayoutShell({
 
   const dispatch = useAppDispatch();
   const isLoggedIn = useAppSelector((state) => state.auth.isAuthenticated);
+  const user = useAppSelector((state) => state.auth.user);
+  const userId = user?.id;
 
-  const { data: cartData } = useGetCartQuery(undefined, {
-    skip: !isLoggedIn,
-  });
+  const { data: cartData } = useGetCartQuery(
+    typeof userId === "number" ? userId : -1,
+    {
+      skip: !isLoggedIn || typeof userId !== "number",
+    }
+  );
 
   useEffect(() => {
     if (cartData) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Inventory;
 using Alcohol.Models;
@@ -7,6 +8,7 @@ using Alcohol.Models.Enums;
 using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services;
 
@@ -26,10 +28,74 @@ public class InventoryService : IInventoryService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<InventoryResponseDto>> GetAllInventoriesAsync()
+    public async Task<PagedResult<InventoryResponseDto>> GetAllInventoriesAsync(InventoryFilterDto filter)
     {
         var inventories = await _inventoryRepository.GetAllAsync();
-        return _mapper.Map<IEnumerable<InventoryResponseDto>>(inventories);
+        
+        // Apply filters
+        var filteredInventories = inventories.AsQueryable();
+        
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            filteredInventories = filteredInventories.Where(i => 
+                i.Product != null && i.Product.Name.Contains(filter.SearchTerm));
+        }
+        
+        if (filter.ProductId.HasValue)
+        {
+            filteredInventories = filteredInventories.Where(i => i.ProductId == filter.ProductId.Value);
+        }
+        
+        if (filter.MinQuantity.HasValue)
+        {
+            filteredInventories = filteredInventories.Where(i => i.Quantity >= filter.MinQuantity.Value);
+        }
+        
+        if (filter.MaxQuantity.HasValue)
+        {
+            filteredInventories = filteredInventories.Where(i => i.Quantity <= filter.MaxQuantity.Value);
+        }
+        
+        if (filter.MinReorderLevel.HasValue)
+        {
+            filteredInventories = filteredInventories.Where(i => i.ReorderLevel >= filter.MinReorderLevel.Value);
+        }
+        
+        if (filter.MaxReorderLevel.HasValue)
+        {
+            filteredInventories = filteredInventories.Where(i => i.ReorderLevel <= filter.MaxReorderLevel.Value);
+        }
+        
+        // Apply sorting
+        if (!string.IsNullOrWhiteSpace(filter.SortBy))
+        {
+            filteredInventories = filter.SortBy.ToLower() switch
+            {
+                "quantity" => filter.SortOrder?.ToLower() == "desc" 
+                    ? filteredInventories.OrderByDescending(i => i.Quantity)
+                    : filteredInventories.OrderBy(i => i.Quantity),
+                "reorderlevel" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredInventories.OrderByDescending(i => i.ReorderLevel)
+                    : filteredInventories.OrderBy(i => i.ReorderLevel),
+                "createdat" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredInventories.OrderByDescending(i => i.CreatedAt)
+                    : filteredInventories.OrderBy(i => i.CreatedAt),
+                _ => filteredInventories.OrderBy(i => i.Id)
+            };
+        }
+        else
+        {
+            filteredInventories = filteredInventories.OrderBy(i => i.Id);
+        }
+        
+        var totalRecords = filteredInventories.Count();
+        var pagedInventories = filteredInventories
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
+        
+        var inventoryDtos = _mapper.Map<List<InventoryResponseDto>>(pagedInventories);
+        return new PagedResult<InventoryResponseDto>(inventoryDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<InventoryResponseDto> GetInventoryByIdAsync(int id)
@@ -46,14 +112,8 @@ public class InventoryService : IInventoryService
         var inventory = await _inventoryRepository.GetByProductIdAsync(productId);
         if (inventory == null)
             return null;
-
+            
         return _mapper.Map<InventoryResponseDto>(inventory);
-    }
-
-    public async Task<IEnumerable<InventoryResponseDto>> GetLowStockInventoriesAsync(int threshold)
-    {
-        var inventories = await _inventoryRepository.GetLowStockInventoriesAsync(threshold);
-        return _mapper.Map<IEnumerable<InventoryResponseDto>>(inventories);
     }
 
     public async Task<InventoryResponseDto> CreateInventoryAsync(InventoryCreateDto createDto)
@@ -150,7 +210,7 @@ public class InventoryService : IInventoryService
         {
             ProductId = productId,
             Quantity = quantity,
-            Type = InventoryTransactionType.Adjustment,
+            TransactionType = InventoryTransactionType.Adjustment,
             ReferenceType = ReferenceType.Manual,
             Notes = notes,
             Status = InventoryTransactionStatusType.Completed
@@ -175,7 +235,7 @@ public class InventoryService : IInventoryService
         {
             ProductId = productId,
             Quantity = quantity,
-            Type = InventoryTransactionType.Import,
+            TransactionType = InventoryTransactionType.Import,
             ReferenceType = ReferenceType.ImportOrder,
             ReferenceId = importOrderId,
             Notes = notes,
@@ -206,7 +266,7 @@ public class InventoryService : IInventoryService
         {
             ProductId = productId,
             Quantity = -quantity,
-            Type = InventoryTransactionType.Export,
+            TransactionType = InventoryTransactionType.Export,
             ReferenceType = ReferenceType.Order,
             ReferenceId = orderId,
             Notes = notes,

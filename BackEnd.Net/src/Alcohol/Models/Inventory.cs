@@ -9,6 +9,7 @@ public class Inventory
     public int Id { get; set; }
     public int ProductId { get; set; }
     public int Quantity { get; set; }
+    public int ReorderLevel { get; set; }
     public decimal AverageCost { get; set; }
     public decimal TotalValue { get; set; }
     public DateTime LastUpdated { get; set; }
@@ -23,6 +24,7 @@ public class Inventory
         CreatedAt = DateTime.UtcNow;
         LastUpdated = DateTime.UtcNow;
         Quantity = 0;
+        ReorderLevel = 10; // Default reorder level
         AverageCost = 0;
         TotalValue = 0;
     }

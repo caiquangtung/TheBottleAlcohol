@@ -1,18 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Payment;
-using Alcohol.Models.Enums;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services.Interfaces;
 
 public interface IPaymentService
 {
-    Task<IEnumerable<PaymentResponseDto>> GetAllPaymentsAsync();
+    Task<PagedResult<PaymentResponseDto>> GetAllPaymentsAsync(PaymentFilterDto filter);
     Task<PaymentResponseDto> GetPaymentByIdAsync(int id);
-    Task<IEnumerable<PaymentResponseDto>> GetPaymentsByOrderAsync(int orderId);
-    Task<IEnumerable<PaymentResponseDto>> GetPaymentsByCustomerAsync(int customerId);
+    Task<PaymentResponseDto> GetPaymentByOrderAsync(int orderId);
     Task<PaymentResponseDto> CreatePaymentAsync(PaymentCreateDto createDto);
     Task<PaymentResponseDto> UpdatePaymentAsync(int id, PaymentUpdateDto updateDto);
-    Task<bool> UpdatePaymentStatusAsync(int id, PaymentStatusType status);
     Task<bool> DeletePaymentAsync(int id);
 } 

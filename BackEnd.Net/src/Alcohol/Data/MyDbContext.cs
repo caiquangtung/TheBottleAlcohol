@@ -354,7 +354,7 @@ namespace Alcohol.Data
                   {
                         entity.HasKey(e => e.Id);
                         entity.Property(e => e.Quantity).IsRequired();
-                        entity.Property(e => e.Type).IsRequired();
+                        entity.Property(e => e.TransactionType).IsRequired();
                         entity.Property(e => e.ReferenceType).IsRequired();
                         entity.Property(e => e.Status).IsRequired();
                         entity.HasOne(e => e.Product)

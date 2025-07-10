@@ -134,6 +134,8 @@ const AddToCartSection = ({ product }: { product: Product }) => {
   const rowVersion = useAppSelector((state) => state.cart.rowVersion);
   const [syncCart] = useSyncCartMutation();
   const router = useRouter();
+  const user = useAppSelector((state) => state.auth.user);
+  const userId = user?.id;
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -141,8 +143,16 @@ const AddToCartSection = ({ product }: { product: Product }) => {
       router.push("/login");
       return;
     }
+
+    if (typeof userId !== "number") {
+      toast.error("Invalid user session. Please log in again.");
+      router.push("/login");
+      return;
+    }
+
     dispatch(addItem({ product, quantity }));
     await syncCart({
+      customerId: userId,
       items: [
         ...cartDetails.filter(
           (item: { productId: number }) => item.productId !== product.id

@@ -5,6 +5,7 @@ using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Alcohol.Common;
+using Alcohol.DTOs;
 
 namespace Alcohol.Controllers
 {
@@ -20,10 +21,10 @@ namespace Alcohol.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] BrandFilterDto filter)
         {
-            var brands = await _brandService.GetAllBrandsAsync();
-            return Ok(new ApiResponse<IEnumerable<BrandResponseDto>>(brands));
+            var result = await _brandService.GetAllBrandsAsync(filter);
+            return Ok(new ApiResponse<PagedResult<BrandResponseDto>>(result));
         }
 
         [HttpGet("{id}")]

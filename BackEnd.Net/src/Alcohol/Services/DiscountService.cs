@@ -6,6 +6,8 @@ using Alcohol.Models;
 using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
+using System.Linq;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services;
 
@@ -20,10 +22,77 @@ public class DiscountService : IDiscountService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<DiscountResponseDto>> GetAllDiscountsAsync()
+    public async Task<PagedResult<DiscountResponseDto>> GetAllDiscountsAsync(DiscountFilterDto filter)
     {
         var discounts = await _discountRepository.GetAllAsync();
-        return _mapper.Map<IEnumerable<DiscountResponseDto>>(discounts);
+        
+        // Apply filters
+        var filteredDiscounts = discounts.AsQueryable();
+        
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            filteredDiscounts = filteredDiscounts.Where(d => 
+                d.Code.Contains(filter.SearchTerm));
+        }
+        
+        if (filter.IsActive.HasValue)
+        {
+            filteredDiscounts = filteredDiscounts.Where(d => d.IsActive == filter.IsActive.Value);
+        }
+        
+        if (filter.StartDate.HasValue)
+        {
+            filteredDiscounts = filteredDiscounts.Where(d => d.StartDate >= filter.StartDate.Value);
+        }
+        
+        if (filter.EndDate.HasValue)
+        {
+            filteredDiscounts = filteredDiscounts.Where(d => d.EndDate <= filter.EndDate.Value);
+        }
+        
+        if (filter.MinAmount.HasValue)
+        {
+            filteredDiscounts = filteredDiscounts.Where(d => d.DiscountAmount >= filter.MinAmount.Value);
+        }
+        
+        if (filter.MaxAmount.HasValue)
+        {
+            filteredDiscounts = filteredDiscounts.Where(d => d.DiscountAmount <= filter.MaxAmount.Value);
+        }
+        
+        // Apply sorting
+        if (!string.IsNullOrWhiteSpace(filter.SortBy))
+        {
+            filteredDiscounts = filter.SortBy.ToLower() switch
+            {
+                "code" => filter.SortOrder?.ToLower() == "desc" 
+                    ? filteredDiscounts.OrderByDescending(d => d.Code)
+                    : filteredDiscounts.OrderBy(d => d.Code),
+                "discountamount" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredDiscounts.OrderByDescending(d => d.DiscountAmount)
+                    : filteredDiscounts.OrderBy(d => d.DiscountAmount),
+                "startdate" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredDiscounts.OrderByDescending(d => d.StartDate)
+                    : filteredDiscounts.OrderBy(d => d.StartDate),
+                "enddate" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredDiscounts.OrderByDescending(d => d.EndDate)
+                    : filteredDiscounts.OrderBy(d => d.EndDate),
+                _ => filteredDiscounts.OrderBy(d => d.Id)
+            };
+        }
+        else
+        {
+            filteredDiscounts = filteredDiscounts.OrderBy(d => d.Id);
+        }
+        
+        var totalRecords = filteredDiscounts.Count();
+        var pagedDiscounts = filteredDiscounts
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
+        
+        var discountDtos = _mapper.Map<List<DiscountResponseDto>>(pagedDiscounts);
+        return new PagedResult<DiscountResponseDto>(discountDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<DiscountResponseDto> GetDiscountByIdAsync(int id)
@@ -53,7 +122,6 @@ public class DiscountService : IDiscountService
     public async Task<DiscountResponseDto> CreateDiscountAsync(DiscountCreateDto createDto)
     {
         var discount = _mapper.Map<Discount>(createDto);
-        discount.IsActive = true;
 
         await _discountRepository.AddAsync(discount);
         await _discountRepository.SaveChangesAsync();

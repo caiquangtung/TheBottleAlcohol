@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Review;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services.Interfaces;
 
 public interface IReviewService
 {
-    Task<IEnumerable<ReviewResponseDto>> GetAllReviewsAsync();
+    Task<PagedResult<ReviewResponseDto>> GetAllReviewsAsync(ReviewFilterDto filter);
     Task<ReviewResponseDto> GetReviewByIdAsync(int id);
     Task<IEnumerable<ReviewResponseDto>> GetReviewsByProductAsync(int productId);
     Task<IEnumerable<ReviewResponseDto>> GetReviewsByCustomerAsync(int customerId);

@@ -5,99 +5,89 @@ using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Alcohol.Common;
-using System.Security.Claims;
+using Alcohol.DTOs;
 
-namespace Alcohol.Controllers
+namespace Alcohol.Controllers;
+
+[ApiController]
+[Route("api/v1/[controller]")]
+public class NotificationController : ControllerBase
 {
-    [Route("api/v1/[controller]")]
-    [ApiController]
-    public class NotificationController : ControllerBase
+    private readonly INotificationService _notificationService;
+
+    public NotificationController(INotificationService notificationService)
     {
-        private readonly INotificationService _notificationService;
+        _notificationService = notificationService;
+    }
 
-        public NotificationController(INotificationService notificationService)
-        {
-            _notificationService = notificationService;
-        }
+    [HttpGet]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> GetAllNotifications([FromQuery] NotificationFilterDto filter)
+    {
+        var result = await _notificationService.GetAllNotificationsAsync(filter);
+        return Ok(new ApiResponse<PagedResult<NotificationResponseDto>>(result));
+    }
 
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetAll()
-        {
-            var notifications = await _notificationService.GetAllNotificationsAsync();
-            return Ok(new ApiResponse<IEnumerable<NotificationResponseDto>>(notifications));
-        }
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<IActionResult> GetNotificationById(int id)
+    {
+        var notification = await _notificationService.GetNotificationByIdAsync(id);
+        if (notification == null)
+            return NotFound(new ApiResponse<string>("Notification not found"));
+        return Ok(new ApiResponse<NotificationResponseDto>(notification));
+    }
 
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var notification = await _notificationService.GetNotificationByIdAsync(id);
-            if (notification == null)
-                return NotFound(new ApiResponse<string>("Notification not found"));
-            return Ok(new ApiResponse<NotificationResponseDto>(notification));
-        }
+    [HttpGet("user/{userId}")]
+    [Authorize]
+    public async Task<IActionResult> GetNotificationsByUser(int userId)
+    {
+        var notifications = await _notificationService.GetNotificationsByUserAsync(userId);
+        return Ok(new ApiResponse<NotificationResponseDto[]>(notifications.ToArray()));
+    }
 
-        [HttpGet("user/{userId}")]
-        [Authorize]
-        public async Task<IActionResult> GetByUser(int userId)
-        {
-            var notifications = await _notificationService.GetNotificationsByUserAsync(userId);
-            return Ok(new ApiResponse<IEnumerable<NotificationResponseDto>>(notifications));
-        }
-
-        [HttpGet("user/{userId}/unread")]
-        [Authorize]
-        public async Task<IActionResult> GetUnreadByUser(int userId)
-        {
-            var notifications = await _notificationService.GetUnreadNotificationsByUserAsync(userId);
-            return Ok(new ApiResponse<IEnumerable<NotificationResponseDto>>(notifications));
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> Create(NotificationCreateDto createDto)
+    [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> CreateNotification(NotificationCreateDto createDto)
+    {
+        try
         {
             var notification = await _notificationService.CreateNotificationAsync(createDto);
-            return CreatedAtAction(nameof(GetById), new { id = notification.Id }, new ApiResponse<NotificationResponseDto>(notification));
+            return CreatedAtAction(nameof(GetNotificationById), new { id = notification.Id }, new ApiResponse<NotificationResponseDto>(notification));
         }
-
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> Update(int id, NotificationUpdateDto updateDto)
+        catch (Exception ex)
         {
-            var notification = await _notificationService.UpdateNotificationAsync(id, updateDto);
-            if (notification == null)
-                return NotFound(new ApiResponse<string>("Notification not found"));
-            return Ok(new ApiResponse<NotificationResponseDto>(notification));
+            return BadRequest(new ApiResponse<string>(ex.Message));
         }
+    }
 
-        [HttpPut("{id}/read")]
-        [Authorize]
-        public async Task<IActionResult> MarkAsRead(int id)
-        {
-            var result = await _notificationService.MarkNotificationAsReadAsync(id);
-            if (!result)
-                return NotFound(new ApiResponse<string>("Notification not found"));
-            return Ok(new ApiResponse<string>("Notification marked as read"));
-        }
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateNotification(int id, NotificationUpdateDto updateDto)
+    {
+        var notification = await _notificationService.UpdateNotificationAsync(id, updateDto);
+        if (notification == null)
+            return NotFound(new ApiResponse<string>("Notification not found"));
+        return Ok(new ApiResponse<NotificationResponseDto>(notification));
+    }
 
-        [HttpPut("user/{userId}/read-all")]
-        [Authorize]
-        public async Task<IActionResult> MarkAllAsRead(int userId)
-        {
-            var result = await _notificationService.MarkAllNotificationsAsReadAsync(userId);
-            return Ok(new ApiResponse<string>("All notifications marked as read"));
-        }
+    [HttpDelete("{id}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteNotification(int id)
+    {
+        var result = await _notificationService.DeleteNotificationAsync(id);
+        if (!result)
+            return NotFound(new ApiResponse<string>("Notification not found"));
+        return Ok(new ApiResponse<string>("Notification deleted successfully"));
+    }
 
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var result = await _notificationService.DeleteNotificationAsync(id);
-            if (!result)
-                return NotFound(new ApiResponse<string>("Notification not found"));
-            return Ok(new ApiResponse<string>("Notification deleted successfully"));
-        }
+    [HttpPut("{id}/mark-read")]
+    [Authorize]
+    public async Task<IActionResult> MarkAsRead(int id)
+    {
+        var result = await _notificationService.MarkAsReadAsync(id);
+        if (!result)
+            return NotFound(new ApiResponse<string>("Notification not found"));
+        return Ok(new ApiResponse<string>("Notification marked as read"));
     }
 } 

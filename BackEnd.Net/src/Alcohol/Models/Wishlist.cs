@@ -16,10 +16,16 @@ public class Wishlist
     [ForeignKey("CustomerId")]
     public Account Customer { get; set; }
     
+    [Required]
+    public DateTime CreatedAt { get; set; }
+    
+    public DateTime? UpdatedAt { get; set; }
+    
     public ICollection<WishlistDetail> WishlistDetails { get; set; }
     
     public Wishlist()
     {
         WishlistDetails = new List<WishlistDetail>();
+        CreatedAt = DateTime.UtcNow;
     }
 } 

@@ -49,6 +49,7 @@ import {
   useDeleteUserMutation,
 } from "@/lib/services/userService";
 import type { User, UserCreate, UserUpdate } from "@/lib/types/user";
+import SearchInput from "@/components/admin/SearchInput";
 
 const defaultForm: UserCreate = {
   fullName: "",
@@ -69,19 +70,19 @@ export default function AdminUsersPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // Queries
-  const { data: users = [], isLoading, isError } = useGetUsersQuery();
+  const {
+    data: users = [],
+    isLoading,
+    isError,
+  } = useGetUsersQuery({ search: searchTerm });
 
   // Mutations
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
-  // Filter users based on search term
-  const filteredUsers = users.filter(
-    (user) =>
-      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Đã filter trên server, không cần filter client nữa
+  const filteredUsers = users;
 
   const handleCreateUser = async (formData: UserCreate) => {
     try {
@@ -188,17 +189,11 @@ export default function AdminUsersPage() {
       {/* Search */}
       <Card>
         <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Tìm kiếm người dùng..."
-              value={searchTerm}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchTerm(e.target.value)
-              }
-              className="pl-10"
-            />
-          </div>
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Tìm kiếm người dùng..."
+          />
         </CardContent>
       </Card>
 

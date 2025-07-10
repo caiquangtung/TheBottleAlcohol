@@ -5,6 +5,8 @@ using Alcohol.DTOs.Review;
 using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Alcohol.Common;
+using Alcohol.DTOs;
 
 namespace Alcohol.Controllers;
 
@@ -20,10 +22,10 @@ public class ReviewController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ReviewResponseDto>>> GetAllReviews()
+    public async Task<ActionResult<IEnumerable<ReviewResponseDto>>> GetAllReviews([FromQuery] ReviewFilterDto filter)
     {
-        var reviews = await _reviewService.GetAllReviewsAsync();
-        return Ok(reviews);
+        var result = await _reviewService.GetAllReviewsAsync(filter);
+        return Ok(new ApiResponse<PagedResult<ReviewResponseDto>>(result));
     }
 
     [HttpGet("{id}")]
@@ -33,21 +35,21 @@ public class ReviewController : ControllerBase
         if (review == null)
             return NotFound();
 
-        return Ok(review);
+        return Ok(new ApiResponse<ReviewResponseDto>(review));
     }
 
     [HttpGet("product/{productId}")]
     public async Task<ActionResult<IEnumerable<ReviewResponseDto>>> GetReviewsByProduct(int productId)
     {
         var reviews = await _reviewService.GetReviewsByProductAsync(productId);
-        return Ok(reviews);
+        return Ok(new ApiResponse<IEnumerable<ReviewResponseDto>>(reviews));
     }
 
     [HttpGet("customer/{customerId}")]
     public async Task<ActionResult<IEnumerable<ReviewResponseDto>>> GetReviewsByCustomer(int customerId)
     {
         var reviews = await _reviewService.GetReviewsByCustomerAsync(customerId);
-        return Ok(reviews);
+        return Ok(new ApiResponse<IEnumerable<ReviewResponseDto>>(reviews));
     }
 
     [HttpPost]
@@ -57,12 +59,11 @@ public class ReviewController : ControllerBase
         try
         {
             var review = await _reviewService.CreateReviewAsync(createDto);
-            return CreatedAtAction(nameof(GetReviewById), new { id = review.Id }, review);
+            return CreatedAtAction(nameof(GetReviewById), new { id = review.Id }, new ApiResponse<ReviewResponseDto>(review));
         }
         catch (Exception ex)
         {
-            // Trả về lỗi 400 với message rõ ràng
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new ApiResponse<string>(ex.Message));
         }
     }
 
@@ -72,9 +73,9 @@ public class ReviewController : ControllerBase
     {
         var review = await _reviewService.UpdateReviewAsync(id, updateDto);
         if (review == null)
-            return NotFound();
+            return NotFound(new ApiResponse<string>("Review not found"));
 
-        return Ok(review);
+        return Ok(new ApiResponse<ReviewResponseDto>(review));
     }
 
     [HttpDelete("{id}")]
@@ -83,8 +84,8 @@ public class ReviewController : ControllerBase
     {
         var result = await _reviewService.DeleteReviewAsync(id);
         if (!result)
-            return NotFound();
+            return NotFound(new ApiResponse<string>("Review not found"));
 
-        return NoContent();
+        return Ok(new ApiResponse<string>("Review deleted successfully"));
     }
 } 

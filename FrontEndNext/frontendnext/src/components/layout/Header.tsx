@@ -2,15 +2,17 @@
 import Image from "next/image";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Heart, ShoppingCart, Sun, Moon, User } from "lucide-react";
+import { Heart, ShoppingCart, Sun, Moon, User, Search } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../lib/store";
 import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
 import { toggleDark } from "../../lib/features/theme/themeSlice";
 import { toggleCartDrawer } from "../../lib/features/cart/cartSlice";
+import { openSearchOverlay } from "../../lib/features/search/searchSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CartDrawer } from "./CartDrawer";
+import SearchOverlay from "../SearchOverlay";
 import { Badge } from "../ui/badge";
 import { useState, useEffect } from "react";
 import {
@@ -81,7 +83,15 @@ export default function Header() {
               </div>
             </Link>
             <div className="flex-1 flex justify-center">
-              <Input placeholder="Search..." className="w-full max-w-xl" />
+              <div 
+                onClick={() => dispatch(openSearchOverlay())}
+                className="w-full max-w-xl relative cursor-pointer"
+              >
+                <div className="flex items-center px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md">
+                  <Search className="h-4 w-4 text-muted-foreground mr-2" />
+                  <span className="text-muted-foreground">Search...</span>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-2 min-w-[180px] justify-end">
               <Button variant="ghost" size="icon">
@@ -129,7 +139,15 @@ export default function Header() {
           </Link>
           {/* Search bar ở giữa */}
           <div className="flex-1 flex justify-center">
-            <Input placeholder="Search..." className="w-full max-w-xl" />
+            <div
+              onClick={() => dispatch(openSearchOverlay())}
+              className="w-full max-w-xl relative cursor-pointer"
+            >
+              <div className="flex items-center px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md">
+                <Search className="h-4 w-4 text-muted-foreground mr-2" />
+                <span className="text-muted-foreground">Search...</span>
+              </div>
+            </div>
           </div>
           {/* Icon bên phải */}
           <div className="flex items-center gap-2 min-w-[180px] justify-end">
@@ -181,6 +199,7 @@ export default function Header() {
         <nav className="w-full flex justify-center"></nav>
       </div>
       <CartDrawer />
+      <SearchOverlay />
     </header>
   );
 }

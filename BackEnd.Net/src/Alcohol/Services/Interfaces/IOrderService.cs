@@ -15,4 +15,5 @@ public interface IOrderService
     Task<OrderResponseDto> UpdateOrderAsync(int id, OrderUpdateDto orderDto);
     Task<OrderResponseDto> UpdateOrderStatusAsync(int id, OrderStatusType status);
     Task<bool> DeleteOrderAsync(int id);
+    Task<IEnumerable<OrderResponseDto>> GetAllOrdersAsync(string search = null);
 } 

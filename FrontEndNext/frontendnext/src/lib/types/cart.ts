@@ -27,6 +27,7 @@ export interface CartSyncItem {
 }
 
 export interface CartSyncPayload {
+  customerId: number;
   items: CartSyncItem[];
   rowVersion: string | null;
 }

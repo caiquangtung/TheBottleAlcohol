@@ -57,4 +57,13 @@ public class NotificationRepository : GenericRepository<Notification>, INotifica
 
         _dbSet.UpdateRange(notifications);
     }
+
+    public async Task<IEnumerable<Notification>> GetByUserIdAsync(int userId)
+    {
+        return await _dbSet
+            .Include(n => n.User)
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.CreatedAt)
+            .ToListAsync();
+    }
 } 

@@ -5,8 +5,15 @@ import { Brand, BrandCreateDto, BrandUpdateDto } from "../types/brand";
 
 export const brandApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllBrands: builder.query<Brand[], void>({
-      query: () => API_ENDPOINTS.BRANDS,
+    getAllBrands: builder.query<Brand[], { search?: string } | void>({
+      query: (params) => {
+        let url = API_ENDPOINTS.BRANDS;
+        if (params && params.search) {
+          const qs = new URLSearchParams({ search: params.search }).toString();
+          url += `?${qs}`;
+        }
+        return url;
+      },
       transformResponse: (response) => transformApiResponse<Brand[]>(response),
       providesTags: ["Brand"],
     }),
@@ -24,15 +31,17 @@ export const brandApi = enhancedApi.injectEndpoints({
       transformResponse: (response) => transformApiResponse<Brand>(response),
       invalidatesTags: ["Brand"],
     }),
-    updateBrand: builder.mutation<Brand, { id: number; brand: BrandUpdateDto }>({
-      query: ({ id, brand }) => ({
-        url: `${API_ENDPOINTS.BRANDS}/${id}`,
-        method: "PUT",
-        body: brand,
-      }),
-      transformResponse: (response) => transformApiResponse<Brand>(response),
-      invalidatesTags: ["Brand"],
-    }),
+    updateBrand: builder.mutation<Brand, { id: number; brand: BrandUpdateDto }>(
+      {
+        query: ({ id, brand }) => ({
+          url: `${API_ENDPOINTS.BRANDS}/${id}`,
+          method: "PUT",
+          body: brand,
+        }),
+        transformResponse: (response) => transformApiResponse<Brand>(response),
+        invalidatesTags: ["Brand"],
+      }
+    ),
     deleteBrand: builder.mutation<void, number>({
       query: (id) => ({
         url: `${API_ENDPOINTS.BRANDS}/${id}`,
@@ -43,8 +52,8 @@ export const brandApi = enhancedApi.injectEndpoints({
   }),
 });
 
-export const { 
-  useGetAllBrandsQuery, 
+export const {
+  useGetAllBrandsQuery,
   useGetBrandByIdQuery,
   useCreateBrandMutation,
   useUpdateBrandMutation,

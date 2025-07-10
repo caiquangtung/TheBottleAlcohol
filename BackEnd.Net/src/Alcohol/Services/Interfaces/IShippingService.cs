@@ -1,18 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Shipping;
-using Alcohol.Models.Enums;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services.Interfaces;
 
 public interface IShippingService
 {
-    Task<IEnumerable<ShippingResponseDto>> GetAllShippingsAsync();
+    Task<PagedResult<ShippingResponseDto>> GetAllShippingsAsync(ShippingFilterDto filter);
     Task<ShippingResponseDto> GetShippingByIdAsync(int id);
-    Task<IEnumerable<ShippingResponseDto>> GetShippingsByOrderAsync(int orderId);
-    Task<IEnumerable<ShippingResponseDto>> GetShippingsByCustomerAsync(int customerId);
+    Task<ShippingResponseDto> GetShippingByOrderAsync(int orderId);
     Task<ShippingResponseDto> CreateShippingAsync(ShippingCreateDto createDto);
     Task<ShippingResponseDto> UpdateShippingAsync(int id, ShippingUpdateDto updateDto);
-    Task<bool> UpdateShippingStatusAsync(int id, ShippingStatusType status);
     Task<bool> DeleteShippingAsync(int id);
 } 

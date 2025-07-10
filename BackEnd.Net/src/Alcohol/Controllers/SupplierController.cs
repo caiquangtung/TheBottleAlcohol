@@ -23,9 +23,9 @@ namespace Alcohol.Controllers
 
         [HttpGet]
         [Authorize(Roles = "CEO,Manager")]
-        public async Task<IActionResult> GetAll([FromQuery] SupplierFilterDto filter)
+        public async Task<IActionResult> GetAll([FromQuery] string search)
         {
-            var result = await _service.GetAllSuppliersAsync();
+            var result = await _service.GetAllSuppliersAsync(search);
             return Ok(new ApiResponse<IEnumerable<SupplierResponseDto>>(result));
         }
 

@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Brand;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services.Interfaces;
 
 public interface IBrandService
 {
-    Task<IEnumerable<BrandResponseDto>> GetAllBrandsAsync();
+    Task<PagedResult<BrandResponseDto>> GetAllBrandsAsync(BrandFilterDto filter);
     Task<BrandResponseDto> GetBrandByIdAsync(int id);
     Task<IEnumerable<BrandResponseDto>> GetActiveBrandsAsync();
     Task<BrandResponseDto> GetBrandWithProductsAsync(int id);

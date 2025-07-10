@@ -3,6 +3,7 @@ using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Alcohol.Common;
+using Alcohol.DTOs;
 
 namespace Alcohol.Controllers
 {
@@ -18,10 +19,10 @@ namespace Alcohol.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories([FromQuery] CategoryFilterDto filter)
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
-            return Ok(new ApiResponse<IEnumerable<CategoryResponseDto>>(categories));
+            var result = await _categoryService.GetAllCategoriesAsync(filter);
+            return Ok(new ApiResponse<PagedResult<CategoryResponseDto>>(result));
         }
 
         [HttpGet("root")]

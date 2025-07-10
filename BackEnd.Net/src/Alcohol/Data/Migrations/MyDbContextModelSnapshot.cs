@@ -209,7 +209,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartDetails", (string)null);
+                    b.ToTable("CartDetails");
                 });
 
             modelBuilder.Entity("Alcohol.Models.Category", b =>
@@ -306,6 +306,14 @@ namespace Alcohol.Data.Migrations
                     b.Property<int>("ManagerId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.Property<decimal>("Profit")
                         .HasColumnType("decimal(65,30)");
 
@@ -387,6 +395,9 @@ namespace Alcohol.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<int>("ReorderLevel")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("TotalValue")
                         .HasColumnType("decimal(65,30)");
 
@@ -398,7 +409,7 @@ namespace Alcohol.Data.Migrations
                     b.HasIndex("ProductId")
                         .IsUnique();
 
-                    b.ToTable("Inventories", (string)null);
+                    b.ToTable("Inventories");
                 });
 
             modelBuilder.Entity("Alcohol.Models.InventoryTransaction", b =>
@@ -428,7 +439,15 @@ namespace Alcohol.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("Type")
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("TransactionNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("TransactionType")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -438,7 +457,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("InventoryTransactions", (string)null);
+                    b.ToTable("InventoryTransactions");
                 });
 
             modelBuilder.Entity("Alcohol.Models.Notification", b =>
@@ -464,6 +483,14 @@ namespace Alcohol.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -492,6 +519,11 @@ namespace Alcohol.Data.Migrations
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
@@ -600,9 +632,20 @@ namespace Alcohol.Data.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -786,7 +829,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("RecipeId");
 
-                    b.ToTable("RecipeCategories", (string)null);
+                    b.ToTable("RecipeCategories");
                 });
 
             modelBuilder.Entity("Alcohol.Models.RecipeIngredient", b =>
@@ -924,6 +967,12 @@ namespace Alcohol.Data.Migrations
                     b.Property<string>("ShippingAddress")
                         .HasColumnType("longtext");
 
+                    b.Property<decimal>("ShippingCost")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("ShippingDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("ShippingName")
                         .HasColumnType("longtext");
 
@@ -945,7 +994,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Shippings", (string)null);
+                    b.ToTable("Shippings");
                 });
 
             modelBuilder.Entity("Alcohol.Models.Supplier", b =>
@@ -987,14 +1036,20 @@ namespace Alcohol.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Wishlists", (string)null);
+                    b.ToTable("Wishlists");
                 });
 
             modelBuilder.Entity("Alcohol.Models.WishlistDetail", b =>
@@ -1021,7 +1076,7 @@ namespace Alcohol.Data.Migrations
 
                     b.HasIndex("WishlistId");
 
-                    b.ToTable("WishlistDetails", (string)null);
+                    b.ToTable("WishlistDetails");
                 });
 
             modelBuilder.Entity("DiscountProduct", b =>

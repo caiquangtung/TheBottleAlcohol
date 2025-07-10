@@ -11,6 +11,7 @@ using Alcohol.Services.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Alcohol.DTOs;
+using System.Linq;
 
 namespace Alcohol.Services;
 
@@ -265,10 +266,55 @@ public class AccountService : IAccountService
         return _mapper.Map<AccountResponseDto>(account);
     }
 
-    public async Task<IEnumerable<AccountResponseDto>> GetAllAccounts()
+    public async Task<PagedResult<AccountResponseDto>> GetAllAccounts(AccountFilterDto filter)
     {
         var accounts = await _accountRepository.GetAllAsync();
-        return accounts.Select(a => new AccountResponseDto
+        
+        // Apply filters
+        var filteredAccounts = accounts.AsQueryable();
+        
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            filteredAccounts = filteredAccounts.Where(a => 
+                a.FullName.Contains(filter.SearchTerm) || 
+                a.Email.Contains(filter.SearchTerm) || 
+                a.PhoneNumber.Contains(filter.SearchTerm));
+        }
+        
+        if (filter.Status.HasValue)
+        {
+            filteredAccounts = filteredAccounts.Where(a => a.Status == filter.Status.Value);
+        }
+        
+        // Apply sorting
+        if (!string.IsNullOrWhiteSpace(filter.SortBy))
+        {
+            filteredAccounts = filter.SortBy.ToLower() switch
+            {
+                "fullname" => filter.SortOrder?.ToLower() == "desc" 
+                    ? filteredAccounts.OrderByDescending(a => a.FullName)
+                    : filteredAccounts.OrderBy(a => a.FullName),
+                "email" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredAccounts.OrderByDescending(a => a.Email)
+                    : filteredAccounts.OrderBy(a => a.Email),
+                "createdat" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredAccounts.OrderByDescending(a => a.CreatedAt)
+                    : filteredAccounts.OrderBy(a => a.CreatedAt),
+                _ => filteredAccounts.OrderBy(a => a.Id)
+            };
+        }
+        else
+        {
+            filteredAccounts = filteredAccounts.OrderBy(a => a.Id);
+        }
+        
+        var totalRecords = filteredAccounts.Count();
+        var pagedAccounts = filteredAccounts
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
+        
+        var accountDtos = pagedAccounts.Select(a => new AccountResponseDto
         {
             Id = a.Id,
             FullName = a.FullName,
@@ -280,7 +326,9 @@ public class AccountService : IAccountService
             Role = a.Role,
             Status = a.Status,
             CreatedAt = a.CreatedAt
-        });
+        }).ToList();
+        
+        return new PagedResult<AccountResponseDto>(accountDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<bool> VerifyPassword(int accountId, string password)

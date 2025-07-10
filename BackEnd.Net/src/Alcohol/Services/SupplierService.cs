@@ -6,6 +6,7 @@ using Alcohol.Models;
 using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
+using System.Linq;
 
 namespace Alcohol.Services;
 
@@ -20,9 +21,13 @@ public class SupplierService : ISupplierService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<SupplierResponseDto>> GetAllSuppliersAsync()
+    public async Task<IEnumerable<SupplierResponseDto>> GetAllSuppliersAsync(string search = null)
     {
-        var suppliers = await _supplierRepository.GetAllAsync();
+        IEnumerable<Supplier> suppliers;
+        if (!string.IsNullOrWhiteSpace(search))
+            suppliers = (await _supplierRepository.GetAllAsync()).Where(s => s.Name.Contains(search) || (s.Email != null && s.Email.Contains(search)) || (s.PhoneNumber != null && s.PhoneNumber.Contains(search)));
+        else
+            suppliers = await _supplierRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<SupplierResponseDto>>(suppliers);
     }
 

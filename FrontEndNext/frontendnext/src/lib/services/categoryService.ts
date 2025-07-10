@@ -35,8 +35,15 @@ export async function getCategoryById(id: number): Promise<Category | null> {
 
 export const categoryApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllCategories: builder.query<Category[], void>({
-      query: () => API_ENDPOINTS.CATEGORIES,
+    getAllCategories: builder.query<Category[], { search?: string } | void>({
+      query: (params) => {
+        let url = API_ENDPOINTS.CATEGORIES;
+        if (params && params.search) {
+          const qs = new URLSearchParams({ search: params.search }).toString();
+          url += `?${qs}`;
+        }
+        return url;
+      },
       transformResponse: (response) =>
         transformApiResponse<Category[]>(response),
       providesTags: ["Category"],

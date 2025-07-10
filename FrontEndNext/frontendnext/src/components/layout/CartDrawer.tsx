@@ -37,14 +37,17 @@ export function CartDrawer() {
   const rowVersion = useAppSelector(
     (state: { cart: { rowVersion: string | null } }) => state.cart.rowVersion
   );
+  const user = useAppSelector((state) => state.auth.user);
+  const userId = user?.id;
+
   const {
     data: cartData,
     refetch: refetchCart,
   }: {
     data?: Cart;
     refetch: () => Promise<{ data?: Cart }>;
-  } = useGetCartQuery(undefined, {
-    skip: !isCartDrawerOpen,
+  } = useGetCartQuery(typeof userId === "number" ? userId : -1, {
+    skip: !isCartDrawerOpen || typeof userId !== "number",
   });
 
   const [syncCart] = useSyncCartMutation();
@@ -57,7 +60,7 @@ export function CartDrawer() {
       dispatch(
         setCartData({
           id: 0,
-          customerId: 0,
+          customerId: userId || 0,
           cartDetails: [],
           totalAmount: 0,
           rowVersion: null,
@@ -67,7 +70,7 @@ export function CartDrawer() {
         })
       );
     }
-  }, [isCartDrawerOpen, cartData, dispatch]);
+  }, [isCartDrawerOpen, cartData, dispatch, userId]);
 
   const totalPrice = useMemo(() => {
     return (cartDetails as CartDetail[]).reduce(
@@ -84,8 +87,14 @@ export function CartDrawer() {
   };
 
   const handleSyncCart = async () => {
+    if (typeof userId !== "number") {
+      toast.error("Please log in to sync cart.");
+      return;
+    }
+
     try {
       const syncPayload: CartSyncPayload = {
+        customerId: userId,
         items: (cartDetails as CartDetail[]).map((item: CartDetail) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -145,21 +154,22 @@ export function CartDrawer() {
               </div>
             ) : (
               (cartDetails as CartDetail[]).map((item: CartDetail) => (
-                <div key={item.productId} className="flex items-center gap-4">
-                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
+                <div
+                  key={item.productId}
+                  className="flex items-center gap-4 p-4 border rounded-lg"
+                >
+                  <div className="w-16 h-16 relative">
                     <Image
-                      src={item.productImageUrl || "/placeholder.png"}
-                      alt={item.productName || "Product"}
+                      src={item.productImageUrl || "/placeholder.jpg"}
+                      alt={item.productName}
                       fill
-                      className="object-cover"
+                      className="object-cover rounded"
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">
-                      {item.productName || "Unknown Product"}
-                    </p>
+                    <h4 className="font-medium">{item.productName}</h4>
                     <p className="text-sm text-muted-foreground">
-                      {item.quantity || 0} x ${(item.price || 0).toFixed(2)}
+                      ${(item.price || 0).toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -209,18 +219,24 @@ export function CartDrawer() {
             )}
           </div>
         </div>
-        {(cartDetails || []).length > 0 && (
-          <SheetFooter className="gap-2 bg-background p-6">
-            <div className="flex w-full items-center justify-between">
-              <p className="text-lg font-semibold">Total:</p>
-              <p className="text-lg font-semibold">${totalPrice.toFixed(2)}</p>
+        {(cartDetails as CartDetail[]).length > 0 && (
+          <SheetFooter className="flex-col gap-4 px-6 py-4 border-t">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-semibold">Total:</span>
+              <span className="text-lg font-bold">
+                ${totalPrice.toFixed(2)}
+              </span>
             </div>
-            <Button className="w-full" onClick={handleSyncCart}>
-              Sync Cart
-            </Button>
-            <SheetClose asChild>
-              <Button className="w-full">Continue to Checkout</Button>
-            </SheetClose>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handleSyncCart}
+                className="flex-1"
+              >
+                Sync Cart
+              </Button>
+              <Button className="flex-1">Checkout</Button>
+            </div>
           </SheetFooter>
         )}
       </SheetContent>

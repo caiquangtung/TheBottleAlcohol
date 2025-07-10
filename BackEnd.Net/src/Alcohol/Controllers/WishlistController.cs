@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Wishlist;
-using Alcohol.DTOs.WishlistDetail;
 using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Alcohol.Common;
+using Alcohol.DTOs;
 
 namespace Alcohol.Controllers;
 
@@ -15,106 +14,72 @@ namespace Alcohol.Controllers;
 public class WishlistController : ControllerBase
 {
     private readonly IWishlistService _wishlistService;
-    private readonly IWishlistDetailService _wishlistDetailService;
 
-    public WishlistController(
-        IWishlistService wishlistService,
-        IWishlistDetailService wishlistDetailService)
+    public WishlistController(IWishlistService wishlistService)
     {
         _wishlistService = wishlistService;
-        _wishlistDetailService = wishlistDetailService;
     }
 
     [HttpGet]
-    [Authorize]
-    public async Task<ActionResult<IEnumerable<WishlistResponseDto>>> GetWishlists()
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> GetAllWishlists([FromQuery] WishlistFilterDto filter)
     {
-        var wishlists = await _wishlistService.GetAllWishlistsAsync();
-        return Ok(new ApiResponse<IEnumerable<WishlistResponseDto>>(wishlists));
+        var result = await _wishlistService.GetAllWishlistsAsync(filter);
+        return Ok(new ApiResponse<PagedResult<WishlistResponseDto>>(result));
     }
 
     [HttpGet("{id}")]
     [Authorize]
-    public async Task<ActionResult<WishlistResponseDto>> GetWishlistById(int id)
+    public async Task<IActionResult> GetWishlistById(int id)
     {
         var wishlist = await _wishlistService.GetWishlistByIdAsync(id);
         if (wishlist == null)
             return NotFound(new ApiResponse<string>("Wishlist not found"));
-
         return Ok(new ApiResponse<WishlistResponseDto>(wishlist));
     }
 
     [HttpGet("customer/{customerId}")]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<WishlistResponseDto>>> GetWishlistsByCustomer(int customerId)
+    public async Task<IActionResult> GetWishlistByCustomer(int customerId)
     {
-        var wishlists = await _wishlistService.GetWishlistsByCustomerAsync(customerId);
-        return Ok(new ApiResponse<IEnumerable<WishlistResponseDto>>(wishlists));
+        var wishlist = await _wishlistService.GetWishlistByCustomerAsync(customerId);
+        if (wishlist == null)
+            return NotFound(new ApiResponse<string>("Wishlist not found"));
+        return Ok(new ApiResponse<WishlistResponseDto>(wishlist));
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<WishlistResponseDto>> CreateWishlist(WishlistCreateDto createDto)
+    public async Task<IActionResult> CreateWishlist(WishlistCreateDto createDto)
     {
-        var wishlist = await _wishlistService.CreateWishlistAsync(createDto);
-        return CreatedAtAction(nameof(GetWishlistById), 
-            new { id = wishlist.Id }, 
-            new ApiResponse<WishlistResponseDto>(wishlist));
+        try
+        {
+            var wishlist = await _wishlistService.CreateWishlistAsync(createDto);
+            return CreatedAtAction(nameof(GetWishlistById), new { id = wishlist.Id }, new ApiResponse<WishlistResponseDto>(wishlist));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<string>(ex.Message));
+        }
     }
 
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<ActionResult<WishlistResponseDto>> UpdateWishlist(int id, WishlistUpdateDto updateDto)
+    public async Task<IActionResult> UpdateWishlist(int id, WishlistUpdateDto updateDto)
     {
         var wishlist = await _wishlistService.UpdateWishlistAsync(id, updateDto);
         if (wishlist == null)
             return NotFound(new ApiResponse<string>("Wishlist not found"));
-
         return Ok(new ApiResponse<WishlistResponseDto>(wishlist));
     }
 
     [HttpDelete("{id}")]
     [Authorize]
-    public async Task<ActionResult> DeleteWishlist(int id)
+    public async Task<IActionResult> DeleteWishlist(int id)
     {
         var result = await _wishlistService.DeleteWishlistAsync(id);
         if (!result)
             return NotFound(new ApiResponse<string>("Wishlist not found"));
-
         return Ok(new ApiResponse<string>("Wishlist deleted successfully"));
-    }
-
-    [HttpGet("{wishlistId}/products")]
-    [Authorize]
-    public async Task<ActionResult<IEnumerable<WishlistDetailResponseDto>>> GetWishlistProducts(int wishlistId)
-    {
-        var products = await _wishlistDetailService.GetWishlistDetailsByWishlistAsync(wishlistId);
-        return Ok(new ApiResponse<IEnumerable<WishlistDetailResponseDto>>(products));
-    }
-
-    [HttpPost("{wishlistId}/products")]
-    [Authorize]
-    public async Task<ActionResult<WishlistDetailResponseDto>> AddProductToWishlist(int wishlistId, [FromBody] WishlistDetailCreateDto createDto)
-    {
-        createDto.WishlistId = wishlistId;
-        var wishlistDetail = await _wishlistDetailService.CreateWishlistDetailAsync(createDto);
-        return Ok(new ApiResponse<WishlistDetailResponseDto>(wishlistDetail));
-    }
-
-    [HttpDelete("{wishlistId}/products/{productId}")]
-    [Authorize]
-    public async Task<ActionResult> RemoveProductFromWishlist(int wishlistId, int productId)
-    {
-        var wishlistDetails = await _wishlistDetailService.GetWishlistDetailsByWishlistAsync(wishlistId);
-        var wishlistDetail = wishlistDetails.FirstOrDefault(wd => wd.ProductId == productId);
-        
-        if (wishlistDetail == null)
-            return NotFound(new ApiResponse<string>("Product not found in wishlist"));
-
-        var result = await _wishlistDetailService.DeleteWishlistDetailAsync(wishlistDetail.Id);
-        if (!result)
-            return NotFound(new ApiResponse<string>("Failed to remove product from wishlist"));
-
-        return Ok(new ApiResponse<string>("Product removed from wishlist successfully"));
     }
 } 

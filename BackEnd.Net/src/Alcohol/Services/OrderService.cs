@@ -45,9 +45,13 @@ public class OrderService : IOrderService
         return new PagedResult<OrderResponseDto>(orderDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
-    public async Task<IEnumerable<OrderResponseDto>> GetAllOrdersAsync()
+    public async Task<IEnumerable<OrderResponseDto>> GetAllOrdersAsync(string search = null)
     {
-        var orders = await _orderRepository.GetAllAsync();
+        IEnumerable<Order> orders;
+        if (!string.IsNullOrWhiteSpace(search))
+            orders = (await _orderRepository.GetAllAsync()).Where(o => o.Id.ToString().Contains(search) || (o.Account != null && o.Account.FullName.Contains(search)));
+        else
+            orders = await _orderRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
     }
 

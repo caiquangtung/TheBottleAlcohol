@@ -43,6 +43,8 @@ import {
   useDeleteBrandMutation,
 } from "@/lib/services/brandService";
 import { Brand, BrandCreateDto, BrandUpdateDto } from "@/lib/types/brand";
+import SearchInput from "@/components/admin/SearchInput";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function BrandsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,7 +67,11 @@ export default function BrandsPage() {
   });
 
   // RTK Query hooks
-  const { data: brands = [], isLoading, error } = useGetAllBrandsQuery();
+  const {
+    data: brands = [],
+    isLoading,
+    error,
+  } = useGetAllBrandsQuery({ search: searchTerm });
   const [createBrand, { isLoading: isCreating }] = useCreateBrandMutation();
   const [updateBrand, { isLoading: isUpdating }] = useUpdateBrandMutation();
   const [deleteBrand, { isLoading: isDeleting }] = useDeleteBrandMutation();
@@ -134,11 +140,8 @@ export default function BrandsPage() {
     setIsUpdateDialogOpen(true);
   };
 
-  const filteredBrands = brands.filter(
-    (brand) =>
-      brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      brand.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Đã filter trên server, không cần filter client nữa
+  const filteredBrands = brands;
 
   if (isLoading) {
     return (
@@ -241,17 +244,15 @@ export default function BrandsPage() {
         </Dialog>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search brands..."
+      <Card>
+        <CardContent className="pt-6">
+          <SearchInput
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8"
+            onChange={setSearchTerm}
+            placeholder="Tìm kiếm thương hiệu..."
           />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="border rounded-lg">
         <Table>

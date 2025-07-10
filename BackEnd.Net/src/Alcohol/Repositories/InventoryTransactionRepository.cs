@@ -46,7 +46,7 @@ public class InventoryTransactionRepository : IInventoryTransactionRepository
     {
         return await _context.InventoryTransactions
             .Include(t => t.Product)
-            .Where(t => t.Type == type)
+            .Where(t => t.TransactionType == type)
             .ToListAsync();
     }
 

@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Category;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services.Interfaces
 {
     public interface ICategoryService
     {
-        Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync();
+        Task<PagedResult<CategoryResponseDto>> GetAllCategoriesAsync(CategoryFilterDto filter);
         Task<IEnumerable<CategoryResponseDto>> GetRootCategoriesAsync();
         Task<IEnumerable<CategoryResponseDto>> GetSubCategoriesAsync(int parentId);
         Task<CategoryResponseDto> GetCategoryByIdAsync(int id);

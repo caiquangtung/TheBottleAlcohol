@@ -86,5 +86,22 @@ namespace Alcohol.Repositories
                 .OrderBy(r => r.DisplayOrder)
                 .ToListAsync();
         }
+
+        public async Task<Recipe> GetBySlugAsync(string slug)
+        {
+            return await _context.Recipes
+                .Include(r => r.Ingredients)
+                .Include(r => r.Category)
+                .FirstOrDefaultAsync(r => r.Slug == slug);
+        }
+
+        public async Task<IEnumerable<Recipe>> GetByCategoryIdAsync(int categoryId)
+        {
+            return await _context.Recipes
+                .Include(r => r.Ingredients)
+                .Include(r => r.Category)
+                .Where(r => r.CategoryId == categoryId)
+                .ToListAsync();
+        }
     }
 } 

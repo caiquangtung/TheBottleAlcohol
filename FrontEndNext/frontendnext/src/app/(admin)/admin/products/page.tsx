@@ -57,6 +57,7 @@ import type {
   ProductCreate,
   ProductUpdate,
 } from "@/lib/types/product";
+import SearchInput from "@/components/admin/SearchInput";
 
 export default function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,7 +71,7 @@ export default function AdminProductsPage() {
     isLoading,
     error,
     refetch,
-  } = useGetProductsQuery({ search: searchTerm });
+  } = useGetProductsQuery({ searchTerm: searchTerm });
   const { data: categoriesData } = useGetAllCategoriesQuery();
   const { data: brandsData } = useGetAllBrandsQuery();
 
@@ -173,17 +174,11 @@ export default function AdminProductsPage() {
       {/* Search */}
       <Card>
         <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Tìm kiếm sản phẩm..."
-              value={searchTerm}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchTerm(e.target.value)
-              }
-              className="pl-10"
-            />
-          </div>
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Tìm kiếm sản phẩm..."
+          />
         </CardContent>
       </Card>
 

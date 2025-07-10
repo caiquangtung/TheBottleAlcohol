@@ -4,11 +4,18 @@ import type { User, UserCreate, UserUpdate } from "../types/user";
 
 export const userApi = enhancedApi.injectEndpoints({
   endpoints: (build) => ({
-    getUsers: build.query<User[], void>({
-      query: () => ({
-        url: API_ENDPOINTS.USERS,
-        method: "GET",
-      }),
+    getUsers: build.query<User[], { search?: string } | void>({
+      query: (params) => {
+        let url = API_ENDPOINTS.USERS;
+        if (params && params.search) {
+          const qs = new URLSearchParams({ search: params.search }).toString();
+          url += `?${qs}`;
+        }
+        return {
+          url,
+          method: "GET",
+        };
+      },
       providesTags: ["User"],
       transformResponse: (response: any) => response.data ?? [],
     }),

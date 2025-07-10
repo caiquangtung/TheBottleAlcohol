@@ -1,11 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Shipping;
-using Alcohol.Models.Enums;
 using Alcohol.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Alcohol.Common;
+using Alcohol.DTOs;
 
 namespace Alcohol.Controllers;
 
@@ -21,74 +21,65 @@ public class ShippingController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ShippingResponseDto>>> GetAllShippings()
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> GetAllShippings([FromQuery] ShippingFilterDto filter)
     {
-        var shippings = await _shippingService.GetAllShippingsAsync();
-        return Ok(shippings);
+        var result = await _shippingService.GetAllShippingsAsync(filter);
+        return Ok(new ApiResponse<PagedResult<ShippingResponseDto>>(result));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ShippingResponseDto>> GetShippingById(int id)
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> GetShippingById(int id)
     {
         var shipping = await _shippingService.GetShippingByIdAsync(id);
         if (shipping == null)
-            return NotFound();
-
-        return Ok(shipping);
+            return NotFound(new ApiResponse<string>("Shipping not found"));
+        return Ok(new ApiResponse<ShippingResponseDto>(shipping));
     }
 
     [HttpGet("order/{orderId}")]
-    public async Task<ActionResult<IEnumerable<ShippingResponseDto>>> GetShippingsByOrder(int orderId)
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> GetShippingByOrder(int orderId)
     {
-        var shippings = await _shippingService.GetShippingsByOrderAsync(orderId);
-        return Ok(shippings);
-    }
-
-    [HttpGet("customer/{customerId}")]
-    public async Task<ActionResult<IEnumerable<ShippingResponseDto>>> GetShippingsByCustomer(int customerId)
-    {
-        var shippings = await _shippingService.GetShippingsByCustomerAsync(customerId);
-        return Ok(shippings);
+        var shipping = await _shippingService.GetShippingByOrderAsync(orderId);
+        if (shipping == null)
+            return NotFound(new ApiResponse<string>("Shipping not found"));
+        return Ok(new ApiResponse<ShippingResponseDto>(shipping));
     }
 
     [HttpPost]
-    [Authorize]
-    public async Task<ActionResult<ShippingResponseDto>> CreateShipping(ShippingCreateDto createDto)
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> CreateShipping(ShippingCreateDto createDto)
     {
-        var shipping = await _shippingService.CreateShippingAsync(createDto);
-        return CreatedAtAction(nameof(GetShippingById), new { id = shipping.Id }, shipping);
+        try
+        {
+            var shipping = await _shippingService.CreateShippingAsync(createDto);
+            return CreatedAtAction(nameof(GetShippingById), new { id = shipping.Id }, new ApiResponse<ShippingResponseDto>(shipping));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<string>(ex.Message));
+        }
     }
 
     [HttpPut("{id}")]
-    [Authorize]
-    public async Task<ActionResult<ShippingResponseDto>> UpdateShipping(int id, ShippingUpdateDto updateDto)
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> UpdateShipping(int id, ShippingUpdateDto updateDto)
     {
         var shipping = await _shippingService.UpdateShippingAsync(id, updateDto);
         if (shipping == null)
-            return NotFound();
-
-        return Ok(shipping);
-    }
-
-    [HttpPut("{id}/status")]
-    [Authorize]
-    public async Task<ActionResult<ShippingResponseDto>> UpdateShippingStatus(int id, ShippingStatusType status)
-    {
-        var shipping = await _shippingService.UpdateShippingStatusAsync(id, status);
-        if (shipping == false)
-            return NotFound();
-
-        return Ok(shipping);
+            return NotFound(new ApiResponse<string>("Shipping not found"));
+        return Ok(new ApiResponse<ShippingResponseDto>(shipping));
     }
 
     [HttpDelete("{id}")]
-    [Authorize]
-    public async Task<ActionResult> DeleteShipping(int id)
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> DeleteShipping(int id)
     {
         var result = await _shippingService.DeleteShippingAsync(id);
-        if (result == false)
-            return NotFound();
-
-        return NoContent();
+        if (!result)
+            return NotFound(new ApiResponse<string>("Shipping not found"));
+        return Ok(new ApiResponse<string>("Shipping deleted successfully"));
     }
 } 

@@ -22,10 +22,16 @@ public class Notification
     [Required]
     public string Content { get; set; }
 
+    [Required]
+    [StringLength(50)]
+    public string Type { get; set; }
+
     public bool IsRead { get; set; } = false;
 
     [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? UpdatedAt { get; set; }
 
     public DateTime? ReadAt { get; set; }
 } 

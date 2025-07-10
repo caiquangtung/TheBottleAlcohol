@@ -47,6 +47,8 @@ import {
   CategoryCreateDto,
   CategoryUpdateDto,
 } from "@/lib/types/category";
+import SearchInput from "@/components/admin/SearchInput";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function CategoriesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,7 +75,7 @@ export default function CategoriesPage() {
     data: categories = [],
     isLoading,
     error,
-  } = useGetAllCategoriesQuery();
+  } = useGetAllCategoriesQuery({ search: searchTerm });
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
   const [updateCategory, { isLoading: isUpdating }] =
@@ -132,11 +134,8 @@ export default function CategoriesPage() {
     setIsUpdateDialogOpen(true);
   };
 
-  const filteredCategories = categories.filter(
-    (category) =>
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Đã filter trên server, không cần filter client nữa
+  const filteredCategories = categories;
 
   if (isLoading) {
     return (
@@ -241,15 +240,16 @@ export default function CategoriesPage() {
         </Dialog>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search categories..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      {/* Search */}
+      <Card>
+        <CardContent className="pt-6">
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Tìm kiếm danh mục..."
+          />
+        </CardContent>
+      </Card>
 
       <div className="border rounded-lg">
         <Table>

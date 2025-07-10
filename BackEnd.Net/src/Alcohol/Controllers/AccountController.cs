@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Alcohol.Common;
+using Alcohol.DTOs;
 
 namespace Alcohol.Controllers
 {
@@ -20,12 +21,12 @@ namespace Alcohol.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] AccountFilterDto filter)
         {
             try
             {
-                var accounts = await _accountService.GetAllAccounts();
-                return Ok(new ApiResponse<IEnumerable<AccountResponseDto>>(accounts));
+                var result = await _accountService.GetAllAccounts(filter);
+                return Ok(new ApiResponse<PagedResult<AccountResponseDto>>(result));
             }
             catch (Exception ex)
             {

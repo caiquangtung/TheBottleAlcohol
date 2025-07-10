@@ -25,6 +25,6 @@ public interface IAccountService
     Task<AccountResponseDto> UpdateAccountAsync(int id, AccountUpdateDto updateDto);
     Task<bool> DeleteAccountAsync(int id);
     Task<AccountResponseDto> UpdateAccountStatus(int id, bool status);
-    Task<IEnumerable<AccountResponseDto>> GetAllAccounts();
+    Task<PagedResult<AccountResponseDto>> GetAllAccounts(AccountFilterDto filter);
     Task<bool> VerifyPassword(int accountId, string password);
 } 

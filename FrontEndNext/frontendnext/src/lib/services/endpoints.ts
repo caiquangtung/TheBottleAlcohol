@@ -32,7 +32,7 @@ export const API_ENDPOINTS = {
 
   // Cart
   CART: "/cart",
-  CART_CURRENT: "/cart/current",
+  CART_BY_CUSTOMER: (customerId: number) => `/cart/customer/${customerId}`,
   CART_SYNC: "/cart/sync",
 
   // Auth

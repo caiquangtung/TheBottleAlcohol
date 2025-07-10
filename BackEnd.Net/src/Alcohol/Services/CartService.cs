@@ -8,6 +8,7 @@ using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Alcohol.DTOs;
 
 namespace Alcohol.Services;
 
@@ -31,10 +32,71 @@ public class CartService : ICartService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<CartResponseDto>> GetAllCartsAsync()
+    public async Task<PagedResult<CartResponseDto>> GetAllCartsAsync(CartFilterDto filter)
     {
         var carts = await _cartRepository.GetAllAsync();
-        return _mapper.Map<IEnumerable<CartResponseDto>>(carts);
+        
+        // Apply filters
+        var filteredCarts = carts.AsQueryable();
+        
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        {
+            filteredCarts = filteredCarts.Where(c => 
+                c.Customer != null && c.Customer.FullName.Contains(filter.SearchTerm));
+        }
+        
+        if (filter.CustomerId.HasValue)
+        {
+            filteredCarts = filteredCarts.Where(c => c.CustomerId == filter.CustomerId.Value);
+        }
+        
+        if (filter.StartDate.HasValue)
+        {
+            filteredCarts = filteredCarts.Where(c => c.CreatedAt >= filter.StartDate.Value);
+        }
+        
+        if (filter.EndDate.HasValue)
+        {
+            filteredCarts = filteredCarts.Where(c => c.CreatedAt <= filter.EndDate.Value);
+        }
+        
+        if (filter.MinTotal.HasValue)
+        {
+            filteredCarts = filteredCarts.Where(c => c.TotalAmount >= filter.MinTotal.Value);
+        }
+        
+        if (filter.MaxTotal.HasValue)
+        {
+            filteredCarts = filteredCarts.Where(c => c.TotalAmount <= filter.MaxTotal.Value);
+        }
+        
+        // Apply sorting
+        if (!string.IsNullOrWhiteSpace(filter.SortBy))
+        {
+            filteredCarts = filter.SortBy.ToLower() switch
+            {
+                "totalamount" => filter.SortOrder?.ToLower() == "desc" 
+                    ? filteredCarts.OrderByDescending(c => c.TotalAmount)
+                    : filteredCarts.OrderBy(c => c.TotalAmount),
+                "createdat" => filter.SortOrder?.ToLower() == "desc"
+                    ? filteredCarts.OrderByDescending(c => c.CreatedAt)
+                    : filteredCarts.OrderBy(c => c.CreatedAt),
+                _ => filteredCarts.OrderBy(c => c.Id)
+            };
+        }
+        else
+        {
+            filteredCarts = filteredCarts.OrderBy(c => c.Id);
+        }
+        
+        var totalRecords = filteredCarts.Count();
+        var pagedCarts = filteredCarts
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToList();
+        
+        var cartDtos = _mapper.Map<List<CartResponseDto>>(pagedCarts);
+        return new PagedResult<CartResponseDto>(cartDtos, totalRecords, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<CartResponseDto> GetCartByIdAsync(int id)
@@ -92,126 +154,58 @@ public class CartService : ICartService
         return true;
     }
 
-    public async Task<CartResponseDto> SyncCartAsync(int customerId, CartSyncDto syncDto)
+    public async Task<CartResponseDto> SyncCartAsync(CartSyncDto syncDto)
     {
-        // 1. Get current cart from DB
-        var cart = await _cartRepository.GetByCustomerIdAsync(customerId);
-
-        // 2. Create cart if it doesn't exist
-        if (cart == null)
+        var existingCart = await _cartRepository.GetByCustomerIdAsync(syncDto.CustomerId);
+        
+        if (existingCart == null)
         {
-            cart = new Cart 
-            { 
-                CustomerId = customerId, 
+            // Create new cart
+            var newCart = new Cart
+            {
+                CustomerId = syncDto.CustomerId,
                 CreatedAt = DateTime.UtcNow
             };
-            await _cartRepository.AddAsync(cart);
-            // Save the cart first to get the ID
-            await _cartRepository.SaveChangesAsync();
-        }
-        else
-        {
-            // 3. Concurrency Check for existing cart
-            if (syncDto.RowVersion == null || !cart.RowVersion.SequenceEqual(syncDto.RowVersion))
-            {
-                throw new DbUpdateConcurrencyException("The cart has been modified by another user. Please refresh and try again.");
-            }
             
-            // Ensure CartDetails is initialized
-            if (cart.CartDetails == null)
-            {
-                cart.CartDetails = new List<CartDetail>();
-            }
+            await _cartRepository.AddAsync(newCart);
+            await _cartRepository.SaveChangesAsync();
+            existingCart = newCart;
         }
 
-        // 4. Smart Diff Logic
-        var existingItemsMap = cart.CartDetails.ToDictionary(cd => cd.ProductId);
-        var itemsDtoMap = syncDto.Items.ToDictionary(i => i.ProductId);
-        
-        var itemsToAdd = new List<CartDetail>();
-        var itemsToUpdate = new List<CartDetail>();
-        var itemsToRemove = new List<CartDetail>();
-
-        // Find items to add or update
-        foreach (var itemDto in syncDto.Items)
+        // Sync cart details
+        foreach (var item in syncDto.Items)
         {
-            var product = await _productRepository.GetByIdAsync(itemDto.ProductId);
-            if (product == null) continue; // Skip if product doesn't exist
+            var product = await _productRepository.GetByIdAsync(item.ProductId);
+            if (product == null) continue;
 
-            if (existingItemsMap.TryGetValue(itemDto.ProductId, out var existingItem))
+            var existingDetail = existingCart.CartDetails?.FirstOrDefault(cd => cd.ProductId == item.ProductId);
+            
+            if (existingDetail != null)
             {
-                // Item exists, check for quantity update
-                if (existingItem.Quantity != itemDto.Quantity)
-                {
-                    existingItem.Quantity = Math.Min(itemDto.Quantity, product.StockQuantity);
-                    existingItem.UpdatedAt = DateTime.UtcNow;
-                    itemsToUpdate.Add(existingItem);
-                }
-                // Mark as processed
-                existingItemsMap.Remove(itemDto.ProductId);
+                // Update existing item
+                existingDetail.Quantity = item.Quantity;
+                existingDetail.UpdatedAt = DateTime.UtcNow;
             }
             else
             {
-                // Item is new, add it
-                itemsToAdd.Add(new CartDetail
+                // Add new item
+                var newDetail = new CartDetail
                 {
-                    CartId = cart.Id,
-                    ProductId = itemDto.ProductId,
-                    Quantity = Math.Min(itemDto.Quantity, product.StockQuantity),
+                    CartId = existingCart.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
                     Price = product.Price,
                     CreatedAt = DateTime.UtcNow
-                });
+                };
+                
+                existingCart.CartDetails?.Add(newDetail);
             }
         }
 
-        // 5. Find items to remove
-        itemsToRemove.AddRange(existingItemsMap.Values);
-
-        // 6. Batch DB Operations
-        if (itemsToAdd.Any()) 
-        {
-            await _cartDetailRepository.AddRangeAsync(itemsToAdd);
-        }
-        if (itemsToUpdate.Any()) 
-        {
-            _cartDetailRepository.UpdateRange(itemsToUpdate);
-        }
-        if (itemsToRemove.Any()) 
-        {
-            _cartDetailRepository.DeleteRange(itemsToRemove);
-        }
+        await _cartRepository.SaveChangesAsync();
         
-        // 7. Save all changes and update RowVersion
-        try
-        {
-            // Use the same context for all operations
-            await _cartDetailRepository.SaveChangesAsync();
-        }
-        catch(DbUpdateConcurrencyException ex)
-        {
-            // Re-throw with a more specific message if needed, or handle here
-            throw new DbUpdateConcurrencyException("Failed to save changes due to a concurrency conflict.", ex);
-        }
-        catch (Exception ex)
-        {
-            // Log the detailed exception for debugging
-            var errorDetails = $"Items to add: {itemsToAdd.Count}, Items to update: {itemsToUpdate.Count}, Items to remove: {itemsToRemove.Count}. ";
-            throw new InvalidOperationException($"{errorDetails}Failed to save cart changes: {ex.Message}", ex);
-        }
-
-        // 8. Return updated cart with new RowVersion
-        var updatedCart = await _cartRepository.GetCartWithDetailsAsync(cart.Id);
-        if (updatedCart == null)
-        {
-            throw new InvalidOperationException("Failed to retrieve updated cart after sync operation.");
-        }
-        
-        // Ensure CartDetails is initialized
-        if (updatedCart.CartDetails == null)
-        {
-            updatedCart.CartDetails = new List<CartDetail>();
-        }
-        
+        // Recalculate total
+        var updatedCart = await _cartRepository.GetByIdAsync(existingCart.Id);
         return _mapper.Map<CartResponseDto>(updatedCart);
     }
 } 

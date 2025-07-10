@@ -66,8 +66,8 @@ function transformCartResponse(response: ApiResponse<CartResponseDto>): Cart {
 
 export const cartApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCart: builder.query<Cart, void>({
-      query: () => API_ENDPOINTS.CART_CURRENT,
+    getCart: builder.query<Cart, number>({
+      query: (customerId) => API_ENDPOINTS.CART_BY_CUSTOMER(customerId),
       transformResponse: (response: ApiResponse<CartResponseDto>) =>
         transformCartResponse(response),
       providesTags: ["Cart"],
