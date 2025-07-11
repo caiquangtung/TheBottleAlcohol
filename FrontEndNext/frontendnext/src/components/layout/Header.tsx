@@ -2,13 +2,17 @@
 import Image from "next/image";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Heart, ShoppingCart, Sun, Moon, User, Search } from "lucide-react";
+import { Heart, ShoppingCart, Sun, Moon, User, Search, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../lib/store";
 import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
 import { toggleDark } from "../../lib/features/theme/themeSlice";
 import { toggleCartDrawer } from "../../lib/features/cart/cartSlice";
-import { openSearchOverlay } from "../../lib/features/search/searchSlice";
+import {
+  openSearchOverlay,
+  setSearchTerm,
+  clearSearch,
+} from "../../lib/features/search/searchSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CartDrawer } from "./CartDrawer";
@@ -26,6 +30,7 @@ export default function Header() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
+  const { searchTerm } = useAppSelector((state) => state.search);
   const userId = user?.id;
   const cartDetails = useAppSelector((state) => state.cart.cartDetails);
 
@@ -65,10 +70,30 @@ export default function Header() {
     router.push("/wishlist");
   };
 
+  const handleSearchFocus = () => {
+    dispatch(openSearchOverlay());
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    dispatch(setSearchTerm(value));
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      dispatch(openSearchOverlay());
+    }
+  };
+
+  const handleClearSearch = () => {
+    dispatch(clearSearch());
+  };
+
   // Don't render until hydrated
   if (!isHydrated) {
     return (
-      <header className="w-full border-b bg-background/80 dark:bg-[#18181b]/80 sticky top-0 z-10 transition-colors duration-300">
+      <header className="w-full border-b bg-background/80 dark:bg-[#18181b]/80 sticky top-0 z-[100] transition-colors duration-300">
         <div className="container mx-auto flex flex-col gap-2 py-4 px-2">
           <div className="flex items-center justify-between gap-4 w-full">
             <Link href="/">
@@ -83,15 +108,32 @@ export default function Header() {
               </div>
             </Link>
             <div className="flex-1 flex justify-center">
-              <div 
-                onClick={() => dispatch(openSearchOverlay())}
-                className="w-full max-w-xl relative cursor-pointer"
+              <form
+                onSubmit={handleSearchSubmit}
+                className="w-full max-w-xl relative"
               >
-                <div className="flex items-center px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md">
-                  <Search className="h-4 w-4 text-muted-foreground mr-2" />
-                  <span className="text-muted-foreground">Search...</span>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    onFocus={handleSearchFocus}
+                    placeholder="Search..."
+                    className="pl-10 pr-10"
+                  />
+                  {searchTerm && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleClearSearch}
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
-              </div>
+              </form>
             </div>
             <div className="flex items-center gap-2 min-w-[180px] justify-end">
               <Button variant="ghost" size="icon">
@@ -122,7 +164,7 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full border-b bg-background/80 dark:bg-[#18181b]/80 sticky top-0 z-10 transition-colors duration-300">
+    <header className="w-full border-b bg-background/80 dark:bg-[#18181b]/80 sticky top-0 z-[100] transition-colors duration-300">
       <div className="container mx-auto flex flex-col gap-2 py-4 px-2">
         <div className="flex items-center justify-between gap-4 w-full">
           {/* Logo bên trái */}
@@ -139,15 +181,32 @@ export default function Header() {
           </Link>
           {/* Search bar ở giữa */}
           <div className="flex-1 flex justify-center">
-            <div
-              onClick={() => dispatch(openSearchOverlay())}
-              className="w-full max-w-xl relative cursor-pointer"
+            <form
+              onSubmit={handleSearchSubmit}
+              className="w-full max-w-xl relative"
             >
-              <div className="flex items-center px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md">
-                <Search className="h-4 w-4 text-muted-foreground mr-2" />
-                <span className="text-muted-foreground">Search...</span>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onFocus={handleSearchFocus}
+                  placeholder="Search..."
+                  className="pl-10 pr-10"
+                />
+                {searchTerm && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClearSearch}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
-            </div>
+            </form>
           </div>
           {/* Icon bên phải */}
           <div className="flex items-center gap-2 min-w-[180px] justify-end">

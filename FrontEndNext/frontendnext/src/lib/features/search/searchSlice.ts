@@ -19,8 +19,7 @@ const searchSlice = createSlice({
     toggleSearchOverlay: (state) => {
       state.isSearchOverlayOpen = !state.isSearchOverlayOpen;
       if (!state.isSearchOverlayOpen) {
-        // Reset search when closing overlay
-        state.searchTerm = "";
+        // Only reset isSearching when closing overlay, keep searchTerm
         state.isSearching = false;
       }
     },
@@ -29,7 +28,7 @@ const searchSlice = createSlice({
     },
     closeSearchOverlay: (state) => {
       state.isSearchOverlayOpen = false;
-      state.searchTerm = "";
+      // Don't reset searchTerm to keep search state when reopening
       state.isSearching = false;
     },
     setSearchTerm: (state, action: PayloadAction<string>) => {
@@ -37,6 +36,10 @@ const searchSlice = createSlice({
     },
     setIsSearching: (state, action: PayloadAction<boolean>) => {
       state.isSearching = action.payload;
+    },
+    clearSearch: (state) => {
+      state.searchTerm = "";
+      state.isSearching = false;
     },
   },
 });
@@ -47,6 +50,7 @@ export const {
   closeSearchOverlay,
   setSearchTerm,
   setIsSearching,
+  clearSearch,
 } = searchSlice.actions;
 
 export default searchSlice.reducer;

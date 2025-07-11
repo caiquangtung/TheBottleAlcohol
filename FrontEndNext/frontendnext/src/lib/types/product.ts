@@ -57,7 +57,7 @@ export interface ProductUpdate {
 }
 
 export interface ProductFilter {
-  search?: string;
+  SearchTerm?: string;
   categoryId?: number;
   brandId?: number;
   minPrice?: number;

@@ -39,7 +39,7 @@ export default function MegaMenu({
 
   return (
     <div
-      className="fixed left-0 right-0 w-full bg-white dark:bg-[#18181b] shadow-lg dark:shadow-xl z-30 flex overflow-x-auto"
+      className="fixed left-0 right-0 w-full bg-white dark:bg-[#18181b] shadow-lg dark:shadow-xl z-[95] flex overflow-x-auto"
       style={{ minHeight: 320, top }}
       onMouseLeave={onMouseLeave}
     >
