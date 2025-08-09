@@ -19,10 +19,7 @@ import { CartDrawer } from "./CartDrawer";
 import SearchOverlay from "../SearchOverlay";
 import { Badge } from "../ui/badge";
 import { useState, useEffect } from "react";
-import {
-  useGetWishlistsByCustomerQuery,
-  useGetWishlistProductsQuery,
-} from "@/lib/services/wishlistService";
+import { useGetMyWishlistProductsQuery } from "@/lib/services/wishlistService";
 
 export default function Header() {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -34,15 +31,10 @@ export default function Header() {
   const userId = user?.id;
   const cartDetails = useAppSelector((state) => state.cart.cartDetails);
 
-  // Lấy wishlist đầu tiên của user
-  const { data: wishlists } = useGetWishlistsByCustomerQuery(
-    typeof userId === "number" ? userId : -1,
-    { skip: typeof userId !== "number" }
-  );
-  const wishlistId = wishlists?.[0]?.id;
-  const { data: wishlistProducts } = useGetWishlistProductsQuery(
-    typeof wishlistId === "number" ? wishlistId : -1,
-    { skip: typeof wishlistId !== "number" }
+  // Lấy wishlist của user hiện tại
+  const { data: wishlistProducts = [] } = useGetMyWishlistProductsQuery(
+    undefined,
+    { skip: !userId }
   );
   const wishlistCount = wishlistProducts?.length || 0;
 

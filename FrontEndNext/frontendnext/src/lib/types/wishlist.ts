@@ -1,14 +1,12 @@
 export interface Wishlist {
   id: number;
   accountId: number;
-  name: string;
   createdAt: string;
   updatedAt?: string | null;
 }
 
 export interface WishlistCreatePayload {
   accountId: number;
-  name: string;
 }
 
 export interface WishlistDetail {

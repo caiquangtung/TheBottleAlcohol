@@ -1,9 +1,6 @@
 "use client";
 import { useAppSelector } from "@/lib/store/hooks";
-import {
-  useGetWishlistsByCustomerQuery,
-  useGetWishlistProductsQuery,
-} from "@/lib/services/wishlistService";
+import { useGetMyWishlistProductsQuery } from "@/lib/services/wishlistService";
 import { useMemo } from "react";
 import ProductCard from "@/components/ProductCard";
 import { useGetProductsByIdsQuery } from "@/lib/services/productService";
@@ -13,14 +10,9 @@ import { Product } from "@/lib/types/product";
 export default function WishlistPage() {
   const user = useAppSelector((state) => state.auth.user);
   const userId = user?.id;
-  const { data: wishlists } = useGetWishlistsByCustomerQuery(
-    typeof userId === "number" ? userId : -1,
-    { skip: typeof userId !== "number" }
-  );
-  const wishlistId = wishlists?.[0]?.id;
-  const { data: wishlistProducts = [] } = useGetWishlistProductsQuery(
-    typeof wishlistId === "number" ? wishlistId : -1,
-    { skip: typeof wishlistId !== "number" }
+  const { data: wishlistProducts = [] } = useGetMyWishlistProductsQuery(
+    undefined,
+    { skip: !userId }
   );
 
   // Lấy danh sách productId từ wishlist

@@ -112,8 +112,10 @@ public class MappingProfile : Profile
         CreateMap<BrandUpdateDto, Brand>();
 
         // Wishlist mappings
-        CreateMap<Wishlist, WishlistResponseDto>();
-        CreateMap<WishlistCreateDto, Wishlist>().ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.AccountId));
+        CreateMap<Wishlist, WishlistResponseDto>()
+            .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.CustomerId));
+        CreateMap<WishlistCreateDto, Wishlist>()
+            .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.AccountId));
         CreateMap<WishlistDetailCreateDto, WishlistDetail>();
         CreateMap<WishlistDetail, WishlistDetailResponseDto>();
 

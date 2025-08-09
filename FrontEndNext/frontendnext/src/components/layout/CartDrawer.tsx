@@ -139,7 +139,7 @@ export function CartDrawer() {
 
   return (
     <Sheet open={isCartDrawerOpen} onOpenChange={handleToggle}>
-      <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
+      <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg z-[110]">
         <SheetHeader className="px-6">
           <SheetTitle>Cart ({(cartDetails || []).length})</SheetTitle>
         </SheetHeader>

@@ -98,6 +98,18 @@ public class WishlistService : IWishlistService
         return _mapper.Map<WishlistResponseDto>(wishlist);
     }
 
+    public async Task<WishlistResponseDto> GetOrCreateWishlistForUserAsync(int userId)
+    {
+        // Try to get existing wishlist
+        var existingWishlist = await GetWishlistByCustomerAsync(userId);
+        if (existingWishlist != null)
+            return existingWishlist;
+
+        // Create new wishlist if none exists
+        var createDto = new WishlistCreateDto { AccountId = userId };
+        return await CreateWishlistAsync(createDto);
+    }
+
     public async Task<WishlistResponseDto> CreateWishlistAsync(WishlistCreateDto createDto)
     {
         var wishlist = _mapper.Map<Wishlist>(createDto);

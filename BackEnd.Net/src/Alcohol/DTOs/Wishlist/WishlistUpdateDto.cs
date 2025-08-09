@@ -4,7 +4,5 @@ namespace Alcohol.DTOs.Wishlist;
 
 public class WishlistUpdateDto
 {
-    [Required]
-    [StringLength(100)]
-    public string Name { get; set; }
+    // No fields needed for now - keep for future extensions
 } 

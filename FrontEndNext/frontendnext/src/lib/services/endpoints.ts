@@ -50,12 +50,12 @@ export const API_ENDPOINTS = {
   WISHLIST_DETAIL: (id: number | string) => `/wishlist/${id}`,
   WISHLIST_BY_CUSTOMER: (customerId: number | string) =>
     `/wishlist/customer/${customerId}`,
-  WISHLIST_PRODUCTS: (wishlistId: number | string) =>
-    `/wishlist/${wishlistId}/products`,
-  WISHLIST_PRODUCT_DETAIL: (
-    wishlistId: number | string,
-    productId: number | string
-  ) => `/wishlist/${wishlistId}/products/${productId}`,
+  // New simplified endpoints
+  MY_WISHLIST_PRODUCTS: "/wishlist/products",
+  ADD_TO_WISHLIST: (productId: number | string) =>
+    `/wishlist/products/${productId}`,
+  REMOVE_FROM_WISHLIST: (productId: number | string) =>
+    `/wishlist/products/${productId}`,
 
   // Dashboard
   DASHBOARD_SUMMARY: "/dashboard/summary",

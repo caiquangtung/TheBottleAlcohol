@@ -12,14 +12,12 @@ import { toast } from "sonner";
 import { addItem } from "@/lib/features/cart/cartSlice";
 import { useSyncCartMutation } from "@/lib/services/cartService";
 import {
-  useGetWishlistsByCustomerQuery,
-  useGetWishlistProductsQuery,
-  useAddProductToWishlistMutation,
-  useRemoveProductFromWishlistMutation,
+  useGetMyWishlistProductsQuery,
+  useAddProductToMyWishlistMutation,
+  useRemoveProductFromMyWishlistMutation,
 } from "@/lib/services/wishlistService";
 import { useMemo, useState } from "react";
 import { WishlistDetail } from "@/lib/types/wishlist";
-import { useCreateWishlistMutation } from "@/lib/services/wishlistService";
 
 interface ProductCardProps {
   product: Product;
@@ -50,18 +48,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
   const [syncCart, { isLoading }] = useSyncCartMutation();
   const user = useAppSelector((state) => state.auth.user);
   const userId = user?.id;
-  const { data: wishlists } = useGetWishlistsByCustomerQuery(
-    typeof userId === "number" ? userId : -1,
-    { skip: typeof userId !== "number" }
-  );
-  const wishlistId = wishlists?.[0]?.id;
-  const { data: wishlistProducts, refetch } = useGetWishlistProductsQuery(
-    typeof wishlistId === "number" ? wishlistId : -1,
-    { skip: typeof wishlistId !== "number" }
-  );
-  const [addProductToWishlist] = useAddProductToWishlistMutation();
-  const [removeProductFromWishlist] = useRemoveProductFromWishlistMutation();
-  const [createWishlist] = useCreateWishlistMutation();
+  const { data: wishlistProducts = [], refetch } =
+    useGetMyWishlistProductsQuery(undefined, { skip: !userId });
+  const [addProductToMyWishlist] = useAddProductToMyWishlistMutation();
+  const [removeProductFromMyWishlist] =
+    useRemoveProductFromMyWishlistMutation();
   const isInWishlist = useMemo(
     () =>
       wishlistProducts?.some(
@@ -154,33 +145,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
     }
     setLoading(true);
     try {
-      let currentWishlistId = wishlistId;
-      // Nếu chưa có wishlist, tạo mới
-      if (!currentWishlistId) {
-        const newWishlist = await createWishlist({
-          accountId: userId,
-          name: "My Wishlist",
-        }).unwrap();
-        currentWishlistId = newWishlist.id;
-        // refetch lại danh sách wishlist
-        refetch();
-      }
       if (isInWishlist) {
-        await removeProductFromWishlist({
-          wishlistId: currentWishlistId,
-          productId: product.id,
-        }).unwrap();
+        await removeProductFromMyWishlist(product.id).unwrap();
         toast.success("Removed from wishlist");
       } else {
-        await addProductToWishlist({
-          wishlistId: currentWishlistId,
-          productId: product.id,
-        }).unwrap();
+        await addProductToMyWishlist(product.id).unwrap();
         toast.success("Added to wishlist");
       }
       refetch();
-    } catch {
-      toast.error("Failed to update wishlist");
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || "Failed to update wishlist";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
