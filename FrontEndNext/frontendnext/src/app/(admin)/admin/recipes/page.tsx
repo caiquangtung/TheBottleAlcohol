@@ -181,11 +181,13 @@ export default function RecipesPage() {
     return prepTime + cookTime;
   };
 
-  const filteredRecipes = recipes.filter(
-    (recipe) =>
-      recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recipe.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRecipes = Array.isArray(recipes)
+    ? recipes.filter(
+        (recipe) =>
+          recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recipe.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   if (isLoading) {
     return (

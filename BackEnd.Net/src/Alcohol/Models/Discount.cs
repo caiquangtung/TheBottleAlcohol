@@ -14,8 +14,13 @@ public class Discount
     [StringLength(50)]
     public string Code { get; set; }
 
+    public string Description { get; set; }
+
     [Required]
     public decimal DiscountAmount { get; set; }
+
+    [Required]
+    public decimal MinimumOrderAmount { get; set; }
 
     [Required]
     public DateTime StartDate { get; set; }
@@ -24,6 +29,10 @@ public class Discount
     public DateTime EndDate { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? UpdatedAt { get; set; }
 
     public ICollection<Product> Products { get; set; }
 

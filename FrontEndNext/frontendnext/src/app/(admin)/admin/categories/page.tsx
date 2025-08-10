@@ -135,7 +135,7 @@ export default function CategoriesPage() {
   };
 
   // Đã filter trên server, không cần filter client nữa
-  const filteredCategories = categories;
+  const filteredCategories = Array.isArray(categories) ? categories : [];
 
   if (isLoading) {
     return (

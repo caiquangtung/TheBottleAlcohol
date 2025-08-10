@@ -141,7 +141,7 @@ export default function BrandsPage() {
   };
 
   // Đã filter trên server, không cần filter client nữa
-  const filteredBrands = brands;
+  const filteredBrands = Array.isArray(brands) ? brands : [];
 
   if (isLoading) {
     return (

@@ -8,7 +8,7 @@ import { Category } from "@/lib/types/category";
 import React, { useState, useEffect } from "react";
 import {
   useGetProductsQuery,
-  ProductFilter as FilterState,
+  type ProductFilter as FilterState,
 } from "@/lib/services/productService";
 import Link from "next/link";
 import ProductGrid from "@/components/ProductGrid";
@@ -122,10 +122,8 @@ export default function CategoryDetailClient({
   const { data: childCategories } = useGetSubCategoriesQuery(categoryId, {
     skip: isNaN(categoryId),
   });
-  const {
-    data: pagedProducts,
-    isLoading: isLoadingProducts,
-  } = useGetProductsQuery(filters, { skip: !filters.categoryId });
+  const { data: pagedProducts, isLoading: isLoadingProducts } =
+    useGetProductsQuery(filters, { skip: !filters.categoryId });
   const { data: brands = [], isLoading: isLoadingBrands } =
     useGetAllBrandsQuery();
 

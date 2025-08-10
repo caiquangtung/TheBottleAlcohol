@@ -10,8 +10,12 @@ export const inventoryApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllInventory: builder.query<Inventory[], void>({
       query: () => "/inventory",
-      transformResponse: (response) =>
-        transformApiResponse<Inventory[]>(response),
+      transformResponse: (response) => {
+        const transformedResponse = transformApiResponse<{
+          items: Inventory[];
+        }>(response);
+        return transformedResponse.items || [];
+      },
       providesTags: ["Inventory"],
     }),
     getInventoryById: builder.query<Inventory, number>({

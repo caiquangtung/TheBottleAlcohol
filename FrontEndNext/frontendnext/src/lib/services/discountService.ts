@@ -10,8 +10,10 @@ export const discountApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllDiscounts: builder.query<Discount[], void>({
       query: () => "/discount",
-      transformResponse: (response) =>
-        transformApiResponse<Discount[]>(response),
+      transformResponse: (response) => {
+        const transformedResponse = transformApiResponse<{ items: Discount[] }>(response);
+        return transformedResponse.items || [];
+      },
       providesTags: ["Discount"],
     }),
     getDiscountById: builder.query<Discount, number>({

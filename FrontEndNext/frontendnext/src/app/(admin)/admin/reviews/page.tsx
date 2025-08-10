@@ -158,7 +158,9 @@ export default function ReviewsPage() {
   };
 
   const getUserName = (userId: number) => {
-    const user = users.find((u: User) => u.id === userId);
+    const user = Array.isArray(users)
+      ? users.find((u: User) => u.id === userId)
+      : null;
     return user ? user.fullName : `User ${userId}`;
   };
 
@@ -182,32 +184,34 @@ export default function ReviewsPage() {
     return isApproved ? "Approved" : "Rejected";
   };
 
-  const filteredReviews = reviews.filter((review) => {
-    const matchesSearch =
-      getProductName(review.productId)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      getUserName(review.accountId)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      review.comment.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredReviews = Array.isArray(reviews)
+    ? reviews.filter((review) => {
+        const matchesSearch =
+          getProductName(review.productId)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          getUserName(review.accountId)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          review.comment.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus =
-      statusFilter === "All" ||
-      getStatusFilter(review.isApproved) === statusFilter;
+        const matchesStatus =
+          statusFilter === "All" ||
+          getStatusFilter(review.isApproved) === statusFilter;
 
-    return matchesSearch && matchesStatus;
-  });
+        return matchesSearch && matchesStatus;
+      })
+    : [];
 
-  const pendingCount = reviews.filter(
-    (r) => getStatusFilter(r.isApproved) === "Pending"
-  ).length;
-  const approvedCount = reviews.filter(
-    (r) => getStatusFilter(r.isApproved) === "Approved"
-  ).length;
-  const rejectedCount = reviews.filter(
-    (r) => getStatusFilter(r.isApproved) === "Rejected"
-  ).length;
+  const pendingCount = Array.isArray(reviews)
+    ? reviews.filter((r) => getStatusFilter(r.isApproved) === "Pending").length
+    : 0;
+  const approvedCount = Array.isArray(reviews)
+    ? reviews.filter((r) => getStatusFilter(r.isApproved) === "Approved").length
+    : 0;
+  const rejectedCount = Array.isArray(reviews)
+    ? reviews.filter((r) => getStatusFilter(r.isApproved) === "Rejected").length
+    : 0;
 
   if (isLoading) {
     return (

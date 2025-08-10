@@ -8,6 +8,8 @@ import type {
   ProductUpdate,
 } from "../types/product";
 
+export type { ProductFilter, ProductCreate, ProductUpdate };
+
 export interface PagedResult<T> {
   items: T[];
   totalRecords: number;

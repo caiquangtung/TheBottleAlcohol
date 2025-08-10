@@ -82,7 +82,7 @@ export default function AdminUsersPage() {
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
   // Đã filter trên server, không cần filter client nữa
-  const filteredUsers = users;
+  const filteredUsers = Array.isArray(users) ? users : [];
 
   const handleCreateUser = async (formData: UserCreate) => {
     try {

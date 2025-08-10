@@ -16,6 +16,8 @@ using Alcohol.DTOs.Wishlist;
 using Alcohol.DTOs.WishlistDetail;
 using Alcohol.DTOs.Review;
 using Alcohol.DTOs.Recipe;
+using Alcohol.DTOs.Notification;
+using Alcohol.DTOs.Discount;
 
 namespace Alcohol.Mappings;
 
@@ -111,6 +113,14 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Name.ToLower().Replace(" ", "-")));
         CreateMap<BrandUpdateDto, Brand>();
 
+        // Discount mappings
+        CreateMap<Discount, DiscountResponseDto>();
+        CreateMap<DiscountCreateDto, Discount>()
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+        CreateMap<DiscountUpdateDto, Discount>()
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+
         // Wishlist mappings
         CreateMap<Wishlist, WishlistResponseDto>()
             .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.CustomerId));
@@ -157,5 +167,13 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes));
         CreateMap<RecipeIngredientCreateDto, RecipeIngredient>();
         CreateMap<RecipeIngredientUpdateDto, RecipeIngredient>();
+
+        // Notification mappings
+        CreateMap<Notification, NotificationResponseDto>()
+            .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Content));
+        CreateMap<NotificationCreateDto, Notification>()
+            .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Message));
+        CreateMap<NotificationUpdateDto, Notification>()
+            .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Message));
     }
 }

@@ -44,8 +44,12 @@ export const categoryApi = enhancedApi.injectEndpoints({
         }
         return url;
       },
-      transformResponse: (response) =>
-        transformApiResponse<Category[]>(response),
+      transformResponse: (response) => {
+        const transformedResponse = transformApiResponse<{ items: Category[] }>(
+          response
+        );
+        return transformedResponse.items || [];
+      },
       providesTags: ["Category"],
     }),
     getRootCategories: builder.query<Category[], void>({

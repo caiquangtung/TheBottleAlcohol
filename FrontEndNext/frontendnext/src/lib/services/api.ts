@@ -10,9 +10,10 @@ import { API_ENDPOINTS } from "./endpoints";
 import type { DashboardSummaryDto } from "../types/statistics";
 
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1",
-  credentials: "include", // Đảm bảo HttpOnly cookies được gửi
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "/api",
+  credentials: "include",
   prepareHeaders: (headers, { getState }) => {
+    headers.set("Content-Type", "application/json");
     const token = (getState() as RootState).auth.accessToken;
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
@@ -68,7 +69,7 @@ const baseQueryWithReauth: BaseQueryFn<
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: baseQueryWithReauth, // Sử dụng baseQueryWithReauth cho toàn bộ API
+  baseQuery: baseQueryWithReauth,
   endpoints: () => ({}),
   tagTypes: [
     "Product",

@@ -398,6 +398,7 @@ namespace Alcohol.Data
                         entity.Property(e => e.UserId).IsRequired();
                         entity.Property(e => e.Title).IsRequired().HasMaxLength(255);
                         entity.Property(e => e.Content).IsRequired();
+                        entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
                         entity.Property(e => e.IsRead).IsRequired();
                         entity.Property(e => e.CreatedAt).IsRequired();
                         entity.Property(e => e.ReadAt);

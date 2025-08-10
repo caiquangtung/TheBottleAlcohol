@@ -16,7 +16,12 @@ export const reviewApi = enhancedApi.injectEndpoints({
     }),
     getAllReviews: builder.query<Review[], void>({
       query: () => "/review",
-      transformResponse: (response) => transformApiResponse<Review[]>(response),
+      transformResponse: (response) => {
+        const transformedResponse = transformApiResponse<{ items: Review[] }>(
+          response
+        );
+        return transformedResponse.items || [];
+      },
       providesTags: ["Review"],
     }),
     getReviewById: builder.query<Review, number>({

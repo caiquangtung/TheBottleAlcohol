@@ -145,9 +145,6 @@ export default function Header() {
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon">
-                <Moon className="h-5 w-5" />
-              </Button>
             </div>
           </div>
         </div>
@@ -231,19 +228,6 @@ export default function Header() {
                 </Badge>
               )}
               <ShoppingCart className="h-5 w-5" />
-            </Button>
-            {/* Dark mode toggle button with icon */}
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Toggle dark mode"
-              onClick={() => dispatch(toggleDark())}
-            >
-              {isDark ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
             </Button>
           </div>
         </div>

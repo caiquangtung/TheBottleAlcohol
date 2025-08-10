@@ -6,7 +6,10 @@ export const recipeApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
     getRecipes: builder.query<Recipe[], void>({
       query: () => "/recipe",
-      transformResponse: (response) => transformApiResponse<Recipe[]>(response),
+      transformResponse: (response) => {
+        const transformedResponse = transformApiResponse<{ items: Recipe[] }>(response);
+        return transformedResponse.items || [];
+      },
       providesTags: ["Recipe"],
     }),
     getRecipeById: builder.query<Recipe, number>({

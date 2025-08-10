@@ -23,6 +23,7 @@ import {
   LogOut,
   Settings,
 } from "lucide-react";
+import FloatingDarkModeButton from "@/components/FloatingDarkModeButton";
 
 const menu = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -153,6 +154,7 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
           </div>
         </footer>
       </div>
+      <FloatingDarkModeButton />
     </div>
   );
 }

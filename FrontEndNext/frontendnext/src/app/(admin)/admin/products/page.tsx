@@ -71,7 +71,7 @@ export default function AdminProductsPage() {
     isLoading,
     error,
     refetch,
-  } = useGetProductsQuery({ searchTerm: searchTerm });
+  } = useGetProductsQuery({ SearchTerm: searchTerm });
   const { data: categoriesData } = useGetAllCategoriesQuery();
   const { data: brandsData } = useGetAllBrandsQuery();
 

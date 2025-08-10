@@ -163,14 +163,16 @@ export default function InventoryPage() {
     return product ? product.name : `Product ${productId}`;
   };
 
-  const filteredInventory = inventory.filter(
-    (item) =>
-      getProductName(item.productId)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.notes.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredInventory = Array.isArray(inventory)
+    ? inventory.filter(
+        (item) =>
+          getProductName(item.productId)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.notes.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   if (isLoading) {
     return (

@@ -193,12 +193,14 @@ export default function DiscountsPage() {
     return <Badge variant="default">Active</Badge>;
   };
 
-  const filteredDiscounts = discounts.filter(
-    (discount) =>
-      discount.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      discount.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      discount.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDiscounts = Array.isArray(discounts)
+    ? discounts.filter(
+        (discount) =>
+          discount.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          discount.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          discount.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   if (isLoading) {
     return (

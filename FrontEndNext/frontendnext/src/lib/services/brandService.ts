@@ -14,7 +14,12 @@ export const brandApi = enhancedApi.injectEndpoints({
         }
         return url;
       },
-      transformResponse: (response) => transformApiResponse<Brand[]>(response),
+      transformResponse: (response) => {
+        const transformedResponse = transformApiResponse<{ items: Brand[] }>(
+          response
+        );
+        return transformedResponse.items || [];
+      },
       providesTags: ["Brand"],
     }),
     getBrandById: builder.query<Brand, number>({

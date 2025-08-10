@@ -17,7 +17,7 @@ export const userApi = enhancedApi.injectEndpoints({
         };
       },
       providesTags: ["User"],
-      transformResponse: (response: any) => response.data ?? [],
+      transformResponse: (response: any) => response.data?.items ?? [],
     }),
     createUser: build.mutation<User, UserCreate>({
       query: (body) => ({
