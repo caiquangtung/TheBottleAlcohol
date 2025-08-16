@@ -24,8 +24,10 @@ import {
 import { useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { Cart, CartDetail, CartSyncPayload } from "@/lib/types/cart";
+import { useRouter } from "next/navigation";
 
 export function CartDrawer() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const isCartDrawerOpen = useAppSelector(
     (state: { cart: { isCartDrawerOpen: boolean } }) =>
@@ -137,6 +139,27 @@ export function CartDrawer() {
     }
   };
 
+  const handleCheckout = async () => {
+    if (typeof userId !== "number") {
+      toast.error("Please log in to continue.");
+      return;
+    }
+    if (!cartDetails || (cartDetails as CartDetail[]).length === 0) {
+      toast.error("Your cart is empty.");
+      return;
+    }
+    try {
+      // Optionally sync cart then navigate to checkout page
+      try {
+        await handleSyncCart();
+      } catch {}
+      dispatch(toggleCartDrawer());
+      router.push("/checkout");
+    } catch {
+      toast.error("Failed to proceed to checkout.");
+    }
+  };
+
   return (
     <Sheet open={isCartDrawerOpen} onOpenChange={handleToggle}>
       <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg z-[110]">
@@ -235,7 +258,9 @@ export function CartDrawer() {
               >
                 Sync Cart
               </Button>
-              <Button className="flex-1">Checkout</Button>
+              <Button className="flex-1" onClick={handleCheckout}>
+                Checkout
+              </Button>
             </div>
           </SheetFooter>
         )}

@@ -31,6 +31,9 @@ builder.Services.AddDbContext<MyDbContext>(opt =>
 // Đăng ký AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
+// Đăng ký VnPay Configuration
+builder.Services.Configure<Alcohol.DTOs.VnPay.VnPayConfig>(builder.Configuration.GetSection("VnPay"));
+
 // Đăng ký Repositories
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -80,6 +83,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<IInventoryTransactionService, InventoryTransactionService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 // Add PasswordHasher
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -90,6 +94,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.Converters.Add(new DecimalJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
 // Add CORS services

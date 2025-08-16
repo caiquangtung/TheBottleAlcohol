@@ -8,6 +8,7 @@ using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Alcohol.DTOs;
 
 namespace Alcohol.Services;
@@ -18,18 +19,21 @@ public class CartService : ICartService
     private readonly ICartDetailRepository _cartDetailRepository;
     private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<CartService> _logger;
 
     public CartService(
         ICartRepository cartRepository,
         ICartDetailRepository cartDetailRepository,
         IProductRepository productRepository,
-        IMapper mapper
+        IMapper mapper,
+        ILogger<CartService> logger
     )
     {
         _cartRepository = cartRepository;
         _cartDetailRepository = cartDetailRepository;
         _productRepository = productRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<PagedResult<CartResponseDto>> GetAllCartsAsync(CartFilterDto filter)
@@ -172,40 +176,87 @@ public class CartService : ICartService
             existingCart = newCart;
         }
 
-        // Sync cart details
-        foreach (var item in syncDto.Items)
-        {
-            var product = await _productRepository.GetByIdAsync(item.ProductId);
-            if (product == null) continue;
+		// Sync cart details (upsert + delete missing)
+		var incomingProductIds = new HashSet<int>(syncDto.Items.Select(i => i.ProductId));
 
-            var existingDetail = existingCart.CartDetails?.FirstOrDefault(cd => cd.ProductId == item.ProductId);
-            
-            if (existingDetail != null)
-            {
-                // Update existing item
-                existingDetail.Quantity = item.Quantity;
-                existingDetail.UpdatedAt = DateTime.UtcNow;
-            }
-            else
-            {
-                // Add new item
-                var newDetail = new CartDetail
-                {
-                    CartId = existingCart.Id,
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    Price = product.Price,
-                    CreatedAt = DateTime.UtcNow
-                };
-                
-                existingCart.CartDetails?.Add(newDetail);
-            }
-        }
+		// Upsert items from client
+		foreach (var item in syncDto.Items)
+		{
+			var product = await _productRepository.GetByIdAsync(item.ProductId);
+			if (product == null) continue;
+
+			var existingDetail = existingCart.CartDetails?.FirstOrDefault(cd => cd.ProductId == item.ProductId);
+			
+			// If client sets quantity <= 0, treat as deletion
+			if (item.Quantity <= 0)
+			{
+				if (existingDetail != null)
+				{
+					_cartDetailRepository.Delete(existingDetail);
+				}
+				continue;
+			}
+
+			if (existingDetail != null)
+			{
+				// Update existing item
+				existingDetail.Quantity = item.Quantity;
+				existingDetail.UpdatedAt = DateTime.UtcNow;
+			}
+			else
+			{
+				// Add new item
+				var newDetail = new CartDetail
+				{
+					CartId = existingCart.Id,
+					ProductId = item.ProductId,
+					Quantity = item.Quantity,
+					Price = product.Price,
+					CreatedAt = DateTime.UtcNow
+				};
+				
+				existingCart.CartDetails?.Add(newDetail);
+			}
+		}
+
+		// Delete any items on the server that are not present in client payload
+		var itemsToRemove = existingCart.CartDetails?
+			.Where(cd => !incomingProductIds.Contains(cd.ProductId))
+			.ToList();
+		if (itemsToRemove != null && itemsToRemove.Count > 0)
+		{
+			_cartDetailRepository.DeleteRange(itemsToRemove);
+		}
 
         await _cartRepository.SaveChangesAsync();
         
         // Recalculate total
         var updatedCart = await _cartRepository.GetByIdAsync(existingCart.Id);
         return _mapper.Map<CartResponseDto>(updatedCart);
+    }
+
+    public async Task<bool> ClearCartByCustomerAsync(int customerId)
+    {
+        try
+        {
+            var cart = await _cartRepository.GetByCustomerIdAsync(customerId);
+            if (cart == null)
+                return true; // No cart to clear
+
+            // Clear all cart details
+            if (cart.CartDetails != null && cart.CartDetails.Any())
+            {
+                _cartDetailRepository.DeleteRange(cart.CartDetails.ToList());
+            }
+
+            await _cartRepository.SaveChangesAsync();
+            _logger.LogInformation("Cleared cart for customer {CustomerId}", customerId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error clearing cart for customer {CustomerId}", customerId);
+            return false;
+        }
     }
 } 

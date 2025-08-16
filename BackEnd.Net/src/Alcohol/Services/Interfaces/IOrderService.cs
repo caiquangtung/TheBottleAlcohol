@@ -11,6 +11,9 @@ public interface IOrderService
 {
     Task<PagedResult<OrderResponseDto>> GetOrdersAsync(OrderFilterDto filter);
     Task<OrderResponseDto> GetOrderByIdAsync(int id);
+    Task<OrderResponseDto> GetOrderWithDetailsAsync(int id);
+    Task<IEnumerable<OrderResponseDto>> GetOrdersByCustomerAsync(int customerId);
+    Task<IEnumerable<OrderResponseDto>> GetOrdersByStatusAsync(OrderStatusType status);
     Task<OrderResponseDto> CreateOrderAsync(OrderCreateDto orderDto);
     Task<OrderResponseDto> UpdateOrderAsync(int id, OrderUpdateDto orderDto);
     Task<OrderResponseDto> UpdateOrderStatusAsync(int id, OrderStatusType status);

@@ -16,11 +16,19 @@ namespace Alcohol.Services;
 public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly IOrderDetailRepository _orderDetailRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
 
-    public OrderService(IOrderRepository orderRepository, IMapper mapper)
+    public OrderService(
+        IOrderRepository orderRepository,
+        IOrderDetailRepository orderDetailRepository,
+        IProductRepository productRepository,
+        IMapper mapper)
     {
         _orderRepository = orderRepository;
+        _orderDetailRepository = orderDetailRepository;
+        _productRepository = productRepository;
         _mapper = mapper;
     }
 
@@ -85,18 +93,60 @@ public class OrderService : IOrderService
         return _mapper.Map<IEnumerable<OrderResponseDto>>(orders);
     }
 
-    public async Task<OrderResponseDto> CreateOrderAsync(OrderCreateDto createDto)
-    {
-        var order = _mapper.Map<Order>(createDto);
-        order.OrderDate = DateTime.UtcNow;
-        order.CreatedAt = DateTime.UtcNow;
-        order.Status = OrderStatusType.Pending;
+        public async Task<OrderResponseDto> CreateOrderAsync(OrderCreateDto createDto)
+        {
+            var order = _mapper.Map<Order>(createDto);
+            order.OrderDate = DateTime.UtcNow;
+            order.CreatedAt = DateTime.UtcNow;
+            order.Status = OrderStatusType.Pending;
 
-        await _orderRepository.AddAsync(order);
-        await _orderRepository.SaveChangesAsync();
+            // Ensure non-nullable columns have safe defaults
+            order.ShippingName ??= string.Empty;
+            order.ShippingPhone ??= string.Empty;
 
-        return _mapper.Map<OrderResponseDto>(order);
-    }
+            await _orderRepository.AddAsync(order);
+            await _orderRepository.SaveChangesAsync();
+
+            // Persist order details and compute total (deduplicate by product)
+            decimal totalAmount = 0m;
+            if (createDto.OrderDetails != null && createDto.OrderDetails.Count > 0)
+            {
+                var grouped = createDto.OrderDetails
+                    .GroupBy(d => d.ProductId)
+                    .Select(g => new { ProductId = g.Key, Quantity = g.Sum(x => x.Quantity) })
+                    .ToList();
+
+                foreach (var item in grouped)
+                {
+                    var product = await _productRepository.GetByIdAsync(item.ProductId);
+                    if (product == null) continue;
+
+                    var unitPrice = product.Price;
+                    var lineTotal = unitPrice * item.Quantity;
+                    totalAmount += lineTotal;
+
+                    var detail = new OrderDetail
+                    {
+                        OrderId = order.Id,
+                        ProductId = item.ProductId,
+                        UnitPrice = unitPrice,
+                        Quantity = item.Quantity,
+                        TotalAmount = lineTotal,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await _orderDetailRepository.AddAsync(detail);
+                }
+                await _orderDetailRepository.SaveChangesAsync();
+            }
+
+            // Update order total
+            order.TotalAmount = totalAmount;
+            _orderRepository.Update(order);
+            await _orderRepository.SaveChangesAsync();
+
+            return await GetOrderWithDetailsAsync(order.Id);
+        }
 
     public async Task<OrderResponseDto> UpdateOrderAsync(int id, OrderUpdateDto updateDto)
     {

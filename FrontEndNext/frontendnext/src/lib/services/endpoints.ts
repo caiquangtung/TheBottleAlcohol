@@ -67,6 +67,17 @@ export const API_ENDPOINTS = {
   USER_UPDATE: (id: number | string) => `/account/${id}`,
   USER_DELETE: (id: number | string) => `/account/${id}`,
 
+  // Orders
+  ORDERS: "/order",
+  ORDER_DETAIL: (id: number | string) => `/order/${id}`,
+
+  // VNPAY
+  VNPAY_CREATE_PAYMENT: "/vnpay/create-payment",
+  VNPAY_PAYMENT_RETURN: (queryString: string) =>
+    `/vnpay/payment-return?${queryString}`,
+  VNPAY_PAYMENT_STATUS: (orderId: number | string) =>
+    `/vnpay/payment-status/${orderId}`,
+
   // Products (Admin)
   PRODUCTS_ADMIN: "/product",
   PRODUCT_CREATE: "/product",

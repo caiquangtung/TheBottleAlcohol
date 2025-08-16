@@ -6,5 +6,6 @@ public enum PaymentMethodType
     CreditCard,
     DebitCard,
     BankTransfer,
-    EWallet
+    EWallet,
+    VnPay
 } 

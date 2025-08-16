@@ -124,7 +124,8 @@ public class PaymentService : IPaymentService
 
     public async Task<PaymentResponseDto> GetPaymentByOrderAsync(int orderId)
     {
-        var payment = await _paymentRepository.GetByOrderIdAsync(orderId);
+        var payments = await _paymentRepository.GetByOrderIdAsync(orderId);
+        var payment = payments?.FirstOrDefault();
         if (payment == null)
             return null;
 

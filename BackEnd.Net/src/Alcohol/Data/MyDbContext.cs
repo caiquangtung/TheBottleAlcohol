@@ -104,6 +104,8 @@ namespace Alcohol.Data
                               .HasConversion<string>();
                         entity.Property(e => e.ShippingMethod).IsRequired()
                               .HasConversion<string>();
+                        entity.Property(e => e.Status).IsRequired()
+                              .HasConversion<string>();
                         entity.Property(e => e.ShippingAddress).IsRequired();
                         entity.Property(e => e.ShippingPhone).IsRequired();
                         entity.Property(e => e.ShippingName).IsRequired();

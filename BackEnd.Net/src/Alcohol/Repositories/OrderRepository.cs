@@ -32,8 +32,9 @@ public class OrderRepository : IOrderRepository
     public async Task<Order> GetOrderWithDetailsAsync(int id)
     {
         return await _context.Orders
+            .Include(o => o.Account)
             .Include(o => o.OrderDetails)
-            .ThenInclude(od => od.Product)
+                .ThenInclude(od => od.Product)
             .FirstOrDefaultAsync(o => o.Id == id);
     }
 

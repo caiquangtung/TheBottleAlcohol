@@ -3,9 +3,14 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useGetProfileQuery, useLogoutMutation } from "../lib/services/auth";
+import {
+  useGetUserOrdersQuery,
+  OrderFilter,
+} from "../lib/services/orderService";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { logout } from "../lib/features/auth/authSlice";
+import { OrderStatusBadge } from "./OrderStatusBadge";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -13,6 +18,22 @@ export default function ProfilePage() {
   const { data, isLoading, isError } = useGetProfileQuery();
   const [logoutMutation] = useLogoutMutation();
   const [tab, setTab] = useState<"overview" | "myprofile">("overview");
+
+  // Get user orders for most recent order display
+  const { data: ordersData } = useGetUserOrdersQuery(
+    {
+      customerId: data?.data?.id || 0,
+      filter: {
+        pageNumber: 1,
+        pageSize: 1,
+        sortBy: "CreatedAt",
+        sortOrder: "desc",
+      } as OrderFilter,
+    },
+    {
+      skip: !data?.data?.id,
+    }
+  );
 
   // Đảm bảo chỉ render sau khi đã hydrate (nếu cần)
   // useEffect(() => setIsHydrated(true), []);
@@ -52,6 +73,7 @@ export default function ProfilePage() {
   }
 
   const user = data.data;
+  const mostRecentOrder = ordersData?.items?.[0]; // Assuming orders are sorted by date desc
 
   return (
     <div className="container mx-auto py-10 flex flex-col md:flex-row gap-8">
@@ -77,7 +99,7 @@ export default function ProfilePage() {
             My profile <span>&#8250;</span>
           </button>
           <Link
-            href="#"
+            href="/orders"
             className="flex items-center justify-between py-2 px-1 border-b border-transparent hover:border-black transition-all"
           >
             Orders <span>&#8250;</span>
@@ -110,11 +132,54 @@ export default function ProfilePage() {
             <div>
               <h3 className="text-lg font-bold mb-4">MOST RECENT ORDER</h3>
               <div className="border rounded p-6 mb-6">
-                <div className="font-semibold mb-2">No orders yet...</div>
-                <div className="text-sm mb-4">
-                  You haven&apos;t placed any orders yet.
-                </div>
-                <Button variant="outline">SHOP NOW</Button>
+                {mostRecentOrder ? (
+                  <>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-semibold">
+                        Đơn hàng #{mostRecentOrder.id}
+                      </div>
+                      <OrderStatusBadge status={mostRecentOrder.status} />
+                    </div>
+                    <div className="text-sm text-muted-foreground mb-2">
+                      Ngày đặt:{" "}
+                      {new Date(mostRecentOrder.createdAt).toLocaleDateString(
+                        "vi-VN"
+                      )}
+                    </div>
+                    <div className="text-sm mb-2">
+                      Tổng tiền:{" "}
+                      <span className="font-semibold">
+                        {mostRecentOrder.totalAmount.toLocaleString("vi-VN")}{" "}
+                        VNĐ
+                      </span>
+                    </div>
+                    <div className="text-sm mb-4">
+                      {mostRecentOrder.orderDetails?.length || 0} sản phẩm
+                    </div>
+                    <div className="flex gap-2">
+                      <Link href={`/orders/${mostRecentOrder.id}`}>
+                        <Button variant="outline" size="sm">
+                          XEM CHI TIẾT
+                        </Button>
+                      </Link>
+                      <Link href="/orders">
+                        <Button variant="outline" size="sm">
+                          TẤT CẢ ĐƠN HÀNG
+                        </Button>
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="font-semibold mb-2">No orders yet...</div>
+                    <div className="text-sm mb-4">
+                      You haven&apos;t placed any orders yet.
+                    </div>
+                    <Link href="/">
+                      <Button variant="outline">SHOP NOW</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
             {/* My Details & Default Address */}

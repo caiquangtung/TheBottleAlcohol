@@ -1,11 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "@/types/auth";
 
-interface User {
-  id: number;
-  fullName: string;
-  email: string;
-  role: string;
-}
+// Remove the local User interface since we're importing from types
 
 interface AuthState {
   user: User | null;

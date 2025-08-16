@@ -13,5 +13,6 @@ public interface ICartService
     Task<CartResponseDto> CreateCartAsync(CartCreateDto createDto);
     Task<CartResponseDto> UpdateCartAsync(int id, CartUpdateDto updateDto);
     Task<bool> DeleteCartAsync(int id);
+    Task<bool> ClearCartByCustomerAsync(int customerId);
     Task<CartResponseDto> SyncCartAsync(CartSyncDto syncDto);
 } 

@@ -38,7 +38,7 @@ namespace Alcohol.Controllers
         {
             try
             {
-                var order = await _service.GetOrderByIdAsync(id);
+                var order = await _service.GetOrderWithDetailsAsync(id);
                 if (order == null)
                     return NotFound(new ApiResponse<string>("Order not found"));
                 return Ok(new ApiResponse<OrderResponseDto>(order));

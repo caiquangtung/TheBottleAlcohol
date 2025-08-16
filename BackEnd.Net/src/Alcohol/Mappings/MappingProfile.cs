@@ -18,6 +18,7 @@ using Alcohol.DTOs.Review;
 using Alcohol.DTOs.Recipe;
 using Alcohol.DTOs.Notification;
 using Alcohol.DTOs.Discount;
+using Alcohol.DTOs.Payment;
 
 namespace Alcohol.Mappings;
 
@@ -55,8 +56,18 @@ public class MappingProfile : Profile
         // Order mappings
         CreateMap<Order, OrderResponseDto>()
             .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Account != null ? src.Account.FullName : null))
+            .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Account != null ? src.Account.Email : null))
+            .ForMember(dest => dest.CustomerPhone, opt => opt.MapFrom(src => src.Account != null ? src.Account.PhoneNumber : null))
+            .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.AccountId))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
-        CreateMap<OrderCreateDto, Order>();
+        CreateMap<OrderCreateDto, Order>()
+            .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.CustomerId))
+            .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => Enum.Parse<PaymentMethodType>(src.PaymentMethod, true)))
+            .ForMember(dest => dest.ShippingMethod, opt => opt.MapFrom(src => Enum.Parse<ShippingMethodType>(src.ShippingMethod, true)))
+            .ForMember(dest => dest.ShippingAddress, opt => opt.MapFrom(src => src.ShippingAddress))
+            .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
+            // Prevent AutoMapper from creating/tracking OrderDetails here; handled manually in service
+            .ForMember(dest => dest.OrderDetails, opt => opt.Ignore());
         CreateMap<OrderUpdateDto, Order>();
 
         // OrderDetail mappings
@@ -175,5 +186,19 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Message));
         CreateMap<NotificationUpdateDto, Notification>()
             .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Message));
+
+        // Payment mappings
+        CreateMap<Payment, PaymentResponseDto>()
+            .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
+            .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.AccountId))
+            .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod))
+            .ForMember(dest => dest.TransactionId, opt => opt.MapFrom(src => src.TransactionId))
+            .ForMember(dest => dest.PaymentDate, opt => opt.MapFrom(src => src.PaymentDate))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt));
+        CreateMap<PaymentCreateDto, Payment>();
+        CreateMap<PaymentUpdateDto, Payment>();
     }
 }

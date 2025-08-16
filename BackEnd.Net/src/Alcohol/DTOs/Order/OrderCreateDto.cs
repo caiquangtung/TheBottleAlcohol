@@ -19,6 +19,8 @@ public class OrderCreateDto
     [Required(ErrorMessage = "Shipping address is required")]
     public string ShippingAddress { get; set; }
 
+    public string Note { get; set; }
+
     [Required(ErrorMessage = "Order details are required")]
     public List<OrderDetailCreateDto> OrderDetails { get; set; }
 } 
