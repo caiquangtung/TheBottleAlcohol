@@ -10,46 +10,46 @@ export interface OrderStatusConfig {
 
 export const orderStatusConfig: Record<OrderStatusType, OrderStatusConfig> = {
   Pending: {
-    label: "Chờ xử lý",
+    label: "Pending",
     color: "text-yellow-700",
     bgColor: "bg-yellow-100",
     icon: "⏳",
-    description: "Đơn hàng đang chờ được xử lý",
+    description: "The order is awaiting processing",
   },
   Paid: {
-    label: "Đã thanh toán",
+    label: "Paid",
     color: "text-green-700",
     bgColor: "bg-green-100",
     icon: "💳",
-    description: "Đã thanh toán thành công, chờ xử lý",
+    description: "Payment successful, waiting for processing",
   },
   Processing: {
-    label: "Đang xử lý",
+    label: "Processing",
     color: "text-blue-700",
     bgColor: "bg-blue-100",
     icon: "⚙️",
-    description: "Đơn hàng đang được chuẩn bị",
+    description: "The order is being prepared",
   },
   Shipped: {
-    label: "Đã gửi hàng",
+    label: "Shipped",
     color: "text-purple-700",
     bgColor: "bg-purple-100",
     icon: "🚚",
-    description: "Đơn hàng đang được vận chuyển",
+    description: "The order is in transit",
   },
   Delivered: {
-    label: "Đã giao hàng",
+    label: "Delivered",
     color: "text-emerald-700",
     bgColor: "bg-emerald-100",
     icon: "✅",
-    description: "Đơn hàng đã được giao thành công",
+    description: "The order has been delivered successfully",
   },
   Cancelled: {
-    label: "Đã hủy",
+    label: "Cancelled",
     color: "text-red-700",
     bgColor: "bg-red-100",
     icon: "❌",
-    description: "Đơn hàng đã bị hủy",
+    description: "The order has been cancelled",
   },
 };
 

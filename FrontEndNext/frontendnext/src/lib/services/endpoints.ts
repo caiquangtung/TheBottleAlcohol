@@ -70,6 +70,7 @@ export const API_ENDPOINTS = {
   // Orders
   ORDERS: "/order",
   ORDER_DETAIL: (id: number | string) => `/order/${id}`,
+  ORDER_UPDATE_STATUS: (id: number | string) => `/order/${id}/status`,
 
   // VNPAY
   VNPAY_CREATE_PAYMENT: "/vnpay/create-payment",

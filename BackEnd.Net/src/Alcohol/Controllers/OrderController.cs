@@ -26,10 +26,10 @@ namespace Alcohol.Controllers
 
         [HttpGet]
         [Authorize(Roles = "CEO,Manager,Seller")]
-        public async Task<IActionResult> GetAll([FromQuery] string search)
+        public async Task<IActionResult> GetAll([FromQuery] OrderFilterDto filter)
         {
-            var result = await _service.GetAllOrdersAsync(search);
-            return Ok(new ApiResponse<IEnumerable<OrderResponseDto>>(result));
+            var result = await _service.GetOrdersAsync(filter);
+            return Ok(new ApiResponse<PagedResult<OrderResponseDto>>(result));
         }
 
         [HttpGet("{id}")]

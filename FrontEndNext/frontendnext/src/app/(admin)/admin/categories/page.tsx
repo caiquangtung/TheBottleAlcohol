@@ -246,7 +246,7 @@ export default function CategoriesPage() {
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Tìm kiếm danh mục..."
+            placeholder="Search categories..."
           />
         </CardContent>
       </Card>

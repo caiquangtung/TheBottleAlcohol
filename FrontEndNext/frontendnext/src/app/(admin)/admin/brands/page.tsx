@@ -249,7 +249,7 @@ export default function BrandsPage() {
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Tìm kiếm thương hiệu..."
+            placeholder="Search brands..."
           />
         </CardContent>
       </Card>

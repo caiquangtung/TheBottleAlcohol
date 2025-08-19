@@ -16,10 +16,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   className,
 }) => {
   return (
-    <div className={`relative ${className || ""}`}>
+    <div className={`relative ${className || "w-full max-w-md"}`}>
       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
       <Input
-        placeholder={placeholder || "Tìm kiếm..."}
+        placeholder={placeholder || "Search..."}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="pl-10"

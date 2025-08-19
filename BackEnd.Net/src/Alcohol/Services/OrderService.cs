@@ -169,6 +169,29 @@ public class OrderService : IOrderService
         if (order == null)
             return null;
 
+        // Enforce valid state transitions to prevent regressions
+        var currentStatus = order.Status;
+        if (currentStatus == status)
+        {
+            // No change needed; return current order state
+            return _mapper.Map<OrderResponseDto>(order);
+        }
+
+        var allowedTransitions = new Dictionary<OrderStatusType, OrderStatusType[]>
+        {
+            { OrderStatusType.Pending,    new [] { OrderStatusType.Paid, OrderStatusType.Cancelled } },
+            { OrderStatusType.Paid,       new [] { OrderStatusType.Processing, OrderStatusType.Cancelled } },
+            { OrderStatusType.Processing, new [] { OrderStatusType.Shipped, OrderStatusType.Cancelled } },
+            { OrderStatusType.Shipped,    new [] { OrderStatusType.Delivered } },
+            { OrderStatusType.Delivered,  Array.Empty<OrderStatusType>() },
+            { OrderStatusType.Cancelled,  Array.Empty<OrderStatusType>() },
+        };
+
+        if (!allowedTransitions.TryGetValue(currentStatus, out var nextStatuses) || !nextStatuses.Contains(status))
+        {
+            throw new InvalidOperationException($"Invalid order status transition from {currentStatus} to {status}");
+        }
+
         order.Status = status;
         order.UpdatedAt = DateTime.UtcNow;
 

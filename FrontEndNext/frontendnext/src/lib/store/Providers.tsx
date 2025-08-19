@@ -5,6 +5,9 @@ import { useEffect } from "react";
 import { useAppDispatch } from "./hooks";
 import { loginSuccess } from "../features/auth/authSlice";
 import { rehydrateCart } from "../features/cart/cartSlice";
+import { useSelector } from "react-redux";
+import { RootState } from ".";
+import { setDark } from "../features/theme/themeSlice";
 
 function AuthLoader() {
   const dispatch = useAppDispatch();
@@ -37,7 +40,43 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <Provider store={store}>
       <AuthLoader />
       <CartLoader />
+      <ThemeInitializer />
+      <ThemeApplier />
       {children}
     </Provider>
   );
+}
+
+function ThemeInitializer() {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("isDark");
+      if (saved !== null) {
+        dispatch(setDark(saved === "true"));
+      } else if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        dispatch(setDark(true));
+      }
+    } catch {}
+  }, [dispatch]);
+  return null;
+}
+
+function ThemeApplier() {
+  const isDark = useSelector((s: RootState) => s.theme.isDark);
+  useEffect(() => {
+    try {
+      const root = document.documentElement;
+      if (isDark) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+      localStorage.setItem("isDark", String(isDark));
+    } catch {}
+  }, [isDark]);
+  return null;
 }

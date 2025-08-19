@@ -86,11 +86,11 @@ export default function AdminProductsPage() {
   const handleCreateProduct = async (formData: ProductCreate) => {
     try {
       await createProduct(formData).unwrap();
-      toast.success("Sản phẩm đã được tạo thành công!");
+      toast.success("Product created successfully");
       setIsCreateModalOpen(false);
       refetch();
     } catch (error: any) {
-      toast.error(error?.data?.message || "Có lỗi xảy ra khi tạo sản phẩm");
+      toast.error(error?.data?.message || "Failed to create product");
     }
   };
 
@@ -98,25 +98,23 @@ export default function AdminProductsPage() {
     if (!editingProduct) return;
     try {
       await updateProduct({ id: editingProduct.id, data: formData }).unwrap();
-      toast.success("Sản phẩm đã được cập nhật thành công!");
+      toast.success("Product updated successfully");
       setIsEditModalOpen(false);
       setEditingProduct(null);
       refetch();
     } catch (error: any) {
-      toast.error(
-        error?.data?.message || "Có lỗi xảy ra khi cập nhật sản phẩm"
-      );
+      toast.error(error?.data?.message || "Failed to update product");
     }
   };
 
   const handleDeleteProduct = async (productId: number) => {
     try {
       await deleteProduct(productId).unwrap();
-      toast.success("Sản phẩm đã được xóa thành công!");
+      toast.success("Product deleted successfully");
       setDeletingId(null);
       refetch();
     } catch (error: any) {
-      toast.error(error?.data?.message || "Có lỗi xảy ra khi xóa sản phẩm");
+      toast.error(error?.data?.message || "Failed to delete product");
     }
   };
 
@@ -138,7 +136,7 @@ export default function AdminProductsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center text-red-600">
-              Có lỗi xảy ra khi tải dữ liệu sản phẩm
+              Failed to load products
             </div>
           </CardContent>
         </Card>
@@ -149,17 +147,17 @@ export default function AdminProductsPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Quản lý sản phẩm</h1>
+        <h1 className="text-3xl font-bold">Products Management</h1>
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Thêm sản phẩm
+              Add Product
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Thêm sản phẩm mới</DialogTitle>
+              <DialogTitle>Add New Product</DialogTitle>
             </DialogHeader>
             <ProductForm
               onSubmit={handleCreateProduct}
@@ -177,7 +175,7 @@ export default function AdminProductsPage() {
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Tìm kiếm sản phẩm..."
+            placeholder="Search products..."
           />
         </CardContent>
       </Card>
@@ -185,14 +183,14 @@ export default function AdminProductsPage() {
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Sản phẩm ({products.length})</CardTitle>
+          <CardTitle>Products ({products.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8">Đang tải...</div>
+            <div className="text-center py-8">Loading...</div>
           ) : products.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              Không có sản phẩm nào
+              No products found
             </div>
           ) : (
             <div className="border rounded-lg">
@@ -200,13 +198,13 @@ export default function AdminProductsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>ID</TableHead>
-                    <TableHead>Tên sản phẩm</TableHead>
-                    <TableHead>Danh mục</TableHead>
-                    <TableHead>Thương hiệu</TableHead>
-                    <TableHead>Giá</TableHead>
-                    <TableHead>Tồn kho</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Thao tác</TableHead>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Brand</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Stock</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -231,7 +229,7 @@ export default function AdminProductsPage() {
                         <Badge
                           variant={product.status ? "default" : "secondary"}
                         >
-                          {product.status ? "Hoạt động" : "Ẩn"}
+                          {product.status ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -257,16 +255,15 @@ export default function AdminProductsPage() {
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>
-                                  Xác nhận xóa
+                                  Delete Confirmation
                                 </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Bạn có chắc chắn muốn xóa sản phẩm "
-                                  {product.name}"? Hành động này không thể hoàn
-                                  tác.
+                                  Are you sure you want to delete "
+                                  {product.name}"? This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() =>
                                     handleDeleteProduct(product.id)
@@ -274,7 +271,7 @@ export default function AdminProductsPage() {
                                   disabled={isDeleting}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  {isDeleting ? "Đang xóa..." : "Xóa"}
+                                  {isDeleting ? "Deleting..." : "Delete"}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -294,7 +291,7 @@ export default function AdminProductsPage() {
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Thêm sản phẩm mới</DialogTitle>
+            <DialogTitle>Add New Product</DialogTitle>
           </DialogHeader>
           <ProductForm
             onSubmit={handleCreateProduct}
@@ -309,7 +306,7 @@ export default function AdminProductsPage() {
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Sửa sản phẩm</DialogTitle>
+            <DialogTitle>Edit Product</DialogTitle>
           </DialogHeader>
           {editingProduct && (
             <ProductForm
@@ -385,13 +382,13 @@ function ProductForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Tên sản phẩm *</Label>
+          <Label htmlFor="name">Product Name *</Label>
           <Input
             id="name"
             value={formData.name}
             onChange={handleNameChange}
             required
-            placeholder="Nhập tên sản phẩm..."
+            placeholder="Enter product name..."
           />
         </div>
         <div className="space-y-2">
@@ -402,17 +399,17 @@ function ProductForm({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleInputChange("slug", e.target.value)
             }
-            placeholder="slug-tu-dong-tao"
+            placeholder="auto-generated-slug"
             className="bg-gray-50"
           />
           <p className="text-xs text-muted-foreground">
-            Slug sẽ được tạo tự động từ tên sản phẩm
+            Slug will be generated automatically from the product name
           </p>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Mô tả</Label>
+        <Label htmlFor="description">Description</Label>
         <Textarea
           id="description"
           value={formData.description}
@@ -425,7 +422,7 @@ function ProductForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="origin">Xuất xứ</Label>
+          <Label htmlFor="origin">Origin</Label>
           <Input
             id="origin"
             value={formData.origin}
@@ -435,7 +432,7 @@ function ProductForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="volume">Dung tích (L) *</Label>
+          <Label htmlFor="volume">Volume (L) *</Label>
           <Input
             id="volume"
             type="number"
@@ -453,7 +450,7 @@ function ProductForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="alcoholContent">Nồng độ cồn (%) *</Label>
+          <Label htmlFor="alcoholContent">Alcohol content (%) *</Label>
           <Input
             id="alcoholContent"
             type="number"
@@ -471,7 +468,7 @@ function ProductForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="price">Giá (VND) *</Label>
+          <Label htmlFor="price">Price (VND) *</Label>
           <Input
             id="price"
             type="number"
@@ -488,7 +485,7 @@ function ProductForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="stockQuantity">Số lượng tồn kho *</Label>
+          <Label htmlFor="stockQuantity">Stock quantity *</Label>
           <Input
             id="stockQuantity"
             type="number"
@@ -501,7 +498,7 @@ function ProductForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="categoryId">Danh mục *</Label>
+          <Label htmlFor="categoryId">Category *</Label>
           <Select
             value={formData.categoryId ? formData.categoryId.toString() : ""}
             onValueChange={(value) =>
@@ -509,7 +506,7 @@ function ProductForm({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Chọn danh mục" />
+              <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
@@ -524,7 +521,7 @@ function ProductForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="brandId">Thương hiệu *</Label>
+          <Label htmlFor="brandId">Brand *</Label>
           <Select
             value={formData.brandId ? formData.brandId.toString() : ""}
             onValueChange={(value) =>
@@ -532,7 +529,7 @@ function ProductForm({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Chọn thương hiệu" />
+              <SelectValue placeholder="Select brand" />
             </SelectTrigger>
             <SelectContent>
               {brands.map((brand) => (
@@ -544,7 +541,7 @@ function ProductForm({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="imageUrl">URL hình ảnh</Label>
+          <Label htmlFor="imageUrl">Image URL</Label>
           <Input
             id="imageUrl"
             value={formData.imageUrl}
@@ -586,16 +583,12 @@ function ProductForm({
             handleInputChange("status", checked)
           }
         />
-        <Label htmlFor="status">Trạng thái hoạt động</Label>
+        <Label htmlFor="status">Active</Label>
       </div>
 
       <div className="flex justify-end space-x-2 pt-4">
         <Button type="submit" disabled={isLoading}>
-          {isLoading
-            ? "Đang lưu..."
-            : initialData
-            ? "Cập nhật"
-            : "Tạo sản phẩm"}
+          {isLoading ? "Saving..." : initialData ? "Update" : "Create Product"}
         </Button>
       </div>
     </form>

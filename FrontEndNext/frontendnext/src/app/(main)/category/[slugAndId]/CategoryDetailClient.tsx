@@ -15,7 +15,7 @@ import ProductGrid from "@/components/ProductGrid";
 import { useGetAllBrandsQuery } from "@/lib/services/brandService";
 import { FilterSortSheet } from "@/components/FilterSortSheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PaginationControls } from "@/components/ui/Pagination";
+import { Pagination } from "@/components/ui/pagination";
 
 const ProductGridSkeleton = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -195,9 +195,11 @@ export default function CategoryDetailClient({
             <ProductGrid products={products} />
             {totalPages > 1 && (
               <div className="mt-8 flex justify-center">
-                <PaginationControls
+                <Pagination
                   currentPage={filters.pageNumber || 1}
                   totalPages={totalPages}
+                  totalRecords={totalProducts}
+                  pageSize={filters.pageSize || 12}
                   onPageChange={handlePageChange}
                 />
               </div>
