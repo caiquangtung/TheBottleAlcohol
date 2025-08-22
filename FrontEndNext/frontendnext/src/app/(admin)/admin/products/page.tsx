@@ -58,6 +58,7 @@ import type {
   ProductUpdate,
 } from "@/lib/types/product";
 import SearchInput from "@/components/admin/SearchInput";
+import { CloudinaryUploadButton } from "@/components/CloudinaryUploadButton";
 
 export default function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -541,9 +542,15 @@ function ProductForm({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="imageUrl">Image URL</Label>
+          <Label htmlFor="imageUrl">Product Image</Label>
+          <CloudinaryUploadButton
+            value={formData.imageUrl}
+            onChange={(url) => handleInputChange("imageUrl", url)}
+            label={formData.imageUrl ? "Change Image" : "Upload Image"}
+          />
           <Input
             id="imageUrl"
+            placeholder="Or paste an image URL"
             value={formData.imageUrl}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleInputChange("imageUrl", e.target.value)

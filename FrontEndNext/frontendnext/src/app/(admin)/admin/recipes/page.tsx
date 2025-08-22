@@ -43,6 +43,7 @@ import {
   useDeleteRecipeMutation,
 } from "@/lib/services/recipeService";
 import { Recipe, RecipeCreateDto, RecipeUpdateDto } from "@/lib/types/recipe";
+import { CloudinaryUploadButton } from "@/components/CloudinaryUploadButton";
 
 export default function RecipesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -235,15 +236,22 @@ export default function RecipesPage() {
                   placeholder="Recipe name"
                 />
               </div>
-              <div>
-                <Label htmlFor="imageUrl">Image URL</Label>
+              <div className="space-y-2">
+                <Label htmlFor="imageUrl">Image</Label>
+                <CloudinaryUploadButton
+                  value={createForm.imageUrl}
+                  onChange={(url) =>
+                    setCreateForm({ ...createForm, imageUrl: url })
+                  }
+                  label={createForm.imageUrl ? "Change Image" : "Upload Image"}
+                />
                 <Input
                   id="imageUrl"
+                  placeholder="Or paste an image URL"
                   value={createForm.imageUrl}
                   onChange={(e) =>
                     setCreateForm({ ...createForm, imageUrl: e.target.value })
                   }
-                  placeholder="https://example.com/image.jpg"
                 />
               </div>
               <div className="col-span-2">
@@ -462,15 +470,22 @@ export default function RecipesPage() {
                 placeholder="Recipe name"
               />
             </div>
-            <div>
-              <Label htmlFor="update-imageUrl">Image URL</Label>
+            <div className="space-y-2">
+              <Label htmlFor="update-imageUrl">Image</Label>
+              <CloudinaryUploadButton
+                value={updateForm.imageUrl}
+                onChange={(url) =>
+                  setUpdateForm({ ...updateForm, imageUrl: url })
+                }
+                label={updateForm.imageUrl ? "Change Image" : "Upload Image"}
+              />
               <Input
                 id="update-imageUrl"
+                placeholder="Or paste an image URL"
                 value={updateForm.imageUrl}
                 onChange={(e) =>
                   setUpdateForm({ ...updateForm, imageUrl: e.target.value })
                 }
-                placeholder="https://example.com/image.jpg"
               />
             </div>
             <div className="col-span-2">

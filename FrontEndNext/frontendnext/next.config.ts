@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
         hostname: "**.thebottleclub.com",
       },
       {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "8080",

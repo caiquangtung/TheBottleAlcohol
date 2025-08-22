@@ -45,6 +45,7 @@ import {
 import { Brand, BrandCreateDto, BrandUpdateDto } from "@/lib/types/brand";
 import SearchInput from "@/components/admin/SearchInput";
 import { Card, CardContent } from "@/components/ui/card";
+import { CloudinaryUploadButton } from "@/components/CloudinaryUploadButton";
 
 export default function BrandsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -203,15 +204,22 @@ export default function BrandsPage() {
                   placeholder="Brand description"
                 />
               </div>
-              <div>
-                <Label htmlFor="logoUrl">Logo URL</Label>
+              <div className="space-y-2">
+                <Label htmlFor="logoUrl">Logo</Label>
+                <CloudinaryUploadButton
+                  value={createForm.logoUrl}
+                  onChange={(url) =>
+                    setCreateForm({ ...createForm, logoUrl: url })
+                  }
+                  label={createForm.logoUrl ? "Change Logo" : "Upload Logo"}
+                />
                 <Input
                   id="logoUrl"
+                  placeholder="Or paste a logo URL"
                   value={createForm.logoUrl}
                   onChange={(e) =>
                     setCreateForm({ ...createForm, logoUrl: e.target.value })
                   }
-                  placeholder="https://example.com/logo.png"
                 />
               </div>
               <div>
@@ -364,15 +372,22 @@ export default function BrandsPage() {
                 placeholder="Brand description"
               />
             </div>
-            <div>
-              <Label htmlFor="update-logoUrl">Logo URL</Label>
+            <div className="space-y-2">
+              <Label htmlFor="update-logoUrl">Logo</Label>
+              <CloudinaryUploadButton
+                value={updateForm.logoUrl}
+                onChange={(url) =>
+                  setUpdateForm({ ...updateForm, logoUrl: url })
+                }
+                label={updateForm.logoUrl ? "Change Logo" : "Upload Logo"}
+              />
               <Input
                 id="update-logoUrl"
+                placeholder="Or paste a logo URL"
                 value={updateForm.logoUrl}
                 onChange={(e) =>
                   setUpdateForm({ ...updateForm, logoUrl: e.target.value })
                 }
-                placeholder="https://example.com/logo.png"
               />
             </div>
             <div>
