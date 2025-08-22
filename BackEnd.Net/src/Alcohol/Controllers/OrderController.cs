@@ -51,9 +51,10 @@ namespace Alcohol.Controllers
 
         [HttpGet("customer/{customerId}")]
         [Authorize]
-        public async Task<IActionResult> GetByCustomerId(int customerId)
+        public async Task<IActionResult> GetByCustomerId(int customerId, [FromQuery] OrderFilterDto filter)
         {
-            var filter = new OrderFilterDto { CustomerId = customerId };
+            filter ??= new OrderFilterDto();
+            filter.CustomerId = customerId;
             var result = await _service.GetOrdersAsync(filter);
             return Ok(new ApiResponse<PagedResult<OrderResponseDto>>(result));
         }

@@ -111,7 +111,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.ConfigureAuthorization();
-builder.Services.AddControllers();
 
 // Cấu hình JWT Authentication
 builder.Services.AddAuthentication(options =>

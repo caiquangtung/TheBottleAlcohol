@@ -14,6 +14,7 @@ import { X } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n/useI18n";
 
 // Popular search data
 const popularSearches = [
@@ -47,6 +48,7 @@ const popularArticles = [
 ];
 
 export default function SearchOverlay() {
+  const { t } = useI18n();
   const dispatch = useAppDispatch();
   const { isSearchOverlayOpen, searchTerm } = useAppSelector(
     (state) => state.search
@@ -248,7 +250,9 @@ export default function SearchOverlay() {
                   /* Search Results */
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-6">
-                      Search Results for "{debouncedSearchTerm}"
+                      {t("common.searchResultsFor", {
+                        term: debouncedSearchTerm,
+                      })}
                       {searchResults && ` (${searchResults.totalRecords})`}
                     </h3>
                     {isSearching || isFetching ? (
@@ -301,17 +305,18 @@ export default function SearchOverlay() {
                     ) : (
                       <div className="text-center py-12">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                          NO RESULTS FOUND
+                          {t("common.noResultsTitle")}
                         </h2>
                         <p className="text-gray-500 dark:text-gray-400 mb-6">
-                          Unfortunately we couldn't find any results for '
-                          {debouncedSearchTerm}'
+                          {t("common.noResultsDesc", {
+                            term: debouncedSearchTerm,
+                          })}
                         </p>
                         <button
                           onClick={() => dispatch(clearSearch())}
                           className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 font-semibold uppercase tracking-wide hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
                         >
-                          SHOP TRENDING PRODUCTS
+                          {t("common.trendingButton")}
                         </button>
                       </div>
                     )}
@@ -320,7 +325,7 @@ export default function SearchOverlay() {
                   /* Default Products */
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-6">
-                      Featured Products
+                      {t("common.featuredProducts")}
                     </h3>
                     {isLoadingDefault ? (
                       <div className="flex justify-center py-8">
@@ -386,8 +391,8 @@ export default function SearchOverlay() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
                     {Boolean(searchTerm && searchTerm.length >= 2)
-                      ? "RELATED SEARCHES"
-                      : "POPULAR SEARCHES"}
+                      ? t("common.relatedSearches")
+                      : t("common.popularSearches")}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {filteredData.relatedSearches.map((term, index) => (
@@ -406,8 +411,8 @@ export default function SearchOverlay() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
                     {Boolean(searchTerm && searchTerm.length >= 2)
-                      ? "RELATED COLLECTIONS"
-                      : "POPULAR COLLECTIONS"}
+                      ? t("common.relatedCollections")
+                      : t("common.popularCollections")}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {filteredData.relatedCollections.length > 0
@@ -442,8 +447,8 @@ export default function SearchOverlay() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
                     {Boolean(searchTerm && searchTerm.length >= 2)
-                      ? "RELATED ARTICLES"
-                      : "POPULAR ARTICLES"}
+                      ? t("common.relatedArticles")
+                      : t("common.popularArticles")}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {filteredData.relatedArticles.length > 0
@@ -480,20 +485,20 @@ export default function SearchOverlay() {
                 {/* Help Section */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-                    HOW CAN WE HELP?
+                    {t("common.howCanWeHelp")}
                   </h3>
                   <div className="space-y-2">
                     <button className="block w-full text-left text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                      Delivery & Returns
+                      {t("common.deliveryReturns")}
                     </button>
                     <button className="block w-full text-left text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                      Terms & Conditions
+                      {t("common.terms")}
                     </button>
                     <button className="block w-full text-left text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                      Recipe Library
+                      {t("common.recipeLibrary")}
                     </button>
                     <button className="block w-full text-left text-sm text-gray-600 dark:hover:text-blue-400 transition-colors">
-                      The Drinks Journal
+                      {t("common.journal")}
                     </button>
                   </div>
                 </div>

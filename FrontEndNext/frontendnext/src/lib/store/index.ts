@@ -4,6 +4,7 @@ import themeReducer from "../features/theme/themeSlice";
 import authReducer from "../features/auth/authSlice";
 import cartReducer from "../features/cart/cartSlice";
 import searchReducer from "../features/search/searchSlice";
+import localeReducer from "../features/locale/localeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     auth: authReducer,
     cart: cartReducer,
     search: searchReducer,
+    locale: localeReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),

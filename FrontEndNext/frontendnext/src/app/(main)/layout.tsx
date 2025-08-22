@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "../../lib/store/Providers";
 import ThemeSync from "../../lib/features/theme/ThemeSync";
+import LocaleApplier from "@/lib/features/locale/LocaleApplier";
 import { Toaster } from "sonner";
 import AppFrame from "@/components/layout/AppFrame";
 
@@ -23,6 +24,7 @@ export default function MainLayout({
       <body className={inter.className}>
         <Providers>
           <ThemeSync />
+          <LocaleApplier />
           <AppFrame>{children}</AppFrame>
         </Providers>
         <Toaster position="top-center" richColors />

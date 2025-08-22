@@ -2,7 +2,16 @@
 import Image from "next/image";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Heart, ShoppingCart, Sun, Moon, User, Search, X } from "lucide-react";
+import {
+  Heart,
+  ShoppingCart,
+  Sun,
+  Moon,
+  User,
+  Search,
+  X,
+  Languages,
+} from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../lib/store";
 import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
@@ -20,8 +29,11 @@ import SearchOverlay from "../SearchOverlay";
 import { Badge } from "../ui/badge";
 import { useState, useEffect } from "react";
 import { useGetMyWishlistProductsQuery } from "@/lib/services/wishlistService";
+import { toggleLocale } from "@/lib/features/locale/localeSlice";
+import { useI18n } from "@/lib/i18n/useI18n";
 
 export default function Header() {
+  const { t } = useI18n();
   const [isHydrated, setIsHydrated] = useState(false);
   const isDark = useSelector((state: RootState) => state.theme.isDark);
   const dispatch = useAppDispatch();
@@ -29,6 +41,7 @@ export default function Header() {
   const user = useAppSelector((state) => state.auth.user);
   const { searchTerm } = useAppSelector((state) => state.search);
   const userId = user?.id;
+  const currentLocale = useAppSelector((s) => s.locale.current);
   const cartDetails = useAppSelector((state) => state.cart.cartDetails);
 
   // Lấy wishlist của user hiện tại
@@ -180,7 +193,7 @@ export default function Header() {
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={handleSearchFocus}
-                  placeholder="Search..."
+                  placeholder={t("common.searchPlaceholder")}
                   className="pl-10 pr-10"
                 />
                 {searchTerm && (
@@ -198,7 +211,20 @@ export default function Header() {
             </form>
           </div>
           {/* Icon bên phải */}
-          <div className="flex items-center gap-2 min-w-[180px] justify-end">
+          <div className="flex items-center gap-2 min-w-[220px] justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Toggle language"
+              title={
+                currentLocale === "vi"
+                  ? "Chuyển sang English"
+                  : "Switch to Vietnamese"
+              }
+              onClick={() => dispatch(toggleLocale())}
+            >
+              <Languages className="h-5 w-5" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={handleUserClick}>
               <User className="h-5 w-5" />
             </Button>
