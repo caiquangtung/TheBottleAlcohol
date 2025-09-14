@@ -72,7 +72,7 @@ export default function BrandsPage() {
     data: brands = [],
     isLoading,
     error,
-  } = useGetAllBrandsQuery({ search: searchTerm });
+  } = useGetAllBrandsQuery({ SearchTerm: searchTerm });
   const [createBrand, { isLoading: isCreating }] = useCreateBrandMutation();
   const [updateBrand, { isLoading: isUpdating }] = useUpdateBrandMutation();
   const [deleteBrand, { isLoading: isDeleting }] = useDeleteBrandMutation();

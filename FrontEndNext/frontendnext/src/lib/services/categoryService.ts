@@ -35,23 +35,23 @@ export async function getCategoryById(id: number): Promise<Category | null> {
 
 export const categoryApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllCategories: builder.query<Category[], { search?: string } | void>({
-      query: (params) => {
-        let url = API_ENDPOINTS.CATEGORIES;
-        if (params && params.search) {
-          const qs = new URLSearchParams({ search: params.search }).toString();
-          url += `?${qs}`;
-        }
-        return url;
-      },
-      transformResponse: (response) => {
-        const transformedResponse = transformApiResponse<{ items: Category[] }>(
-          response
-        );
-        return transformedResponse.items || [];
-      },
-      providesTags: ["Category"],
-    }),
+    getAllCategories: builder.query<Category[], { SearchTerm?: string } | void>(
+      {
+        query: (params) => {
+          return {
+            url: API_ENDPOINTS.CATEGORIES,
+            params: params ? { SearchTerm: params.SearchTerm } : undefined,
+          };
+        },
+        transformResponse: (response) => {
+          const transformedResponse = transformApiResponse<{
+            items: Category[];
+          }>(response);
+          return transformedResponse.items || [];
+        },
+        providesTags: ["Category"],
+      }
+    ),
     getRootCategories: builder.query<Category[], void>({
       query: () => `${API_ENDPOINTS.CATEGORIES}/root`,
       transformResponse: (response) =>

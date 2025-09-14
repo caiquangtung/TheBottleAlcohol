@@ -5,14 +5,12 @@ import { Brand, BrandCreateDto, BrandUpdateDto } from "../types/brand";
 
 export const brandApi = enhancedApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllBrands: builder.query<Brand[], { search?: string } | void>({
+    getAllBrands: builder.query<Brand[], { SearchTerm?: string } | void>({
       query: (params) => {
-        let url = API_ENDPOINTS.BRANDS;
-        if (params && params.search) {
-          const qs = new URLSearchParams({ search: params.search }).toString();
-          url += `?${qs}`;
-        }
-        return url;
+        return {
+          url: API_ENDPOINTS.BRANDS,
+          params: params ? { SearchTerm: params.SearchTerm } : undefined,
+        };
       },
       transformResponse: (response) => {
         const transformedResponse = transformApiResponse<{ items: Brand[] }>(

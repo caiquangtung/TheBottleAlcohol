@@ -75,7 +75,7 @@ export default function CategoriesPage() {
     data: categories = [],
     isLoading,
     error,
-  } = useGetAllCategoriesQuery({ search: searchTerm });
+  } = useGetAllCategoriesQuery({ SearchTerm: searchTerm });
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
   const [updateCategory, { isLoading: isUpdating }] =
