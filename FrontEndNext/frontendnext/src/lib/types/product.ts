@@ -1,3 +1,5 @@
+import { Discount } from "./discount";
+
 export interface Product {
   id: number;
   name: string;
@@ -20,6 +22,16 @@ export interface Product {
   brandName: string;
   age?: number;
   flavor?: string;
+  salesCount: number;
+  targetMarginPercentage: number;
+
+  // Discount properties
+  originalPrice: number;
+  discountedPrice?: number;
+  activeDiscounts: Discount[];
+  hasDiscount: boolean;
+  discountAmount?: number;
+  discountPercentage?: number;
 }
 
 export interface ProductCreate {
@@ -37,6 +49,9 @@ export interface ProductCreate {
   metaDescription: string;
   categoryId: number;
   brandId: number;
+  age?: number;
+  flavor?: string;
+  targetMarginPercentage?: number;
 }
 
 export interface ProductUpdate {
@@ -54,6 +69,9 @@ export interface ProductUpdate {
   metaDescription: string;
   categoryId: number;
   brandId: number;
+  age?: number;
+  flavor?: string;
+  targetMarginPercentage?: number;
 }
 
 export interface ProductFilter {

@@ -9,6 +9,7 @@ using Alcohol.Repositories.Interfaces;
 using Alcohol.Services.Interfaces;
 using AutoMapper;
 using Alcohol.DTOs;
+using Alcohol.Repositories.IRepositories;
 
 namespace Alcohol.Services;
 
@@ -16,15 +17,18 @@ public class InventoryService : IInventoryService
 {
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IInventoryTransactionRepository _transactionRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
 
     public InventoryService(
         IInventoryRepository inventoryRepository,
         IInventoryTransactionRepository transactionRepository,
+        IProductRepository productRepository,
         IMapper mapper)
     {
         _inventoryRepository = inventoryRepository;
         _transactionRepository = transactionRepository;
+        _productRepository = productRepository;
         _mapper = mapper;
     }
 
@@ -149,10 +153,15 @@ public class InventoryService : IInventoryService
             return false;
 
         inventory.Quantity = quantity;
+        inventory.TotalValue = inventory.AverageCost * inventory.Quantity;
         inventory.UpdatedAt = DateTime.UtcNow;
         inventory.LastUpdated = DateTime.UtcNow;
 
         await _inventoryRepository.UpdateAsync(inventory);
+        
+        // Sync Product.StockQuantity
+        await SyncProductStockQuantityAsync(inventory.ProductId, inventory.Quantity);
+        
         return true;
     }
 
@@ -163,10 +172,15 @@ public class InventoryService : IInventoryService
             return false;
 
         inventory.Quantity += quantity;
+        inventory.TotalValue = inventory.AverageCost * inventory.Quantity;
         inventory.UpdatedAt = DateTime.UtcNow;
         inventory.LastUpdated = DateTime.UtcNow;
 
         await _inventoryRepository.UpdateAsync(inventory);
+        
+        // Sync Product.StockQuantity
+        await SyncProductStockQuantityAsync(inventory.ProductId, inventory.Quantity);
+        
         return true;
     }
 
@@ -177,10 +191,15 @@ public class InventoryService : IInventoryService
             return false;
 
         inventory.Quantity -= quantity;
+        inventory.TotalValue = inventory.AverageCost * inventory.Quantity;
         inventory.UpdatedAt = DateTime.UtcNow;
         inventory.LastUpdated = DateTime.UtcNow;
 
         await _inventoryRepository.UpdateAsync(inventory);
+        
+        // Sync Product.StockQuantity
+        await SyncProductStockQuantityAsync(inventory.ProductId, inventory.Quantity);
+        
         return true;
     }
 
@@ -203,7 +222,14 @@ public class InventoryService : IInventoryService
         }
 
         inventory.Quantity += quantity;
+        inventory.TotalValue = inventory.AverageCost * inventory.Quantity;
+        inventory.UpdatedAt = DateTime.UtcNow;
+        inventory.LastUpdated = DateTime.UtcNow;
+        
         await _inventoryRepository.UpdateAsync(inventory);
+
+        // Sync Product.StockQuantity
+        await SyncProductStockQuantityAsync(productId, inventory.Quantity);
 
         // Create transaction record
         var transaction = new InventoryTransaction
@@ -228,7 +254,19 @@ public class InventoryService : IInventoryService
         }
 
         inventory.Quantity += quantity;
+        inventory.UpdatedAt = DateTime.UtcNow;
+        inventory.LastUpdated = DateTime.UtcNow;
+        
+        // Update TotalValue if AverageCost is set
+        if (inventory.AverageCost > 0)
+        {
+            inventory.TotalValue = inventory.AverageCost * inventory.Quantity;
+        }
+
         await _inventoryRepository.UpdateAsync(inventory);
+
+        // Sync Product.StockQuantity with Inventory.Quantity
+        await SyncProductStockQuantityAsync(productId, inventory.Quantity);
 
         // Create transaction record
         var transaction = new InventoryTransaction
@@ -245,6 +283,50 @@ public class InventoryService : IInventoryService
         await _transactionRepository.AddAsync(transaction);
     }
 
+    /// <summary>
+    /// Import stock with cost calculation - calculates AverageCost automatically
+    /// </summary>
+    public async Task ImportStockWithCostAsync(int productId, int quantity, decimal importPrice, int importOrderId, string notes = null)
+    {
+        var inventory = await _inventoryRepository.GetByProductIdAsync(productId);
+        if (inventory == null)
+        {
+            throw new Exception($"Inventory not found for product {productId}");
+        }
+
+        // Calculate new AverageCost using weighted average method
+        var oldTotalValue = inventory.AverageCost * inventory.Quantity;
+        var newImportValue = importPrice * quantity;
+        var newTotalValue = oldTotalValue + newImportValue;
+        var newQuantity = inventory.Quantity + quantity;
+
+        // Update inventory with new values
+        inventory.Quantity = newQuantity;
+        inventory.AverageCost = newQuantity > 0 ? newTotalValue / newQuantity : 0;
+        inventory.TotalValue = newTotalValue;
+        inventory.UpdatedAt = DateTime.UtcNow;
+        inventory.LastUpdated = DateTime.UtcNow;
+
+        await _inventoryRepository.UpdateAsync(inventory);
+
+        // Sync Product.StockQuantity with Inventory.Quantity
+        await SyncProductStockQuantityAsync(productId, inventory.Quantity);
+
+        // Create transaction record
+        var transaction = new InventoryTransaction
+        {
+            ProductId = productId,
+            Quantity = quantity,
+            TransactionType = InventoryTransactionType.Import,
+            ReferenceType = ReferenceType.ImportOrder,
+            ReferenceId = importOrderId,
+            Notes = $"{notes ?? ""} - Import Price: {importPrice:C}",
+            Status = InventoryTransactionStatusType.Completed
+        };
+
+        await _transactionRepository.AddAsync(transaction);
+    }
+
     public async Task ExportStockAsync(int productId, int quantity, int orderId, string notes = null)
     {
         var inventory = await _inventoryRepository.GetByProductIdAsync(productId);
@@ -255,11 +337,20 @@ public class InventoryService : IInventoryService
 
         if (inventory.Quantity < quantity)
         {
-            throw new Exception($"Insufficient stock for product {productId}");
+            throw new Exception($"Insufficient stock for product {productId}. Available: {inventory.Quantity}, Requested: {quantity}");
         }
 
         inventory.Quantity -= quantity;
+        inventory.UpdatedAt = DateTime.UtcNow;
+        inventory.LastUpdated = DateTime.UtcNow;
+        
+        // Update TotalValue
+        inventory.TotalValue = inventory.AverageCost * inventory.Quantity;
+
         await _inventoryRepository.UpdateAsync(inventory);
+
+        // Sync Product.StockQuantity with Inventory.Quantity
+        await SyncProductStockQuantityAsync(productId, inventory.Quantity);
 
         // Create transaction record
         var transaction = new InventoryTransaction
@@ -274,5 +365,60 @@ public class InventoryService : IInventoryService
         };
 
         await _transactionRepository.AddAsync(transaction);
+    }
+
+    /// <summary>
+    /// Sync Product.StockQuantity with Inventory.Quantity
+    /// </summary>
+    private async Task SyncProductStockQuantityAsync(int productId, int inventoryQuantity)
+    {
+        var product = await _productRepository.GetByIdAsync(productId);
+        if (product != null && product.StockQuantity != inventoryQuantity)
+        {
+            product.StockQuantity = inventoryQuantity;
+            product.UpdatedAt = DateTime.UtcNow;
+            _productRepository.Update(product);
+            await _productRepository.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
+    /// Recalculate and update TotalValue for all inventories
+    /// </summary>
+    public async Task RecalculateAllTotalValuesAsync()
+    {
+        var inventories = await _inventoryRepository.GetAllAsync();
+        
+        foreach (var inventory in inventories)
+        {
+            inventory.TotalValue = inventory.AverageCost * inventory.Quantity;
+            inventory.UpdatedAt = DateTime.UtcNow;
+            inventory.LastUpdated = DateTime.UtcNow;
+        }
+
+        // Bulk update - assuming repository supports it
+        foreach (var inventory in inventories)
+        {
+            await _inventoryRepository.UpdateAsync(inventory);
+        }
+    }
+
+    /// <summary>
+    /// Get inventory valuation report
+    /// </summary>
+    public async Task<decimal> GetTotalInventoryValueAsync()
+    {
+        var inventories = await _inventoryRepository.GetAllAsync();
+        return inventories.Sum(i => i.TotalValue);
+    }
+
+    /// <summary>
+    /// Get low stock items based on reorder level
+    /// </summary>
+    public async Task<List<InventoryResponseDto>> GetLowStockItemsAsync()
+    {
+        var inventories = await _inventoryRepository.GetAllAsync();
+        var lowStockItems = inventories.Where(i => i.Quantity <= i.ReorderLevel).ToList();
+        return _mapper.Map<List<InventoryResponseDto>>(lowStockItems);
     }
 } 

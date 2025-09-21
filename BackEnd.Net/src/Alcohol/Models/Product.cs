@@ -60,6 +60,9 @@ public class Product
     [StringLength(500)]
     public string MetaDescription { get; set; }
 
+    [Column(TypeName = "decimal(5,2)")]
+    public decimal TargetMarginPercentage { get; set; } = 30.0m; // Default 30% margin
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }
@@ -77,6 +80,7 @@ public class Product
     public ICollection<WishlistDetail> WishlistDetails { get; set; }
     public ICollection<Review> Reviews { get; set; }
     public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
+    public ICollection<Discount> Discounts { get; set; }
 
     public virtual Inventory Inventory { get; set; }
 
@@ -91,5 +95,6 @@ public class Product
         WishlistDetails = new HashSet<WishlistDetail>();
         Reviews = new HashSet<Review>();
         RecipeIngredients = new HashSet<RecipeIngredient>();
+        Discounts = new HashSet<Discount>();
     }
 }

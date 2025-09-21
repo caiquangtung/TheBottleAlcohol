@@ -14,4 +14,10 @@ public interface IImportOrderService
     Task<ImportOrderResponseDto> CreateImportOrderAsync(ImportOrderCreateDto createDto);
     Task<ImportOrderResponseDto> UpdateImportOrderAsync(int id, ImportOrderUpdateDto updateDto);
     Task<bool> DeleteImportOrderAsync(int id);
+    
+    // Workflow methods
+    Task<ImportOrderResponseDto> ApproveImportOrderAsync(int id);
+    Task<ImportOrderResponseDto> CompleteImportOrderAsync(int id);
+    Task<ImportOrderResponseDto> CancelImportOrderAsync(int id, string reason = null);
+    Task<ImportOrderStatsDto> GetImportOrderStatsAsync();
 } 

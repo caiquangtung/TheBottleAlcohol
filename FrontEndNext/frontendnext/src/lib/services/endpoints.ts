@@ -21,6 +21,10 @@ export const API_ENDPOINTS = {
   // Inventory
   INVENTORY: "/inventory",
 
+  // Import Orders
+  IMPORT_ORDERS: "/importorder",
+  
+
   // Recipes
   RECIPES: "/recipe",
 

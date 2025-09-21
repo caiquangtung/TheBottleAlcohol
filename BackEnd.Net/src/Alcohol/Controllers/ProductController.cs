@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Alcohol.DTOs.Product;
 using Alcohol.Services.Interfaces;
@@ -14,10 +15,12 @@ namespace Alcohol.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;
+        private readonly IProductDiscountService _productDiscountService;
 
-        public ProductController(IProductService service)
+        public ProductController(IProductService service, IProductDiscountService productDiscountService)
         {
             _service = service;
+            _productDiscountService = productDiscountService;
         }
 
         [HttpGet]
@@ -105,6 +108,64 @@ namespace Alcohol.Controllers
         {
             var products = await _service.GetProductsByBrandAsync(brandId);
             return Ok(new ApiResponse<IEnumerable<ProductResponseDto>>(products));
+        }
+
+        [HttpGet("{id}/with-discount")]
+        public async Task<IActionResult> GetProductWithDiscount(int id)
+        {
+            try
+            {
+                var product = await _productDiscountService.GetProductWithDiscountAsync(id);
+                if (product == null)
+                    return NotFound(new ApiResponse<string>("Product not found"));
+                return Ok(new ApiResponse<ProductResponseDto>(product));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(ex.Message));
+            }
+        }
+
+        [HttpGet("with-discounts")]
+        public async Task<IActionResult> GetProductsWithDiscounts()
+        {
+            try
+            {
+                var products = await _productDiscountService.GetProductsWithDiscountAsync();
+                return Ok(new ApiResponse<List<ProductResponseDto>>(products));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(ex.Message));
+            }
+        }
+
+        [HttpGet("{id}/discount-price")]
+        public async Task<IActionResult> GetDiscountedPrice(int id)
+        {
+            try
+            {
+                var discountedPrice = await _productDiscountService.CalculateDiscountedPriceAsync(id);
+                return Ok(new ApiResponse<decimal>(discountedPrice));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(ex.Message));
+            }
+        }
+
+        [HttpGet("{id}/active-discounts")]
+        public async Task<IActionResult> GetActiveDiscounts(int id)
+        {
+            try
+            {
+                var discounts = await _productDiscountService.GetActiveDiscountsForProductAsync(id);
+                return Ok(new ApiResponse<List<DTOs.Discount.DiscountResponseDto>>(discounts));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(ex.Message));
+            }
         }
     }
 } 

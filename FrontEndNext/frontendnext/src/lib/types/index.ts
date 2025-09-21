@@ -14,3 +14,15 @@ export * from "./supplier";
 export * from "./user";
 export * from "./wishlist";
 export * from "./order";
+export * from "./importOrder";
+
+// Common types
+export interface PagedResult<T> {
+  items: T[];
+  totalRecords: number;
+  totalItems: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  sortOrder?: "asc" | "desc";
+}

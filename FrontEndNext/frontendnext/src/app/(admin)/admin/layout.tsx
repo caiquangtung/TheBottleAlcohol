@@ -22,6 +22,7 @@ import {
   ShoppingCart,
   LogOut,
   Settings,
+  PackageOpen,
 } from "lucide-react";
 import FloatingDarkModeButton from "@/components/FloatingDarkModeButton";
 
@@ -34,6 +35,7 @@ const menu = [
   { label: "Suppliers", href: "/admin/suppliers", icon: Truck },
   { label: "Discounts", href: "/admin/discounts", icon: Percent },
   { label: "Inventory", href: "/admin/inventory", icon: Warehouse },
+  { label: "Import Orders", href: "/admin/import-orders", icon: PackageOpen },
   { label: "Recipes", href: "/admin/recipes", icon: ChefHat },
   { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Notifications", href: "/admin/notifications", icon: Bell },

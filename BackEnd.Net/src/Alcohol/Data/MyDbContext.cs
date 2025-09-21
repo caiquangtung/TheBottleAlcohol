@@ -387,7 +387,7 @@ namespace Alcohol.Data
                         entity.Property(e => e.EndDate).IsRequired();
                         entity.Property(e => e.IsActive).IsRequired();
                         entity.HasMany(e => e.Products)
-                              .WithMany()
+                              .WithMany(p => p.Discounts)
                               .UsingEntity(j => j.ToTable("DiscountProduct"));
                   });
 

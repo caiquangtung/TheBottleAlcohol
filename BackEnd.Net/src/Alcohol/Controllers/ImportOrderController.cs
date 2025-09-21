@@ -80,4 +80,57 @@ public class ImportOrderController : ControllerBase
             return NotFound(new ApiResponse<string>("Import order not found"));
         return Ok(new ApiResponse<string>("Import order deleted successfully"));
     }
-} 
+
+    [HttpPatch("{id}/approve")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> ApproveImportOrder(int id)
+    {
+        try
+        {
+            var importOrder = await _importOrderService.ApproveImportOrderAsync(id);
+            return Ok(new ApiResponse<ImportOrderResponseDto>(importOrder));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<string>(ex.Message));
+        }
+    }
+
+    [HttpPatch("{id}/complete")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> CompleteImportOrder(int id)
+    {
+        try
+        {
+            var importOrder = await _importOrderService.CompleteImportOrderAsync(id);
+            return Ok(new ApiResponse<ImportOrderResponseDto>(importOrder));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<string>(ex.Message));
+        }
+    }
+
+    [HttpPatch("{id}/cancel")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> CancelImportOrder(int id, [FromBody] CancelImportOrderRequest request)
+    {
+        try
+        {
+            var importOrder = await _importOrderService.CancelImportOrderAsync(id, request?.Reason);
+            return Ok(new ApiResponse<ImportOrderResponseDto>(importOrder));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ApiResponse<string>(ex.Message));
+        }
+    }
+
+    [HttpGet("stats")]
+    [Authorize(Roles = "Admin,Manager")]
+    public async Task<IActionResult> GetImportOrderStats()
+    {
+        var stats = await _importOrderService.GetImportOrderStatsAsync();
+        return Ok(new ApiResponse<ImportOrderStatsDto>(stats));
+    }
+}

@@ -84,6 +84,9 @@ builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<IInventoryTransactionService, InventoryTransactionService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+builder.Services.AddScoped<IProductDiscountService, ProductDiscountService>();
+builder.Services.AddScoped<DataMigrationService>();
+builder.Services.AddScoped<ProfitAnalysisService>();
 
 // Add PasswordHasher
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();

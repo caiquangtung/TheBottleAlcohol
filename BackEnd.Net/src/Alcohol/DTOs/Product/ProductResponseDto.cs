@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Alcohol.Models.Enums;
+using Alcohol.DTOs.Discount;
 
 namespace Alcohol.DTOs.Product;
 
@@ -31,4 +33,17 @@ public class ProductResponseDto
 
     public int? Age { get; set; }
     public string Flavor { get; set; }
+    
+    // Discount information
+    public decimal OriginalPrice { get; set; }
+    public decimal? DiscountedPrice { get; set; }
+    public List<DiscountResponseDto> ActiveDiscounts { get; set; }
+    public bool HasDiscount { get; set; }
+    public decimal? DiscountAmount { get; set; }
+    public decimal? DiscountPercentage { get; set; }
+    
+    public ProductResponseDto()
+    {
+        ActiveDiscounts = new List<DiscountResponseDto>();
+    }
 } 

@@ -2,6 +2,7 @@ import { API_ENDPOINTS } from "./endpoints";
 import { enhancedApi } from "./api";
 import { transformApiResponse } from "../utils/utils";
 import { Product } from "../types/product";
+import { Discount } from "../types/discount";
 import type {
   ProductFilter,
   ProductCreate,
@@ -113,6 +114,40 @@ export const productApi = enhancedApi.injectEndpoints({
       }),
       invalidatesTags: ["Product"],
     }),
+    // Discount-related endpoints
+    getProductWithDiscount: build.query<Product, number>({
+      query: (id) => ({
+        url: `${API_ENDPOINTS.PRODUCTS}/${id}/with-discount`,
+        method: "GET",
+      }),
+      transformResponse: (response) => transformApiResponse<Product>(response),
+      providesTags: ["Product"],
+    }),
+    getProductsWithDiscounts: build.query<Product[], void>({
+      query: () => ({
+        url: `${API_ENDPOINTS.PRODUCTS}/with-discounts`,
+        method: "GET",
+      }),
+      transformResponse: (response) =>
+        transformApiResponse<Product[]>(response),
+      providesTags: ["Product"],
+    }),
+    getDiscountedPrice: build.query<number, number>({
+      query: (id) => ({
+        url: `${API_ENDPOINTS.PRODUCTS}/${id}/discount-price`,
+        method: "GET",
+      }),
+      transformResponse: (response) => transformApiResponse<number>(response),
+    }),
+    getActiveDiscountsForProduct: build.query<Discount[], number>({
+      query: (id) => ({
+        url: `${API_ENDPOINTS.PRODUCTS}/${id}/active-discounts`,
+        method: "GET",
+      }),
+      transformResponse: (response) =>
+        transformApiResponse<Discount[]>(response),
+      providesTags: ["Discount"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -125,4 +160,9 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  // Discount-related hooks
+  useGetProductWithDiscountQuery,
+  useGetProductsWithDiscountsQuery,
+  useGetDiscountedPriceQuery,
+  useGetActiveDiscountsForProductQuery,
 } = productApi;

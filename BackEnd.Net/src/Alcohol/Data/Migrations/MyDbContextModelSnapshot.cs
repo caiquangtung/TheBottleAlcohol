@@ -740,6 +740,9 @@ namespace Alcohol.Data.Migrations
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("TargetMarginPercentage")
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -1094,13 +1097,13 @@ namespace Alcohol.Data.Migrations
 
             modelBuilder.Entity("DiscountProduct", b =>
                 {
-                    b.Property<int>("DiscountId")
+                    b.Property<int>("DiscountsId")
                         .HasColumnType("int");
 
                     b.Property<int>("ProductsId")
                         .HasColumnType("int");
 
-                    b.HasKey("DiscountId", "ProductsId");
+                    b.HasKey("DiscountsId", "ProductsId");
 
                     b.HasIndex("ProductsId");
 
@@ -1434,7 +1437,7 @@ namespace Alcohol.Data.Migrations
                 {
                     b.HasOne("Alcohol.Models.Discount", null)
                         .WithMany()
-                        .HasForeignKey("DiscountId")
+                        .HasForeignKey("DiscountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

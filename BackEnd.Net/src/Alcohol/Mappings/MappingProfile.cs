@@ -19,6 +19,8 @@ using Alcohol.DTOs.Recipe;
 using Alcohol.DTOs.Notification;
 using Alcohol.DTOs.Discount;
 using Alcohol.DTOs.Payment;
+using Alcohol.DTOs.Inventory;
+using Alcohol.DTOs.InventoryTransaction;
 
 namespace Alcohol.Mappings;
 
@@ -34,7 +36,13 @@ public class MappingProfile : Profile
         // Product mappings
         CreateMap<Product, ProductResponseDto>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-            .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null));
+            .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
+            .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.Price))
+            .ForMember(dest => dest.DiscountedPrice, opt => opt.Ignore())
+            .ForMember(dest => dest.ActiveDiscounts, opt => opt.Ignore())
+            .ForMember(dest => dest.HasDiscount, opt => opt.Ignore())
+            .ForMember(dest => dest.DiscountAmount, opt => opt.Ignore())
+            .ForMember(dest => dest.DiscountPercentage, opt => opt.Ignore());
         CreateMap<ProductCreateDto, Product>()
             .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Name.ToLower().Replace(" ", "-")))
             .ForMember(dest => dest.SalesCount, opt => opt.MapFrom(src => 0));
@@ -200,5 +208,33 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt));
         CreateMap<PaymentCreateDto, Payment>();
         CreateMap<PaymentUpdateDto, Payment>();
+
+        // Inventory mappings
+        CreateMap<Inventory, InventoryResponseDto>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : null));
+        CreateMap<InventoryCreateDto, Inventory>()
+            .ForMember(dest => dest.ReorderLevel, opt => opt.MapFrom(src => 10)) // Default reorder level
+            .ForMember(dest => dest.AverageCost, opt => opt.MapFrom(src => 0)) // Default average cost = 0
+            .ForMember(dest => dest.TotalValue, opt => opt.MapFrom(src => 0)) // Default total value = 0
+            .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+        CreateMap<InventoryUpdateDto, Inventory>()
+            .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+
+        // InventoryTransaction mappings
+        CreateMap<InventoryTransaction, InventoryTransactionResponseDto>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : null))
+            .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.TransactionType));
+        CreateMap<InventoryTransactionCreateDto, InventoryTransaction>()
+            .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => Enum.Parse<InventoryTransactionType>(src.Type, true)))
+            .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src => Enum.Parse<ReferenceType>(src.ReferenceType, true)))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => InventoryTransactionStatusType.Pending))
+            .ForMember(dest => dest.TransactionDate, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+        CreateMap<InventoryTransactionUpdateDto, InventoryTransaction>()
+            .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => Enum.Parse<InventoryTransactionType>(src.Type, true)))
+            .ForMember(dest => dest.ReferenceType, opt => opt.MapFrom(src => Enum.Parse<ReferenceType>(src.ReferenceType, true)))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
     }
 }
